@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "generated_at": "2026-01-29",
+  "tags": [
+    {
+      "id": "tag-vue",
+      "name": "Vue",
+      "slug": "vue",
+      "count": 1
+    },
+    {
+      "id": "tag-journal",
+      "name": "Journal",
+      "slug": "journal",
+      "count": 0
+    }
+  ]
+}

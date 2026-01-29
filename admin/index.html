@@ -1,0 +1,1052 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>本地后台 - DevLog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+      .hide-scrollbar::-webkit-scrollbar { display: none; }
+      .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 9999px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+        border: 1px solid #1f2937;
+        background: #111827;
+        color: #cbd5f5;
+        transition: all 0.2s ease;
+      }
+      .chip:hover { border-color: rgba(99, 102, 241, 0.5); color: #ffffff; }
+      .chip-active { background: rgba(99, 102, 241, 0.18); border-color: rgba(99, 102, 241, 0.6); color: #e0e7ff; }
+    </style>
+  </head>
+  <body class="bg-[#0f1115] text-gray-200 font-sans selection:bg-indigo-500/30">
+    <nav class="sticky top-0 z-50 bg-[#0f1115]/80 backdrop-blur-xl border-b border-gray-800">
+      <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+            <span class="iconify text-white text-xl" data-icon="lucide:terminal"></span>
+          </div>
+          <span class="text-xl font-bold tracking-tight text-white">DevLog<span class="text-indigo-500">_</span></span>
+        </div>
+        <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-400">
+          <button class="hover:text-white" onclick="setTab('posts')">文章</button>
+          <button class="hover:text-white" onclick="setTab('categories')">分类</button>
+          <button class="hover:text-white" onclick="setTab('tags')">标签</button>
+          <button class="hover:text-white" onclick="setTab('nav')">导航</button>
+          <button class="hover:text-white" onclick="setTab('publish')">发布</button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 py-8 min-h-[calc(100vh-144px)]">
+      <div id="status" class="hidden"></div>
+
+      <section id="tab-posts" class="animate-slide-up">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-2xl font-bold text-white">文章管理</h1>
+          <div class="flex items-center space-x-3">
+            <input
+              id="post-search"
+              class="bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5 text-sm w-64 focus:border-indigo-500 outline-none"
+              placeholder="搜索标题 / 摘要 / 分类 / 标签"
+            />
+            <div class="hidden md:flex items-center space-x-2 px-3 py-2 rounded-lg bg-gray-900 border border-gray-800 text-xs text-gray-400">
+              <span id="pinned-count">置顶 0/3</span>
+              <label class="flex items-center space-x-2">
+                <input id="auto-unpin" type="checkbox" class="w-4 h-4 rounded bg-gray-900 border-gray-800 text-indigo-600" checked />
+                <span>超限自动取消最旧置顶</span>
+              </label>
+            </div>
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm" onclick="openPostEditor()">新增文章</button>
+          </div>
+        </div>
+        <div class="bg-[#161b22] border border-gray-800 rounded-xl overflow-hidden">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-gray-900/50 text-gray-400 uppercase text-xs tracking-wider">
+              <tr>
+                <th class="px-6 py-4 font-semibold">标题</th>
+                <th class="px-6 py-4 font-semibold">状态</th>
+                <th class="px-6 py-4 font-semibold">日期</th>
+                <th class="px-6 py-4 font-semibold text-right">操作</th>
+              </tr>
+            </thead>
+            <tbody id="posts-body" class="divide-y divide-gray-800"></tbody>
+          </table>
+        </div>
+        <div class="flex items-center justify-between mt-4">
+          <div id="post-page-info" class="text-xs text-gray-500"></div>
+          <div class="flex items-center space-x-2">
+            <button id="post-prev" class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-40" onclick="prevPage()">上一页</button>
+            <div id="post-page-buttons" class="flex items-center space-x-2"></div>
+            <button id="post-next" class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-40" onclick="nextPage()">下一页</button>
+            <div class="flex items-center space-x-2 ml-2">
+              <input id="post-page-jump" class="w-16 bg-gray-900 border border-gray-800 rounded-md px-2 py-1 text-xs text-gray-200" placeholder="页数" />
+              <button class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700" onclick="jumpPage()">跳转</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-categories" class="hidden animate-slide-up">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-2xl font-bold text-white">分类管理</h1>
+          <div class="flex items-center space-x-3">
+            <input
+              id="category-search"
+              class="bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5 text-sm w-64 focus:border-indigo-500 outline-none"
+              placeholder="搜索分类名称 / Slug"
+            />
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm" onclick="openCategoryEditor()">新增分类</button>
+          </div>
+        </div>
+        <div class="bg-[#161b22] border border-gray-800 rounded-xl overflow-hidden">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-gray-900/50 text-gray-400 uppercase text-xs tracking-wider">
+              <tr>
+                <th class="px-6 py-4 font-semibold">名称</th>
+                <th class="px-6 py-4 font-semibold">Slug</th>
+                <th class="px-6 py-4 font-semibold text-right">操作</th>
+              </tr>
+            </thead>
+            <tbody id="categories-body" class="divide-y divide-gray-800"></tbody>
+          </table>
+        </div>
+        <div class="flex items-center justify-between mt-4">
+          <div id="categories-page-info" class="text-xs text-gray-500"></div>
+          <div class="flex items-center space-x-2">
+            <button id="categories-prev" class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-40" onclick="prevCategoryPage()">上一页</button>
+            <div id="categories-page-buttons" class="flex items-center space-x-2"></div>
+            <button id="categories-next" class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-40" onclick="nextCategoryPage()">下一页</button>
+            <div class="flex items-center space-x-2 ml-2">
+              <input id="categories-page-jump" class="w-16 bg-gray-900 border border-gray-800 rounded-md px-2 py-1 text-xs text-gray-200" placeholder="页数" />
+              <button class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700" onclick="jumpCategoryPage()">跳转</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-tags" class="hidden animate-slide-up">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-2xl font-bold text-white">标签管理</h1>
+          <div class="flex items-center space-x-3">
+            <input
+              id="tag-search"
+              class="bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5 text-sm w-64 focus:border-indigo-500 outline-none"
+              placeholder="搜索标签名称 / Slug"
+            />
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm" onclick="openTagEditor()">新增标签</button>
+          </div>
+        </div>
+        <div class="bg-[#161b22] border border-gray-800 rounded-xl overflow-hidden">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-gray-900/50 text-gray-400 uppercase text-xs tracking-wider">
+              <tr>
+                <th class="px-6 py-4 font-semibold">名称</th>
+                <th class="px-6 py-4 font-semibold">Slug</th>
+                <th class="px-6 py-4 font-semibold text-right">操作</th>
+              </tr>
+            </thead>
+            <tbody id="tags-body" class="divide-y divide-gray-800"></tbody>
+          </table>
+        </div>
+        <div class="flex items-center justify-between mt-4">
+          <div id="tags-page-info" class="text-xs text-gray-500"></div>
+          <div class="flex items-center space-x-2">
+            <button id="tags-prev" class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-40" onclick="prevTagPage()">上一页</button>
+            <div id="tags-page-buttons" class="flex items-center space-x-2"></div>
+            <button id="tags-next" class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-40" onclick="nextTagPage()">下一页</button>
+            <div class="flex items-center space-x-2 ml-2">
+              <input id="tags-page-jump" class="w-16 bg-gray-900 border border-gray-800 rounded-md px-2 py-1 text-xs text-gray-200" placeholder="页数" />
+              <button class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700" onclick="jumpTagPage()">跳转</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-nav" class="hidden animate-slide-up">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-2xl font-bold text-white">导航管理</h1>
+          <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm" onclick="openNavEditor()">新增导航</button>
+        </div>
+        <div class="bg-[#161b22] border border-gray-800 rounded-xl overflow-hidden">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-gray-900/50 text-gray-400 uppercase text-xs tracking-wider">
+              <tr>
+                <th class="px-6 py-4 font-semibold">名称</th>
+                <th class="px-6 py-4 font-semibold">链接</th>
+                <th class="px-6 py-4 font-semibold">顺序</th>
+                <th class="px-6 py-4 font-semibold">显示</th>
+                <th class="px-6 py-4 font-semibold text-right">操作</th>
+              </tr>
+            </thead>
+            <tbody id="nav-body" class="divide-y divide-gray-800"></tbody>
+          </table>
+        </div>
+        <div class="flex items-center justify-between mt-4">
+          <div id="nav-page-info" class="text-xs text-gray-500"></div>
+          <div class="flex items-center space-x-2">
+            <button id="nav-prev" class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-40" onclick="prevNavPage()">上一页</button>
+            <div id="nav-page-buttons" class="flex items-center space-x-2"></div>
+            <button id="nav-next" class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-40" onclick="nextNavPage()">下一页</button>
+            <div class="flex items-center space-x-2 ml-2">
+              <input id="nav-page-jump" class="w-16 bg-gray-900 border border-gray-800 rounded-md px-2 py-1 text-xs text-gray-200" placeholder="页数" />
+              <button class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700" onclick="jumpNavPage()">跳转</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-publish" class="hidden animate-slide-up">
+        <h1 class="text-2xl font-bold text-white mb-6">发布</h1>
+        <div class="bg-[#161b22] border border-gray-800 rounded-xl p-6 space-y-4">
+          <button class="bg-gray-800 hover:bg-gray-700 text-gray-200 px-4 py-2 rounded-lg text-sm" onclick="generateJson()">仅生成 JSON</button>
+          <div class="flex items-center space-x-3">
+            <input id="publish-title" class="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5 focus:border-indigo-500 outline-none" placeholder="提交标题（用于 git commit）" />
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm" onclick="publish()">发布并推送</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="editor" class="fixed inset-0 z-50 bg-[#0f1115]/95 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-[#161b22] border border-gray-800 w-full max-w-4xl rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+          <h2 id="editor-title" class="text-lg font-bold">编辑</h2>
+          <button class="text-gray-500 hover:text-white" onclick="closeEditor()"><span class="iconify text-2xl" data-icon="lucide:x"></span></button>
+        </div>
+        <div class="p-6 overflow-y-auto hide-scrollbar flex-1" id="editor-body"></div>
+        <div class="p-4 border-t border-gray-800 flex items-center justify-between">
+          <button class="px-6 py-2 text-gray-400 hover:text-white text-sm font-medium" onclick="closeEditor()">取消</button>
+          <button id="editor-save" class="bg-indigo-600 px-8 py-2 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition-colors">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="fixed left-1/2 top-6 -translate-x-1/2 z-50 hidden">
+      <div id="toast-body" class="px-4 py-3 rounded-lg text-sm border border-gray-800 bg-[#161b22] text-gray-200 shadow-xl"></div>
+    </div>
+
+    <script>
+      let posts = [];
+      let categories = [];
+      let tags = [];
+      let navItems = [];
+      let categoryNameMap = {};
+      let tagNameMap = {};
+      let currentPage = 1;
+      const pageSize = 10;
+      let searchQuery = '';
+      let currentCategoryPage = 1;
+      let currentTagPage = 1;
+      let currentNavPage = 1;
+      let categorySearchQuery = '';
+      let tagSearchQuery = '';
+      let autoUnpinOnLimit = true;
+
+      function setStatus(text, isError) {
+        if (!text) return;
+        showToast(text, !!isError);
+      }
+
+      function showToast(message, isError) {
+        const toast = document.getElementById('toast');
+        const body = document.getElementById('toast-body');
+        body.textContent = message;
+        body.className = isError
+          ? 'px-4 py-3 rounded-lg text-sm border border-red-500/40 bg-[#1a0f12] text-red-200 shadow-xl'
+          : 'px-4 py-3 rounded-lg text-sm border border-emerald-500/30 bg-[#0f1a14] text-emerald-200 shadow-xl';
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), isError ? 1000 : 2000);
+      }
+
+      function statusLabel(status) {
+        return status === 'published' ? '已发布' : '草稿';
+      }
+
+      function todayISO() {
+        const d = new Date();
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      }
+
+      function setTab(name) {
+        ['posts', 'categories', 'tags', 'nav', 'publish'].forEach((tab) => {
+          const el = document.getElementById(`tab-${tab}`);
+          el.classList.toggle('hidden', tab !== name);
+        });
+      }
+
+      async function api(path, options = {}) {
+        const res = await fetch(path, {
+          headers: { 'Content-Type': 'application/json' },
+          ...options,
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || '请求失败');
+        }
+        return res.json().catch(() => ({}));
+      }
+
+      function getFilteredPosts() {
+        const query = searchQuery.trim().toLowerCase();
+        if (!query) return posts.slice();
+        return posts.filter((p) => {
+          const title = String(p.title || '').toLowerCase();
+          const summary = String(p.summary || '').toLowerCase();
+          const categoryIds = Array.isArray(p.categories) ? p.categories : [];
+          const tagIds = Array.isArray(p.tags) ? p.tags : [];
+          const categoryNames = categoryIds.map((id) => String(categoryNameMap[id] || '')).join(' ');
+          const tagNames = tagIds.map((id) => String(tagNameMap[id] || '')).join(' ');
+          const categoriesText = categoryIds.join(' ') + ' ' + categoryNames;
+          const tagsText = tagIds.join(' ') + ' ' + tagNames;
+          return (
+            title.includes(query) ||
+            summary.includes(query) ||
+            categoriesText.toLowerCase().includes(query) ||
+            tagsText.toLowerCase().includes(query)
+          );
+        });
+      }
+
+      function renderPageButtons(containerId, current, totalPages, goTo) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        const maxButtons = 7;
+        let start = Math.max(1, current - Math.floor(maxButtons / 2));
+        let end = Math.min(totalPages, start + maxButtons - 1);
+        if (end - start + 1 < maxButtons) {
+          start = Math.max(1, end - maxButtons + 1);
+        }
+
+        if (start > 1) {
+          const firstBtn = document.createElement('button');
+          firstBtn.className = 'px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700';
+          firstBtn.textContent = '1';
+          firstBtn.onclick = () => goTo(1);
+          container.appendChild(firstBtn);
+          if (start > 2) {
+            const dots = document.createElement('span');
+            dots.className = 'text-xs text-gray-500';
+            dots.textContent = '...';
+            container.appendChild(dots);
+          }
+        }
+
+        for (let i = start; i <= end; i += 1) {
+          const btn = document.createElement('button');
+          btn.className = i === current
+            ? 'px-3 py-1.5 text-xs rounded-md bg-indigo-600 text-white'
+            : 'px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700';
+          btn.textContent = String(i);
+          btn.onclick = () => goTo(i);
+          container.appendChild(btn);
+        }
+
+        if (end < totalPages) {
+          if (end < totalPages - 1) {
+            const dots = document.createElement('span');
+            dots.className = 'text-xs text-gray-500';
+            dots.textContent = '...';
+            container.appendChild(dots);
+          }
+          const lastBtn = document.createElement('button');
+          lastBtn.className = 'px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700';
+          lastBtn.textContent = String(totalPages);
+          lastBtn.onclick = () => goTo(totalPages);
+          container.appendChild(lastBtn);
+        }
+      }
+
+      function renderPosts() {
+        const filtered = getFilteredPosts().slice().sort((a, b) => {
+          const ap = a.pinned ? 1 : 0;
+          const bp = b.pinned ? 1 : 0;
+          if (ap !== bp) return bp - ap;
+          const ad = a.created_at || a.updated_at || '';
+          const bd = b.created_at || b.updated_at || '';
+          return bd.localeCompare(ad);
+        });
+        const total = filtered.length;
+        const totalPages = Math.max(1, Math.ceil(total / pageSize));
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        const start = (currentPage - 1) * pageSize;
+        const pageItems = filtered.slice(start, start + pageSize);
+        const body = document.getElementById('posts-body');
+        body.innerHTML = pageItems.map((p) => `
+          <tr class="hover:bg-gray-800/30 transition-colors">
+            <td class="px-6 py-4 text-gray-200 font-medium">
+              ${p.title}
+              ${p.pinned ? '<span class="ml-2 px-2 py-0.5 text-xs rounded-full border border-indigo-500/40 text-indigo-300 bg-indigo-500/10">置顶</span>' : ''}
+            </td>
+            <td class="px-6 py-4">${statusLabel(p.status)}</td>
+            <td class="px-6 py-4 text-gray-500">${p.created_at || p.updated_at || ''}</td>
+            <td class="px-6 py-4 text-right space-x-3">
+              <button class="text-gray-400 hover:text-indigo-400" onclick="openPostEditor('${p.id}')"><span class="iconify" data-icon="lucide:edit-3"></span></button>
+              <button class="text-gray-400 hover:text-red-400" onclick="deletePost('${p.id}')"><span class="iconify" data-icon="lucide:trash-2"></span></button>
+            </td>
+          </tr>
+        `).join('');
+
+        const info = document.getElementById('post-page-info');
+        if (info) {
+          info.textContent = total === 0 ? '暂无数据' : `第 ${currentPage} / ${totalPages} 页，共 ${total} 篇`;
+        }
+        const prevBtn = document.getElementById('post-prev');
+        const nextBtn = document.getElementById('post-next');
+        if (prevBtn) prevBtn.disabled = currentPage <= 1;
+        if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+        renderPageButtons('post-page-buttons', currentPage, totalPages, goToPage);
+
+        const pinnedCount = posts.filter((p) => p.pinned).length;
+        const pinnedEl = document.getElementById('pinned-count');
+        if (pinnedEl) pinnedEl.textContent = `置顶 ${pinnedCount}/3`;
+      }
+
+      function prevPage() {
+        if (currentPage > 1) {
+          currentPage -= 1;
+          renderPosts();
+        }
+      }
+
+      function nextPage() {
+        currentPage += 1;
+        renderPosts();
+      }
+
+      function goToPage(page) {
+        const target = Number(page);
+        if (!Number.isFinite(target)) return;
+        currentPage = Math.max(1, target);
+        renderPosts();
+      }
+
+      function jumpPage() {
+        const input = document.getElementById('post-page-jump');
+        if (!input) return;
+        const value = Number(String(input.value || '').trim());
+        if (!Number.isFinite(value) || value < 1) return;
+        goToPage(value);
+      }
+
+      function goToCategoryPage(page) {
+        const target = Number(page);
+        if (!Number.isFinite(target)) return;
+        currentCategoryPage = Math.max(1, target);
+        renderCategories();
+      }
+
+      function prevCategoryPage() {
+        if (currentCategoryPage > 1) {
+          currentCategoryPage -= 1;
+          renderCategories();
+        }
+      }
+
+      function nextCategoryPage() {
+        currentCategoryPage += 1;
+        renderCategories();
+      }
+
+      function jumpCategoryPage() {
+        const input = document.getElementById('categories-page-jump');
+        if (!input) return;
+        const value = Number(String(input.value || '').trim());
+        if (!Number.isFinite(value) || value < 1) return;
+        goToCategoryPage(value);
+      }
+
+      function goToTagPage(page) {
+        const target = Number(page);
+        if (!Number.isFinite(target)) return;
+        currentTagPage = Math.max(1, target);
+        renderTags();
+      }
+
+      function prevTagPage() {
+        if (currentTagPage > 1) {
+          currentTagPage -= 1;
+          renderTags();
+        }
+      }
+
+      function nextTagPage() {
+        currentTagPage += 1;
+        renderTags();
+      }
+
+      function jumpTagPage() {
+        const input = document.getElementById('tags-page-jump');
+        if (!input) return;
+        const value = Number(String(input.value || '').trim());
+        if (!Number.isFinite(value) || value < 1) return;
+        goToTagPage(value);
+      }
+
+      function goToNavPage(page) {
+        const target = Number(page);
+        if (!Number.isFinite(target)) return;
+        currentNavPage = Math.max(1, target);
+        renderNav();
+      }
+
+      function prevNavPage() {
+        if (currentNavPage > 1) {
+          currentNavPage -= 1;
+          renderNav();
+        }
+      }
+
+      function nextNavPage() {
+        currentNavPage += 1;
+        renderNav();
+      }
+
+      function jumpNavPage() {
+        const input = document.getElementById('nav-page-jump');
+        if (!input) return;
+        const value = Number(String(input.value || '').trim());
+        if (!Number.isFinite(value) || value < 1) return;
+        goToNavPage(value);
+      }
+
+      function paginateList(list, current) {
+        const total = list.length;
+        const totalPages = Math.max(1, Math.ceil(total / pageSize));
+        let safeCurrent = current;
+        if (safeCurrent > totalPages) safeCurrent = totalPages;
+        if (safeCurrent < 1) safeCurrent = 1;
+        const start = (safeCurrent - 1) * pageSize;
+        const pageItems = list.slice(start, start + pageSize);
+        return { pageItems, total, totalPages, current: safeCurrent };
+      }
+
+      function getFilteredCategories() {
+        const query = categorySearchQuery.trim().toLowerCase();
+        if (!query) return categories.slice();
+        return categories.filter((c) => {
+          const name = String(c.name || '').toLowerCase();
+          const slug = String(c.slug || '').toLowerCase();
+          return name.includes(query) || slug.includes(query);
+        });
+      }
+
+      function getFilteredTags() {
+        const query = tagSearchQuery.trim().toLowerCase();
+        if (!query) return tags.slice();
+        return tags.filter((t) => {
+          const name = String(t.name || '').toLowerCase();
+          const slug = String(t.slug || '').toLowerCase();
+          return name.includes(query) || slug.includes(query);
+        });
+      }
+
+      function renderCategories() {
+        const filtered = getFilteredCategories();
+        const { pageItems, total, totalPages, current } = paginateList(filtered, currentCategoryPage);
+        currentCategoryPage = current;
+        const body = document.getElementById('categories-body');
+        body.innerHTML = pageItems.map((c) => `
+          <tr class="hover:bg-gray-800/30 transition-colors">
+            <td class="px-6 py-4 text-gray-200 font-medium">
+              <span class="inline-block w-2.5 h-2.5 rounded-full mr-2 align-middle" style="background:${c.color || '#6366f1'}"></span>
+              ${c.name}
+            </td>
+            <td class="px-6 py-4 text-gray-500">${c.slug}</td>
+            <td class="px-6 py-4 text-right space-x-3">
+              <button class="text-gray-400 hover:text-indigo-400" onclick="openCategoryEditor('${c.id}')"><span class="iconify" data-icon="lucide:edit-3"></span></button>
+              <button class="text-gray-400 hover:text-red-400" onclick="deleteCategory('${c.id}')"><span class="iconify" data-icon="lucide:trash-2"></span></button>
+            </td>
+          </tr>
+        `).join('');
+
+        const info = document.getElementById('categories-page-info');
+        if (info) {
+          info.textContent = total === 0 ? '暂无数据' : `第 ${currentCategoryPage} / ${totalPages} 页，共 ${total} 条`;
+        }
+        const prevBtn = document.getElementById('categories-prev');
+        const nextBtn = document.getElementById('categories-next');
+        if (prevBtn) prevBtn.disabled = currentCategoryPage <= 1;
+        if (nextBtn) nextBtn.disabled = currentCategoryPage >= totalPages;
+        renderPageButtons('categories-page-buttons', currentCategoryPage, totalPages, goToCategoryPage);
+      }
+
+      function renderTags() {
+        const filtered = getFilteredTags();
+        const { pageItems, total, totalPages, current } = paginateList(filtered, currentTagPage);
+        currentTagPage = current;
+        const body = document.getElementById('tags-body');
+        body.innerHTML = pageItems.map((t) => `
+          <tr class="hover:bg-gray-800/30 transition-colors">
+            <td class="px-6 py-4 text-gray-200 font-medium">${t.name}</td>
+            <td class="px-6 py-4 text-gray-500">${t.slug}</td>
+            <td class="px-6 py-4 text-right space-x-3">
+              <button class="text-gray-400 hover:text-indigo-400" onclick="openTagEditor('${t.id}')"><span class="iconify" data-icon="lucide:edit-3"></span></button>
+              <button class="text-gray-400 hover:text-red-400" onclick="deleteTag('${t.id}')"><span class="iconify" data-icon="lucide:trash-2"></span></button>
+            </td>
+          </tr>
+        `).join('');
+
+        const info = document.getElementById('tags-page-info');
+        if (info) {
+          info.textContent = total === 0 ? '暂无数据' : `第 ${currentTagPage} / ${totalPages} 页，共 ${total} 条`;
+        }
+        const prevBtn = document.getElementById('tags-prev');
+        const nextBtn = document.getElementById('tags-next');
+        if (prevBtn) prevBtn.disabled = currentTagPage <= 1;
+        if (nextBtn) nextBtn.disabled = currentTagPage >= totalPages;
+        renderPageButtons('tags-page-buttons', currentTagPage, totalPages, goToTagPage);
+      }
+
+      function renderNav() {
+        const { pageItems, total, totalPages, current } = paginateList(navItems, currentNavPage);
+        currentNavPage = current;
+        const body = document.getElementById('nav-body');
+        body.innerHTML = pageItems.map((n) => `
+          <tr class="hover:bg-gray-800/30 transition-colors">
+            <td class="px-6 py-4 text-gray-200 font-medium">${n.label}</td>
+            <td class="px-6 py-4 text-gray-500">${n.href}</td>
+            <td class="px-6 py-4 text-gray-500">${n.order}</td>
+            <td class="px-6 py-4 text-gray-500">${n.visible ? '是' : '否'}</td>
+            <td class="px-6 py-4 text-right space-x-3">
+              <button class="text-gray-400 hover:text-indigo-400" onclick="openNavEditor('${n.id}')"><span class="iconify" data-icon="lucide:edit-3"></span></button>
+              <button class="text-gray-400 hover:text-red-400" onclick="deleteNav('${n.id}')"><span class="iconify" data-icon="lucide:trash-2"></span></button>
+            </td>
+          </tr>
+        `).join('');
+
+        const info = document.getElementById('nav-page-info');
+        if (info) {
+          info.textContent = total === 0 ? '暂无数据' : `第 ${currentNavPage} / ${totalPages} 页，共 ${total} 条`;
+        }
+        const prevBtn = document.getElementById('nav-prev');
+        const nextBtn = document.getElementById('nav-next');
+        if (prevBtn) prevBtn.disabled = currentNavPage <= 1;
+        if (nextBtn) nextBtn.disabled = currentNavPage >= totalPages;
+        renderPageButtons('nav-page-buttons', currentNavPage, totalPages, goToNavPage);
+      }
+
+      function openEditor(title, bodyHtml, onSave) {
+        document.getElementById('editor-title').textContent = title;
+        document.getElementById('editor-body').innerHTML = bodyHtml;
+        const saveBtn = document.getElementById('editor-save');
+        saveBtn.onclick = onSave;
+        document.getElementById('editor').classList.remove('hidden');
+        document.getElementById('editor').classList.add('flex');
+      }
+
+      function closeEditor() {
+        document.getElementById('editor').classList.add('hidden');
+        document.getElementById('editor').classList.remove('flex');
+      }
+
+      function parseCsv(value) {
+        return String(value || '')
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+
+      function updateChips(containerId, items, inputId) {
+        const container = document.getElementById(containerId);
+        const input = document.getElementById(inputId);
+        if (!container || !input) return;
+        const selected = new Set(parseCsv(input.value));
+        container.innerHTML = items.map((item) => {
+          const active = selected.has(item.id);
+          return `
+            <button
+              class="chip ${active ? 'chip-active' : ''}"
+              data-id="${item.id}"
+              type="button"
+            >
+              ${item.name}
+            </button>
+          `;
+        }).join('');
+
+        container.querySelectorAll('button.chip').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const next = new Set(parseCsv(input.value));
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            input.value = Array.from(next).join(', ');
+            updateChips(containerId, items, inputId);
+          });
+        });
+      }
+
+      function postForm(post) {
+        const catValues = (post?.categories || []).join(', ');
+        const tagValues = (post?.tags || []).join(', ');
+        const createdValue = post?.created_at || todayISO();
+        const pinnedChecked = post?.pinned ? 'checked' : '';
+        return `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">标题</label>
+                <input id="post-title" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${post?.title || ''}" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Slug</label>
+                <input id="post-slug" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${post?.slug || ''}" />
+                <p class="text-xs text-gray-500 mt-2">用于文章链接地址，建议英文小写 + 短横线（如：my-first-post）</p>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">摘要</label>
+                <textarea id="post-summary" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5">${post?.summary || ''}</textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">封面 URL</label>
+                <input id="post-cover" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${post?.cover || ''}" />
+              </div>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">分类（点击卡片选择 / 取消）</label>
+                <input id="post-categories" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${catValues}" placeholder="cat-tech, cat-life" />
+                <div class="mt-3 flex flex-wrap gap-2" id="cat-chips"></div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">标签（点击卡片选择 / 取消）</label>
+                <input id="post-tags" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${tagValues}" placeholder="tag-vue, tag-journal" />
+                <div class="mt-3 flex flex-wrap gap-2" id="tag-chips"></div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">状态</label>
+                <select id="post-status" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5">
+                  <option value="draft" ${post?.status === 'draft' ? 'selected' : ''}>草稿</option>
+                  <option value="published" ${post?.status === 'published' ? 'selected' : ''}>已发布</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">发布时间</label>
+                <input id="post-created-at" type="date" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${createdValue}" />
+              </div>
+              <div class="flex items-center space-x-2">
+                <input id="post-pinned" type="checkbox" class="w-4 h-4 rounded bg-gray-900 border-gray-800 text-indigo-600" ${pinnedChecked} />
+                <label class="text-sm text-gray-400">置顶</label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">正文（Markdown）</label>
+            <textarea id="post-content" class="w-full h-80 bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 font-mono text-sm leading-relaxed">${post?.content || ''}</textarea>
+          </div>
+        `;
+      }
+
+      function openPostEditor(id) {
+        const post = posts.find((p) => p.id === id);
+        openEditor(post ? '编辑文章' : '新增文章', postForm(post), async () => {
+          const payload = {
+            title: document.getElementById('post-title').value.trim(),
+            slug: document.getElementById('post-slug').value.trim(),
+            summary: document.getElementById('post-summary').value.trim(),
+            cover: document.getElementById('post-cover').value.trim(),
+            categories: parseCsv(document.getElementById('post-categories').value),
+            tags: parseCsv(document.getElementById('post-tags').value),
+            status: document.getElementById('post-status').value,
+            created_at: document.getElementById('post-created-at').value,
+            pinned: document.getElementById('post-pinned').checked,
+            content: document.getElementById('post-content').value,
+          };
+          if (!payload.title || !payload.summary || !payload.content) {
+            return setStatus('标题、摘要、正文为必填', true);
+          }
+          const pinnedCount = posts.filter((p) => p.pinned).length;
+          const willPinNew = payload.pinned && (!post || !post.pinned);
+          if (willPinNew && pinnedCount >= 3) {
+            if (!autoUnpinOnLimit) {
+              return setStatus('置顶最多只能有 3 篇', true);
+            }
+            const pinnedPosts = posts
+              .filter((p) => p.pinned && (!post || p.id !== post.id))
+              .sort((a, b) => {
+                const ad = a.updated_at || a.created_at || '';
+                const bd = b.updated_at || b.created_at || '';
+                return ad.localeCompare(bd);
+              });
+            const toUnpin = pinnedPosts[0];
+            if (toUnpin) {
+              await api(`/api/posts/${toUnpin.id}`, { method: 'PUT', body: JSON.stringify({ pinned: false }) });
+            }
+          }
+          if (post) {
+            await api(`/api/posts/${post.id}`, {
+              method: 'PUT',
+              body: JSON.stringify({ ...payload, auto_unpin: autoUnpinOnLimit }),
+            });
+          } else {
+            await api('/api/posts', {
+              method: 'POST',
+              body: JSON.stringify({ ...payload, auto_unpin: autoUnpinOnLimit }),
+            });
+          }
+          await loadAll();
+          closeEditor();
+        });
+
+        updateChips('cat-chips', categories, 'post-categories');
+        updateChips('tag-chips', tags, 'post-tags');
+
+        document.getElementById('post-categories').addEventListener('input', () => {
+          updateChips('cat-chips', categories, 'post-categories');
+        });
+        document.getElementById('post-tags').addEventListener('input', () => {
+          updateChips('tag-chips', tags, 'post-tags');
+        });
+      }
+
+      async function deletePost(id) {
+        if (!confirm('确定删除文章？')) return;
+        await api(`/api/posts/${id}`, { method: 'DELETE' });
+        await loadAll();
+      }
+
+      function openCategoryEditor(id) {
+        const cat = categories.find((c) => c.id === id);
+        openEditor(cat ? '编辑分类' : '新增分类', `
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">名称</label>
+              <input id="cat-name" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${cat?.name || ''}" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Slug</label>
+              <input id="cat-slug" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${cat?.slug || ''}" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">颜色</label>
+              <div class="flex items-center space-x-3">
+                <input id="cat-color" type="color" class="w-10 h-10 rounded bg-gray-900 border border-gray-800" value="${cat?.color || '#6366f1'}" />
+                <input id="cat-color-text" class="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${cat?.color || '#6366f1'}" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">描述</label>
+              <textarea id="cat-desc" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5">${cat?.description || ''}</textarea>
+            </div>
+          </div>
+        `, async () => {
+          const payload = {
+            name: document.getElementById('cat-name').value.trim(),
+            slug: document.getElementById('cat-slug').value.trim(),
+            description: document.getElementById('cat-desc').value.trim(),
+            color: document.getElementById('cat-color-text').value.trim(),
+          };
+          if (!payload.name) return setStatus('分类名称为必填', true);
+          if (cat) await api(`/api/categories/${cat.id}`, { method: 'PUT', body: JSON.stringify(payload) });
+          else await api('/api/categories', { method: 'POST', body: JSON.stringify(payload) });
+          await loadAll();
+          closeEditor();
+        });
+
+        const colorPicker = document.getElementById('cat-color');
+        const colorText = document.getElementById('cat-color-text');
+        if (colorPicker && colorText) {
+          colorPicker.addEventListener('input', (e) => {
+            colorText.value = e.target.value;
+          });
+          colorText.addEventListener('input', (e) => {
+            colorPicker.value = e.target.value || '#6366f1';
+          });
+        }
+      }
+
+      async function deleteCategory(id) {
+        if (!confirm('确定删除分类？')) return;
+        await api(`/api/categories/${id}`, { method: 'DELETE' });
+        await loadAll();
+      }
+
+      function openTagEditor(id) {
+        const tag = tags.find((t) => t.id === id);
+        openEditor(tag ? '编辑标签' : '新增标签', `
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">名称</label>
+              <input id="tag-name" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${tag?.name || ''}" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Slug</label>
+              <input id="tag-slug" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${tag?.slug || ''}" />
+            </div>
+          </div>
+        `, async () => {
+          const payload = {
+            name: document.getElementById('tag-name').value.trim(),
+            slug: document.getElementById('tag-slug').value.trim(),
+          };
+          if (!payload.name) return setStatus('标签名称为必填', true);
+          if (tag) await api(`/api/tags/${tag.id}`, { method: 'PUT', body: JSON.stringify(payload) });
+          else await api('/api/tags', { method: 'POST', body: JSON.stringify(payload) });
+          await loadAll();
+          closeEditor();
+        });
+      }
+
+      async function deleteTag(id) {
+        if (!confirm('确定删除标签？')) return;
+        await api(`/api/tags/${id}`, { method: 'DELETE' });
+        await loadAll();
+      }
+
+      function openNavEditor(id) {
+        const item = navItems.find((n) => n.id === id);
+        openEditor(item ? '编辑导航' : '新增导航', `
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">名称</label>
+              <input id="nav-label" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${item?.label || ''}" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">链接</label>
+              <input id="nav-href" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${item?.href || ''}" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">顺序</label>
+              <input id="nav-order" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${item?.order || ''}" />
+            </div>
+            <div class="flex items-center space-x-2">
+              <input id="nav-visible" type="checkbox" class="w-4 h-4 rounded bg-gray-900 border-gray-800 text-indigo-600" ${item?.visible !== false ? 'checked' : ''} />
+              <label class="text-sm text-gray-400">显示</label>
+            </div>
+          </div>
+        `, async () => {
+          const payload = {
+            label: document.getElementById('nav-label').value.trim(),
+            href: document.getElementById('nav-href').value.trim(),
+            order: Number(document.getElementById('nav-order').value || 0),
+            visible: document.getElementById('nav-visible').checked,
+          };
+          if (!payload.label || !payload.href) return setStatus('导航名称和链接为必填', true);
+          if (item) await api(`/api/nav/${item.id}`, { method: 'PUT', body: JSON.stringify(payload) });
+          else await api('/api/nav', { method: 'POST', body: JSON.stringify(payload) });
+          await loadAll();
+          closeEditor();
+        });
+      }
+
+      async function deleteNav(id) {
+        if (!confirm('确定删除导航？')) return;
+        await api(`/api/nav/${id}`, { method: 'DELETE' });
+        await loadAll();
+      }
+
+      async function generateJson() {
+        await api('/api/generate', { method: 'POST' });
+        showToast('已生成 JSON 文件', false);
+      }
+
+      async function publish() {
+        const title = document.getElementById('publish-title').value.trim();
+        if (!title) return setStatus('请输入提交标题', true);
+        await api('/api/publish', { method: 'POST', body: JSON.stringify({ title }) });
+        showToast('发布成功并推送', false);
+      }
+
+      async function loadAll() {
+        try {
+          [posts, categories, tags, navItems] = await Promise.all([
+            api('/api/posts'),
+            api('/api/categories'),
+            api('/api/tags'),
+            api('/api/nav').catch(() => []),
+          ]);
+          categoryNameMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
+          tagNameMap = Object.fromEntries(tags.map((t) => [t.id, t.name]));
+          renderPosts();
+          renderCategories();
+          renderTags();
+          renderNav();
+          
+        } catch (err) {
+          setStatus(err.message || '加载失败', true);
+        }
+      }
+
+      const searchInput = document.getElementById('post-search');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          searchQuery = e.target.value || '';
+          currentPage = 1;
+          renderPosts();
+        });
+      }
+
+      const autoUnpinInput = document.getElementById('auto-unpin');
+      if (autoUnpinInput) {
+        autoUnpinInput.addEventListener('change', (e) => {
+          autoUnpinOnLimit = e.target.checked;
+        });
+      }
+
+      const categorySearchInput = document.getElementById('category-search');
+      if (categorySearchInput) {
+        categorySearchInput.addEventListener('input', (e) => {
+          categorySearchQuery = e.target.value || '';
+          currentCategoryPage = 1;
+          renderCategories();
+        });
+      }
+
+      const tagSearchInput = document.getElementById('tag-search');
+      if (tagSearchInput) {
+        tagSearchInput.addEventListener('input', (e) => {
+          tagSearchQuery = e.target.value || '';
+          currentTagPage = 1;
+          renderTags();
+        });
+      }
+
+      const jumpInput = document.getElementById('post-page-jump');
+      if (jumpInput) {
+        jumpInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') jumpPage();
+        });
+      }
+
+      const jumpCategoryInput = document.getElementById('categories-page-jump');
+      if (jumpCategoryInput) {
+        jumpCategoryInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') jumpCategoryPage();
+        });
+      }
+
+      const jumpTagInput = document.getElementById('tags-page-jump');
+      if (jumpTagInput) {
+        jumpTagInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') jumpTagPage();
+        });
+      }
+
+      const jumpNavInput = document.getElementById('nav-page-jump');
+      if (jumpNavInput) {
+        jumpNavInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') jumpNavPage();
+        });
+      }
+
+      setTab('posts');
+      loadAll();
+    </script>
+  </body>
+</html>

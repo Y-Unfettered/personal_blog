@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "generated_at": "2026-01-29",
+  "categories": [
+    {
+      "id": "cat-tech",
+      "name": "Tech",
+      "slug": "tech",
+      "description": "Tech notes and experiments",
+      "count": 1
+    },
+    {
+      "id": "cat-life",
+      "name": "Life",
+      "slug": "life",
+      "description": "Personal thoughts",
+      "count": 0
+    }
+  ]
+}

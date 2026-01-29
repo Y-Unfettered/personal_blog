@@ -1,0 +1,12 @@
+[
+  {
+    "id": "tag-vue",
+    "name": "Vue",
+    "slug": "vue"
+  },
+  {
+    "id": "tag-journal",
+    "name": "Journal",
+    "slug": "journal"
+  }
+]

@@ -1,0 +1,379 @@
+
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>个人博客网站 - 2026版</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+<style>
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+    
+    .markdown-content p { color: #9ca3af; margin-bottom: 1rem; line-height: 1.7; }
+    .markdown-content h2 { color: #f3f4f6; font-size: 1.5rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; }
+    .markdown-content code { background: #1f2937; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: monospace; }
+  </style>
+</head>
+<body class="bg-[#0f1115] text-gray-200 font-sans selection:bg-indigo-500/30">
+<!-- 顶部导航 -->
+<nav class="sticky top-0 z-50 bg-[#0f1115]/80 backdrop-blur-xl border-b border-gray-800">
+<div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+<div class="flex items-center space-x-3 group cursor-pointer" onclick="switchTab('home')">
+<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center group-hover:rotate-12 transition-transform">
+<span class="iconify text-white text-xl" data-icon="lucide:terminal"></span>
+</div>
+<span class="text-xl font-bold tracking-tight text-white">DevLog<span class="text-indigo-500">_</span></span>
+</div>
+<div class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-400">
+<button class="hover:text-white transition-colors" onclick="switchTab('home')">文章封面</button>
+<button class="hover:text-white transition-colors" onclick="switchTab('categories')">全部分类</button>
+<button class="hover:text-white transition-colors" onclick="switchTab('about')">关于作者</button>
+<button class="px-4 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-md transition-all flex items-center" onclick="switchTab('admin')">
+<span class="iconify mr-2" data-icon="lucide:settings-2"></span>后台管理
+        </button>
+</div>
+<button class="md:hidden text-gray-400">
+<span class="iconify text-2xl" data-icon="lucide:menu"></span>
+</button>
+</div>
+</nav>
+<!-- 主体内容区域 -->
+<main class="max-w-6xl mx-auto px-4 py-8 min-h-[calc(100vh-144px)]">
+<!-- 1. 首页文章列表 -->
+<div class="view-block animate-slide-up" id="home-view">
+<div class="flex items-center justify-between mb-8">
+<h1 class="text-2xl font-bold text-white">最近发布</h1>
+<div class="flex items-center space-x-2 bg-gray-900 border border-gray-800 p-1 rounded-lg">
+<button class="p-1.5 bg-gray-800 text-white rounded-md shadow-sm">
+<span class="iconify text-lg" data-icon="lucide:layout-grid"></span>
+</button>
+<button class="p-1.5 text-gray-500 hover:text-gray-300">
+<span class="iconify text-lg" data-icon="lucide:list"></span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="post-list">
+<!-- 文章卡片 1 -->
+<article class="group bg-[#161b22] border border-gray-800 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all cursor-pointer" onclick="viewPost('post-1')">
+<div class="h-48 bg-gray-800 overflow-hidden relative">
+<img alt="Modern Web Tech" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" id="img-1" src="https://modao.cc/agent-py/media/generated_images/2026-01-29/82eb9bd21c984587a418dcabaeb9f447.jpg"/>
+<div class="absolute top-4 left-4">
+<span class="px-2 py-1 bg-indigo-600/90 text-white text-xs font-bold rounded">技术架构</span>
+</div>
+</div>
+<div class="p-5 flex flex-col space-y-3">
+<div class="text-xs text-gray-500 flex items-center">
+<span class="iconify mr-1" data-icon="lucide:calendar"></span> 2026-01-20
+            </div>
+<h3 class="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">探索 2026 年现代前端架构演进</h3>
+<p class="text-sm text-gray-400 line-clamp-2 leading-relaxed">随着微前端与边缘计算的普及，我们如何重新审视应用的性能与用户体验？</p>
+<div class="pt-4 border-t border-gray-800 flex justify-between items-center text-xs text-gray-400">
+<span class="flex items-center"><span class="iconify mr-1" data-icon="lucide:eye"></span> 1.2k 浏览</span>
+<span class="flex items-center"><span class="iconify mr-1" data-icon="lucide:clock"></span> 8 min read</span>
+</div>
+</div>
+</article>
+<!-- 文章卡片 2 -->
+<article class="group bg-[#161b22] border border-gray-800 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all cursor-pointer" onclick="viewPost('post-2')">
+<div class="h-48 bg-gray-800 overflow-hidden relative">
+<img alt="Productivity Tools" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" id="img-2" src="https://modao.cc/agent-py/media/generated_images/2026-01-29/b55cff63b65e4254818c25d41cf3da42.jpg"/>
+<div class="absolute top-4 left-4">
+<span class="px-2 py-1 bg-emerald-600/90 text-white text-xs font-bold rounded">效率工具</span>
+</div>
+</div>
+<div class="p-5 flex flex-col space-y-3">
+<div class="text-xs text-gray-500 flex items-center">
+<span class="iconify mr-1" data-icon="lucide:calendar"></span> 2026-01-15
+            </div>
+<h3 class="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">深度测评：下一代 AI 协作编辑器</h3>
+<p class="text-sm text-gray-400 line-clamp-2 leading-relaxed">超越 VS Code，基于底层模型深度集成的新型开发环境体验报告。</p>
+<div class="pt-4 border-t border-gray-800 flex justify-between items-center text-xs text-gray-400">
+<span class="flex items-center"><span class="iconify mr-1" data-icon="lucide:eye"></span> 856 浏览</span>
+<span class="flex items-center"><span class="iconify mr-1" data-icon="lucide:clock"></span> 12 min read</span>
+</div>
+</div>
+</article>
+</div>
+</div>
+<!-- 2. 文章详情页 -->
+<div class="view-block hidden animate-slide-up max-w-3xl mx-auto" id="detail-view">
+<button class="mb-8 flex items-center text-gray-400 hover:text-white transition-colors group" onclick="switchTab('home')">
+<span class="iconify mr-1 group-hover:-translate-x-1 transition-transform" data-icon="lucide:arrow-left"></span> 返回列表
+      </button>
+<header class="mb-10 text-center">
+<div class="flex justify-center flex-wrap gap-2 mb-4">
+<span class="px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-xs border border-indigo-500/20">前端</span>
+<span class="px-3 py-1 bg-gray-500/10 text-gray-400 rounded-full text-xs border border-gray-500/20">架构</span>
+</div>
+<h1 class="text-3xl md:text-4xl font-black text-white mb-6 leading-tight" id="detail-title">探索 2026 年现代前端架构演进</h1>
+<div class="flex items-center justify-center space-x-6 text-sm text-gray-500">
+<span class="flex items-center"><span class="iconify mr-2" data-icon="lucide:user"></span> Admin</span>
+<span class="flex items-center"><span class="iconify mr-2" data-icon="lucide:calendar"></span> 2026-01-20</span>
+<span class="flex items-center"><span class="iconify mr-2" data-icon="lucide:message-square"></span> 12 评论</span>
+</div>
+</header>
+<div class="markdown-content prose prose-invert max-w-none prose-indigo">
+<p>本文将深度剖析当前 Web 技术的底层逻辑。在过去的一年里，我们见证了从传统的响应式设计到“流式组件渲染”的范式转移...</p>
+<h2>核心技术突破</h2>
+<p>利用边缘计算（Edge Computing），动态内容可以在最接近用户的节点完成预渲染。这意味着 <code>First Meaningful Paint (FMP)</code> 的时间再次被压缩。</p>
+<p>如下所示的代码演示了最新的并发监听模式：</p>
+<div class="bg-gray-900 border border-gray-800 rounded-lg p-4 font-mono text-sm text-gray-300 my-6">
+<span class="text-indigo-400">const</span> <span class="text-blue-400">obs</span> = <span class="text-indigo-400">new</span> ObservableStream(<span class="text-emerald-400">'https://api/v1'</span>);<br/>
+<span class="text-blue-400">obs</span>.subscribe(data =&gt; console.log(data));
+        </div>
+<h2>结论</h2>
+<p>技术的迭代并非为了更替而更替，而是为了解决日益增长的性能需求与硬件设备多样性之间的矛盾。</p>
+</div>
+<div class="mt-12 pt-8 border-t border-gray-800 flex justify-between">
+<div class="max-w-[45%] text-left">
+<p class="text-xs text-gray-500 mb-1 uppercase tracking-widest">上一篇</p>
+<a class="text-indigo-400 hover:underline block truncate text-sm" href="#">如何通过 TypeScript 5.x 优化大规模项目性能</a>
+</div>
+<div class="max-w-[45%] text-right">
+<p class="text-xs text-gray-500 mb-1 uppercase tracking-widest">下一篇</p>
+<a class="text-indigo-400 hover:underline block truncate text-sm" href="#">2026 年必看的 5 个低调的工具流提效插件</a>
+</div>
+</div>
+</div>
+<!-- 3. 后台管理页面 -->
+<div class="view-block hidden animate-slide-up" id="admin-view">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h1 class="text-2xl font-bold text-white">工作台</h1>
+<p class="text-sm text-gray-500 mt-1">欢迎回来，这是您的博客管理中心</p>
+</div>
+<button class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg flex items-center shadow-lg shadow-indigo-500/20 transition-all font-medium" onclick="openEditor()">
+<span class="iconify mr-2" data-icon="lucide:plus"></span> 发布新文章
+        </button>
+</div>
+<div class="bg-[#161b22] border border-gray-800 rounded-xl overflow-hidden">
+<table class="w-full text-left text-sm">
+<thead class="bg-gray-900/50 text-gray-400 uppercase text-xs tracking-wider">
+<tr>
+<th class="px-6 py-4 font-semibold">标题</th>
+<th class="px-6 py-4 font-semibold">分类</th>
+<th class="px-6 py-4 font-semibold">状态</th>
+<th class="px-6 py-4 font-semibold">日期</th>
+<th class="px-6 py-4 font-semibold text-right">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-800">
+<tr class="hover:bg-gray-800/30 transition-colors">
+<td class="px-6 py-4 text-gray-200 font-medium">探索 2026 年现代前端架构演进</td>
+<td class="px-6 py-4"><span class="px-2 py-0.5 bg-gray-800 text-gray-400 rounded">技术架构</span></td>
+<td class="px-6 py-4 flex items-center"><span class="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span> 已发布</td>
+<td class="px-6 py-4 text-gray-500">2026-01-20</td>
+<td class="px-6 py-4 text-right space-x-3">
+<button class="text-gray-400 hover:text-indigo-400"><span class="iconify" data-icon="lucide:edit-3"></span></button>
+<button class="text-gray-400 hover:text-red-400"><span class="iconify" data-icon="lucide:trash-2"></span></button>
+</td>
+</tr>
+<tr class="hover:bg-gray-800/30 transition-colors">
+<td class="px-6 py-4 text-gray-200 font-medium">深度测评：下一代 AI 协作编辑器</td>
+<td class="px-6 py-4"><span class="px-2 py-0.5 bg-gray-800 text-gray-400 rounded">效率工具</span></td>
+<td class="px-6 py-4 flex items-center"><span class="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span> 已发布</td>
+<td class="px-6 py-4 text-gray-500">2026-01-15</td>
+<td class="px-6 py-4 text-right space-x-3">
+<button class="text-gray-400 hover:text-indigo-400"><span class="iconify" data-icon="lucide:edit-3"></span></button>
+<button class="text-gray-400 hover:text-red-400"><span class="iconify" data-icon="lucide:trash-2"></span></button>
+</td>
+</tr>
+<tr class="hover:bg-gray-800/30 transition-colors">
+<td class="px-6 py-4 text-gray-200 font-medium">草稿：我的 2026 年硬件清单</td>
+<td class="px-6 py-4"><span class="px-2 py-0.5 bg-gray-800 text-gray-400 rounded">生活记录</span></td>
+<td class="px-6 py-4 flex items-center"><span class="w-2 h-2 bg-amber-500 rounded-full mr-2"></span> 草稿</td>
+<td class="px-6 py-4 text-gray-500">2026-01-28</td>
+<td class="px-6 py-4 text-right space-x-3">
+<button class="text-gray-400 hover:text-indigo-400"><span class="iconify" data-icon="lucide:edit-3"></span></button>
+<button class="text-gray-400 hover:text-red-400"><span class="iconify" data-icon="lucide:trash-2"></span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- 4. 编辑器弹出层 -->
+<div class="fixed inset-0 z-50 bg-[#0f1115]/95 backdrop-blur-sm hidden items-center justify-center p-4" id="editor-overlay">
+<div class="bg-[#161b22] border border-gray-800 w-full max-w-4xl rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
+<div class="p-4 border-b border-gray-800 flex justify-between items-center">
+<h2 class="text-lg font-bold">撰写新文章</h2>
+<button class="text-gray-500 hover:text-white" onclick="closeEditor()"><span class="iconify text-2xl" data-icon="lucide:x"></span></button>
+</div>
+<div class="p-6 overflow-y-auto hide-scrollbar flex-1">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+<div class="space-y-4">
+<div>
+<label class="block text-xs font-semibold text-gray-500 uppercase mb-2">文章标题</label>
+<input class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5 focus:border-indigo-500 outline-none" placeholder="输入引人注目的标题..." type="text"/>
+</div>
+<div>
+<label class="block text-xs font-semibold text-gray-500 uppercase mb-2">分类</label>
+<select class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5 focus:border-indigo-500 outline-none">
+<option>技术架构</option>
+<option>效率工具</option>
+<option>代码碎片</option>
+</select>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-xs font-semibold text-gray-500 uppercase mb-2">标签 (逗号分隔)</label>
+<input class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5 focus:border-indigo-500 outline-none" placeholder="AI, Frontend, Rust..." type="text"/>
+</div>
+<div>
+<label class="block text-xs font-semibold text-gray-500 uppercase mb-2">封面图 URL</label>
+<input class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5 focus:border-indigo-500 outline-none" placeholder="https://..." type="text"/>
+</div>
+</div>
+</div>
+<div>
+<label class="block text-xs font-semibold text-gray-500 uppercase mb-2">正文内容 (Markdown)</label>
+<textarea class="w-full h-80 bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 focus:border-indigo-500 outline-none font-mono text-sm leading-relaxed" placeholder="使用 Markdown 语法书写..."></textarea>
+</div>
+</div>
+<div class="p-4 border-t border-gray-800 flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<input checked="" class="w-4 h-4 rounded bg-gray-900 border-gray-800 text-indigo-600 focus:ring-offset-transparent focus:ring-0" id="public-check" type="checkbox"/>
+<label class="text-sm text-gray-400" for="public-check">立即公开</label>
+</div>
+<div class="flex space-x-4">
+<button class="px-6 py-2 text-gray-400 hover:text-white text-sm font-medium" onclick="closeEditor()">存为草稿</button>
+<button class="bg-indigo-600 px-8 py-2 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition-colors">发布</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 5. 关于我 页面 -->
+<div class="view-block hidden animate-slide-up" id="about-view">
+<div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="md:col-span-1">
+<div class="bg-[#161b22] border border-gray-800 rounded-2xl p-8 text-center sticky top-24">
+<div class="w-24 h-24 mx-auto mb-6 relative">
+<img alt="Profile" class="rounded-full w-full h-full object-cover p-1 bg-indigo-500 shadow-xl shadow-indigo-500/20" id="img-3" src="https://modao.cc/agent-py/media/generated_images/2026-01-29/f0b2ecd0e6b0479fae72adeff2110296.jpg"/>
+<div class="absolute bottom-1 right-1 w-6 h-6 bg-emerald-500 border-4 border-[#161b22] rounded-full"></div>
+</div>
+<h2 class="text-xl font-bold text-white mb-2">DevLin</h2>
+<p class="text-sm text-gray-400 mb-6 font-mono">Full-stack &amp; efficiency enthusiast</p>
+<div class="flex justify-center space-x-3">
+<span class="iconify text-gray-400 hover:text-indigo-400 cursor-pointer text-xl" data-icon="lucide:github"></span>
+<span class="iconify text-gray-400 hover:text-indigo-400 cursor-pointer text-xl" data-icon="lucide:twitter"></span>
+<span class="iconify text-gray-400 hover:text-indigo-400 cursor-pointer text-xl" data-icon="lucide:mail"></span>
+</div>
+</div>
+</div>
+<div class="md:col-span-2 space-y-8">
+<div class="bg-[#161b22] border border-gray-800 rounded-2xl p-8">
+<h3 class="text-xl font-bold text-white mb-6 flex items-center">
+<span class="iconify text-indigo-500 mr-3" data-icon="lucide:user"></span> 关于这个博客
+            </h3>
+<p class="text-gray-400 leading-relaxed text-sm">
+              DevLog 是我在 2026 年创立的个人数字花园。这里主要记录我在探索现代 Web 开发、AI 提效工具、以及系统架构时的深度思考。
+              我不追求内容的更新频率，只追求每一篇内容都能对解决实际问题或拓宽认知边界有所帮助。
+            </p>
+</div>
+<div class="bg-[#161b22] border border-gray-800 rounded-2xl p-8">
+<h3 class="text-xl font-bold text-white mb-6 flex items-center">
+<span class="iconify text-indigo-500 mr-3" data-icon="lucide:zap"></span> 核心技能栈
+            </h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex items-center space-x-3 p-3 bg-gray-900 rounded-xl">
+<span class="iconify text-lg text-emerald-400" data-icon="logos:typescript-icon"></span>
+<span class="text-sm font-semibold">TypeScript 5+</span>
+</div>
+<div class="flex items-center space-x-3 p-3 bg-gray-900 rounded-xl">
+<span class="iconify text-lg text-orange-400" data-icon="logos:rust"></span>
+<span class="text-sm font-semibold">Rust Ecosystem</span>
+</div>
+<div class="flex items-center space-x-3 p-3 bg-gray-900 rounded-xl">
+<span class="iconify text-lg text-blue-400" data-icon="logos:react"></span>
+<span class="text-sm font-semibold">Next.js / SSR</span>
+</div>
+<div class="flex items-center space-x-3 p-3 bg-gray-900 rounded-xl">
+<span class="iconify text-lg text-purple-400" data-icon="logos:ebpf"></span>
+<span class="text-sm font-semibold">Native Cloud</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 6. 分类页 -->
+<div class="view-block hidden animate-slide-up" id="categories-view">
+<h1 class="text-2xl font-bold text-white mb-8">内容分类</h1>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-indigo-500/50 transition-all group">
+<span class="iconify text-4xl text-indigo-500 mb-4" data-icon="lucide:code-2"></span>
+<h3 class="text-lg font-bold text-white mb-2">技术架构</h3>
+<p class="text-sm text-gray-500">深入探讨底层原理与大规模应用最佳实践</p>
+<div class="mt-6 flex justify-between items-center">
+<span class="text-xs text-indigo-400 font-bold">12 份文章</span>
+<span class="iconify text-gray-600 group-hover:translate-x-1 transition-transform" data-icon="lucide:chevron-right"></span>
+</div>
+</div>
+<div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-emerald-500/50 transition-all group">
+<span class="iconify text-4xl text-emerald-500 mb-4" data-icon="lucide:wrench"></span>
+<h3 class="text-lg font-bold text-white mb-2">效率工具</h3>
+<p class="text-sm text-gray-500">让机器工作，让人类思考的提效利器</p>
+<div class="mt-6 flex justify-between items-center">
+<span class="text-xs text-emerald-400 font-bold">8 份文章</span>
+<span class="iconify text-gray-600 group-hover:translate-x-1 transition-transform" data-icon="lucide:chevron-right"></span>
+</div>
+</div>
+<div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-amber-500/50 transition-all group">
+<span class="iconify text-4xl text-amber-500 mb-4" data-icon="lucide: кофе"></span>
+<h3 class="text-lg font-bold text-white mb-2">日记思考</h3>
+<p class="text-sm text-gray-500">碎碎念与不成熟的技术视角观察</p>
+<div class="mt-6 flex justify-between items-center">
+<span class="text-xs text-amber-400 font-bold">24 份文章</span>
+<span class="iconify text-gray-600 group-hover:translate-x-1 transition-transform" data-icon="lucide:chevron-right"></span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="bg-gray-900/30 border-t border-gray-800 py-10">
+<div class="max-w-6xl mx-auto px-4 text-center">
+<p class="text-gray-500 text-sm">© 2026 DevLog_ 个人博客. 由 AI 同伴协助构建.</p>
+<div class="flex justify-center space-x-6 mt-4 text-gray-600">
+<a class="hover:text-indigo-400 text-xs" href="#">RSS 订阅</a>
+<a class="hover:text-indigo-400 text-xs" href="#">站点地图</a>
+<a class="hover:text-indigo-400 text-xs" href="#">隐私策略</a>
+</div>
+</div>
+</footer>
+<script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.view-block').forEach(el => el.classList.add('hidden'));
+      const activeTab = document.getElementById(tabId + '-view');
+      activeTab.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function viewPost(postId) {
+      // 模拟跳转详情
+      switchTab('detail');
+    }
+
+    function openEditor() {
+      document.getElementById('editor-overlay').classList.remove('hidden');
+      document.getElementById('editor-overlay').classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeEditor() {
+      document.getElementById('editor-overlay').classList.add('hidden');
+      document.getElementById('editor-overlay').classList.remove('flex');
+      document.body.style.overflow = 'auto';
+    }
+  </script>
+</body>
+</html>

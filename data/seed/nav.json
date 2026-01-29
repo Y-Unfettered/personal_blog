@@ -1,0 +1,37 @@
+[
+  {
+    "id": "nav-home",
+    "label": "文章",
+    "href": "#/",
+    "order": 1,
+    "visible": true
+  },
+  {
+    "id": "nav-categories",
+    "label": "分类",
+    "href": "#/categories",
+    "order": 2,
+    "visible": true
+  },
+  {
+    "id": "nav-tags",
+    "label": "标签",
+    "href": "#/tags",
+    "order": 3,
+    "visible": true
+  },
+  {
+    "id": "nav-about",
+    "label": "关于",
+    "href": "#/about",
+    "order": 4,
+    "visible": true
+  },
+  {
+    "id": "nav-1769703762831",
+    "label": "测试",
+    "href": "cs",
+    "order": 5,
+    "visible": true
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "id": "cat-tech",
+    "name": "Tech",
+    "slug": "tech",
+    "description": "Tech notes and experiments"
+  },
+  {
+    "id": "cat-life",
+    "name": "Life",
+    "slug": "life",
+    "description": "Personal thoughts",
+    "color": "#2afeb7"
+  },
+  {
+    "id": "cat-1769701776764",
+    "name": "Vue 3.0",
+    "slug": "Vue_3.0",
+    "description": "Vue 3.0 方面的文章合集",
+    "color": "#f29d64"
+  },
+  {
+    "id": "cat-1769704635190",
+    "name": "技术架构",
+    "slug": "jsjg"
+  },
+  {
+    "id": "cat-1769705464697",
+    "name": "前端框架",
+    "slug": "qdkj",
+    "description": "",
+    "color": "#2d30f0"
+  }
+]

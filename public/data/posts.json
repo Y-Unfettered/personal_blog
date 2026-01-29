@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "generated_at": "2026-01-29",
+  "posts": [
+    {
+      "id": "post-hello",
+      "title": "Hello Blog",
+      "slug": "hello-blog",
+      "summary": "The first post for the blog.",
+      "content": "# Hello Blog\n\nThis is a demo post with an image.\n\n![Cover](https://image.host/demo.jpg)",
+      "cover": "https://image.host/demo.jpg",
+      "categories": [
+        "cat-tech"
+      ],
+      "tags": [
+        "tag-vue"
+      ],
+      "created_at": "2026-01-29",
+      "updated_at": "2026-01-29",
+      "status": "published"
+    },
+    {
+      "id": "post-draft",
+      "title": "Draft Notes",
+      "slug": "draft-notes",
+      "summary": "Work in progress.",
+      "content": "# Draft\n\nThis is a draft.",
+      "categories": [
+        "cat-life"
+      ],
+      "tags": [
+        "tag-journal"
+      ],
+      "created_at": "2026-01-29",
+      "updated_at": "2026-01-29",
+      "status": "draft"
+    }
+  ]
+}
