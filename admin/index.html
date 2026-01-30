@@ -6,6 +6,7 @@
     <title>本地后台 - DevLog</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/md-editor-v3@2.11.3/lib/style.css" />
     <style>
       .hide-scrollbar::-webkit-scrollbar { display: none; }
       .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -41,6 +42,7 @@
           <button class="hover:text-white" onclick="setTab('tags')">标签</button>
           <button class="hover:text-white" onclick="setTab('nav')">导航</button>
           <button class="hover:text-white" onclick="setTab('publish')">发布</button>
+          <button class="hover:text-white" onclick="setTab('settings')">设置</button>
         </div>
       </div>
     </nav>
@@ -213,6 +215,48 @@
           </div>
         </div>
       </section>
+
+      <section id="tab-settings" class="hidden animate-slide-up">
+        <h1 class="text-2xl font-bold text-white mb-6">设置</h1>
+        <div class="bg-[#161b22] border border-gray-800 rounded-xl p-6 space-y-6">
+          <div>
+            <h2 class="text-sm font-semibold text-gray-400 mb-3 uppercase">Markdown 主题</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label class="flex items-center space-x-3 p-4 bg-gray-900 border border-gray-800 rounded-lg cursor-pointer">
+                <input type="radio" name="md-theme" value="default" class="text-indigo-600" />
+                <div>
+                  <div class="text-sm font-semibold text-white">Default</div>
+                  <div class="text-xs text-gray-500">md-editor 默认主题</div>
+                </div>
+              </label>
+              <label class="flex items-center space-x-3 p-4 bg-gray-900 border border-gray-800 rounded-lg cursor-pointer">
+                <input type="radio" name="md-theme" value="mk-cute" class="text-indigo-600" />
+                <div>
+                  <div class="text-sm font-semibold text-white">Mk Cute</div>
+                  <div class="text-xs text-gray-500">更活泼的标题和引用样式</div>
+                </div>
+              </label>
+              <label class="flex items-center space-x-3 p-4 bg-gray-900 border border-gray-800 rounded-lg cursor-pointer">
+                <input type="radio" name="md-theme" value="smart-blue" class="text-indigo-600" />
+                <div>
+                  <div class="text-sm font-semibold text-white">Smart Blue</div>
+                  <div class="text-xs text-gray-500">更清晰的层级结构</div>
+                </div>
+              </label>
+              <label class="flex items-center space-x-3 p-4 bg-gray-900 border border-gray-800 rounded-lg cursor-pointer">
+                <input type="radio" name="md-theme" value="cyanosis" class="text-indigo-600" />
+                <div>
+                  <div class="text-sm font-semibold text-white">Cyanosis</div>
+                  <div class="text-xs text-gray-500">浅色高对比风格</div>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg text-sm" onclick="saveSettings()">保存设置</button>
+          </div>
+        </div>
+      </section>
     </main>
 
     <div id="editor" class="fixed inset-0 z-50 bg-[#0f1115]/95 backdrop-blur-sm hidden items-center justify-center p-4">
@@ -233,6 +277,8 @@
       <div id="toast-body" class="px-4 py-3 rounded-lg text-sm border border-gray-800 bg-[#161b22] text-gray-200 shadow-xl"></div>
     </div>
 
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/md-editor-v3@2.11.3/lib/md-editor-v3.umd.js"></script>
     <script>
       let posts = [];
       let categories = [];
@@ -249,6 +295,12 @@
       let categorySearchQuery = '';
       let tagSearchQuery = '';
       let autoUnpinOnLimit = true;
+      let mdEditorApp = null;
+      let mdEditorRoot = null;
+      let mdEditorContent = '';
+      let mdEditorAutosaveTimer = null;
+      let mdEditorFullscreenEnabled = false;
+      let settings = { markdownTheme: 'default' };
 
       function setStatus(text, isError) {
         if (!text) return;
@@ -279,7 +331,7 @@
       }
 
       function setTab(name) {
-        ['posts', 'categories', 'tags', 'nav', 'publish'].forEach((tab) => {
+        ['posts', 'categories', 'tags', 'nav', 'publish', 'settings'].forEach((tab) => {
           const el = document.getElementById(`tab-${tab}`);
           el.classList.toggle('hidden', tab !== name);
         });
@@ -653,6 +705,17 @@
       function closeEditor() {
         document.getElementById('editor').classList.add('hidden');
         document.getElementById('editor').classList.remove('flex');
+        if (mdEditorApp) {
+          mdEditorApp.unmount();
+          mdEditorApp = null;
+        }
+        mdEditorRoot = null;
+        mdEditorContent = '';
+        if (mdEditorAutosaveTimer) {
+          clearInterval(mdEditorAutosaveTimer);
+          mdEditorAutosaveTimer = null;
+        }
+        exitEditorFullscreen();
       }
 
       function parseCsv(value) {
@@ -748,14 +811,142 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">正文（Markdown）</label>
-            <textarea id="post-content" class="w-full h-80 bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 font-mono text-sm leading-relaxed">${post?.content || ''}</textarea>
+            <div id="md-editor" class="w-full bg-gray-900 border border-gray-800 rounded-lg"></div>
+            <textarea id="post-content" class="hidden">${post?.content || ''}</textarea>
+            <p class="text-xs text-gray-500 mt-2">自动保存：每 30 秒一次（本地草稿，不会写入 JSON）</p>
           </div>
         `;
+      }
+
+      function findEditorFullscreenButton() {
+        const root = mdEditorRoot || document.getElementById('md-editor');
+        if (!root) return null;
+        return root.querySelector('[title="浏览器全屏"], [title="退出浏览器全屏"]');
+      }
+
+      function isEditorFullscreen() {
+        return !!document.querySelector('.md-editor-fullscreen, .md-editor-page-fullscreen');
+      }
+
+      function enterEditorFullscreen() {
+        if (isEditorFullscreen()) {
+          mdEditorFullscreenEnabled = true;
+          return;
+        }
+        const btn = findEditorFullscreenButton();
+        if (btn) {
+          btn.click();
+          setTimeout(() => {
+            mdEditorFullscreenEnabled = isEditorFullscreen();
+          }, 0);
+        }
+      }
+
+      function exitEditorFullscreen() {
+        if (!isEditorFullscreen()) {
+          mdEditorFullscreenEnabled = false;
+          return;
+        }
+        const btn = findEditorFullscreenButton();
+        if (btn) {
+          btn.click();
+          setTimeout(() => {
+            mdEditorFullscreenEnabled = isEditorFullscreen();
+          }, 0);
+        }
+      }
+
+      function startAutosaveDraft(id) {
+        if (mdEditorAutosaveTimer) clearInterval(mdEditorAutosaveTimer);
+        mdEditorAutosaveTimer = setInterval(() => {
+          const key = id ? `draft:${id}` : 'draft:new';
+          try {
+            localStorage.setItem(key, mdEditorContent || '');
+            showToast('已自动保存草稿', false);
+          } catch (err) {
+            // ignore storage errors
+          }
+        }, 30000);
+      }
+
+      function getDraftContent(id) {
+        const key = id ? `draft:${id}` : 'draft:new';
+        try {
+          return localStorage.getItem(key) || '';
+        } catch (err) {
+          return '';
+        }
+      }
+
+      function clearDraftContent(id) {
+        const key = id ? `draft:${id}` : 'draft:new';
+        try {
+          localStorage.removeItem(key);
+        } catch (err) {
+          // ignore
+        }
+      }
+
+      function mountMdEditor(content, id) {
+        mdEditorContent = content || '';
+        const root = document.getElementById('md-editor');
+        if (!root || !window.Vue || !window.MdEditorV3) {
+          const fallback = document.getElementById('post-content');
+          if (fallback) {
+            fallback.classList.remove('hidden');
+            fallback.value = mdEditorContent;
+          }
+          return;
+        }
+        if (mdEditorApp) {
+          mdEditorApp.unmount();
+          mdEditorApp = null;
+        }
+        mdEditorRoot = root;
+        const { createApp, ref, watch } = Vue;
+        const MdEditor = MdEditorV3.MdEditor || MdEditorV3;
+        if (!MdEditor) {
+          const fallback = document.getElementById('post-content');
+          if (fallback) {
+            fallback.classList.remove('hidden');
+            fallback.value = mdEditorContent;
+          }
+          showToast('编辑器加载失败，已启用简易输入框', true);
+          return;
+        }
+        mdEditorApp = createApp({
+          setup() {
+            const text = ref(mdEditorContent);
+            const handleSave = () => {
+              exitEditorFullscreen();
+            };
+            watch(text, (val) => {
+              mdEditorContent = val;
+            });
+            return { text, handleSave };
+          },
+          template: '<MdEditor v-model="text" theme="dark" :previewTheme="previewTheme" style="height: 320px;" @onSave="handleSave" />',
+          data() {
+            return { previewTheme: settings.markdownTheme || 'default' };
+          },
+        });
+        mdEditorApp.component('MdEditor', MdEditor);
+        mdEditorApp.mount(root);
+
+        root.onclick = (event) => {
+          if (event && event.target && event.target.closest) {
+            const toolbar = event.target.closest('.md-editor-toolbar');
+            if (toolbar) return;
+          }
+          enterEditorFullscreen();
+        };
+        startAutosaveDraft(id);
       }
 
       function openPostEditor(id) {
         const post = posts.find((p) => p.id === id);
         openEditor(post ? '编辑文章' : '新增文章', postForm(post), async () => {
+          const fallbackContent = document.getElementById('post-content')?.value || '';
           const payload = {
             title: document.getElementById('post-title').value.trim(),
             slug: document.getElementById('post-slug').value.trim(),
@@ -766,7 +957,7 @@
             status: document.getElementById('post-status').value,
             created_at: document.getElementById('post-created-at').value,
             pinned: document.getElementById('post-pinned').checked,
-            content: document.getElementById('post-content').value,
+            content: mdEditorContent || fallbackContent,
           };
           if (!payload.title || !payload.summary || !payload.content) {
             return setStatus('标题、摘要、正文为必填', true);
@@ -801,6 +992,8 @@
             });
           }
           await loadAll();
+          clearDraftContent(post?.id || null);
+          exitEditorFullscreen();
           closeEditor();
         });
 
@@ -813,6 +1006,10 @@
         document.getElementById('post-tags').addEventListener('input', () => {
           updateChips('tag-chips', tags, 'post-tags');
         });
+
+        const draft = getDraftContent(post?.id || null);
+        const initialContent = draft || post?.content || '';
+        mountMdEditor(initialContent, post?.id || null);
       }
 
       async function deletePost(id) {
@@ -956,6 +1153,22 @@
         showToast('已生成 JSON 文件', false);
       }
 
+      function applySettingsToUI() {
+        const theme = settings.markdownTheme || 'default';
+        document.querySelectorAll('input[name=\"md-theme\"]').forEach((input) => {
+          input.checked = input.value === theme;
+        });
+      }
+
+      async function saveSettings() {
+        const selected = document.querySelector('input[name=\"md-theme\"]:checked');
+        const markdownTheme = selected ? selected.value : 'default';
+        const payload = { markdownTheme };
+        settings = await api('/api/settings', { method: 'PUT', body: JSON.stringify(payload) });
+        applySettingsToUI();
+        showToast('设置已保存', false);
+      }
+
       async function publish() {
         const title = document.getElementById('publish-title').value.trim();
         if (!title) return setStatus('请输入提交标题', true);
@@ -965,12 +1178,15 @@
 
       async function loadAll() {
         try {
-          [posts, categories, tags, navItems] = await Promise.all([
+          const results = await Promise.all([
             api('/api/posts'),
             api('/api/categories'),
             api('/api/tags'),
             api('/api/nav').catch(() => []),
+            api('/api/settings').catch(() => ({ markdownTheme: 'default' })),
           ]);
+          [posts, categories, tags, navItems, settings] = results;
+          applySettingsToUI();
           categoryNameMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
           tagNameMap = Object.fromEntries(tags.map((t) => [t.id, t.name]));
           renderPosts();

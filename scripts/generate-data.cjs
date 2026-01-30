@@ -185,11 +185,14 @@ function main() {
   const tagsInput = readJson(path.join(srcDir, 'tags.json'));
   const navPath = path.join(srcDir, 'nav.json');
   const navInput = fs.existsSync(navPath) ? readJson(navPath) : null;
+  const settingsPath = path.join(srcDir, 'settings.json');
+  const settingsInput = fs.existsSync(settingsPath) ? readJson(settingsPath) : null;
 
   const posts = normalizePosts(normalizeList(postsInput, 'posts'));
   const categories = normalizeList(categoriesInput, 'categories');
   const tags = normalizeList(tagsInput, 'tags');
   const nav = navInput ? normalizeList(navInput, 'nav') : null;
+  const settings = settingsInput ? settingsInput : null;
 
   const categoryMap = toMap(categories);
   const tagMap = toMap(tags);
@@ -236,6 +239,13 @@ function main() {
       version: VERSION,
       generated_at: todayISO(),
       nav,
+    });
+  }
+  if (settings) {
+    writeJson(path.join(outDir, 'settings.json'), {
+      version: VERSION,
+      generated_at: todayISO(),
+      ...settings,
     });
   }
 

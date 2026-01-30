@@ -11,6 +11,7 @@
     "admin:web": "node scripts/admin-server.cjs"
   },
   "dependencies": {
+    "highlight.js": "^11.9.0",
     "marked": "^14.0.0",
     "vue": "^3.4.0"
   },

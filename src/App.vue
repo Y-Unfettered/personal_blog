@@ -85,30 +85,78 @@
           </div>
         </section>
 
-        <section v-else-if="view === 'detail'" class="animate-slide-up max-w-3xl mx-auto">
-          <button class="mb-8 flex items-center text-gray-400 hover:text-white transition-colors group" @click="setView('home')">
-            <span class="iconify mr-1 group-hover:-translate-x-1 transition-transform" data-icon="lucide:arrow-left"></span> 返回列表
-          </button>
-          <header class="mb-10 text-center">
-            <div class="flex justify-center flex-wrap gap-2 mb-4">
-              <span
-                v-for="(name, idx) in namesFromIds(activePost?.categories, categoryMap)"
-                :key="'detail-cat-' + idx"
-                class="px-3 py-1 rounded-full text-xs border"
-                :style="categoryChipStyle((activePost?.categories || [])[idx])"
+        <section v-else-if="view === 'detail'" class="detail-layout">
+          <aside v-if="tocItems.length" class="toc-panel" :class="{ 'toc-visible': showToc }">
+            <div class="toc-title">目录</div>
+            <ul class="toc-list">
+              <li
+                v-for="item in tocItems"
+                :key="item.id"
+                class="toc-item"
+                :style="{ paddingLeft: `${(item.level - tocBaseLevel) * 12}px` }"
               >
-                {{ name }}
-              </span>
+                <button
+                  class="toc-link"
+                  :class="{ 'toc-link-active': item.id === activeHeadingId }"
+                  type="button"
+                  @click="scrollToHeading(item.id)"
+                >
+                  {{ item.text }}
+                </button>
+              </li>
+            </ul>
+          </aside>
+          <div class="detail-content animate-slide-up">
+            <button class="mb-8 flex items-center text-gray-400 hover:text-white transition-colors group" @click="setView('home')">
+              <span class="iconify mr-1 group-hover:-translate-x-1 transition-transform" data-icon="lucide:arrow-left"></span> 返回列表
+            </button>
+            <header class="mb-10 text-center">
+              <div class="flex justify-center flex-wrap gap-2 mb-4">
+                <span
+                  v-for="(name, idx) in namesFromIds(activePost?.categories, categoryMap)"
+                  :key="'detail-cat-' + idx"
+                  class="px-3 py-1 rounded-full text-xs border"
+                  :style="categoryChipStyle((activePost?.categories || [])[idx])"
+                >
+                  {{ name }}
+                </span>
+              </div>
+              <h1 class="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
+                {{ activePost?.title }}
+              </h1>
+              <div class="flex items-center justify-center space-x-6 text-sm text-gray-500">
+                <span class="flex items-center"><span class="iconify mr-2" data-icon="lucide:calendar"></span> {{ activePost?.created_at }}</span>
+                <span v-if="activePost?.readingTime" class="flex items-center"><span class="iconify mr-2" data-icon="lucide:clock"></span> {{ activePost?.readingTime }} min</span>
+              </div>
+            </header>
+            <div class="md-preview">
+              <article class="md-editor-preview" :class="markdownThemeClass" v-html="renderedContent"></article>
             </div>
-            <h1 class="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
-              {{ activePost?.title }}
-            </h1>
-            <div class="flex items-center justify-center space-x-6 text-sm text-gray-500">
-              <span class="flex items-center"><span class="iconify mr-2" data-icon="lucide:calendar"></span> {{ activePost?.created_at }}</span>
-              <span v-if="activePost?.readingTime" class="flex items-center"><span class="iconify mr-2" data-icon="lucide:clock"></span> {{ activePost?.readingTime }} min</span>
+            <div class="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between gap-6 text-sm text-gray-400">
+              <button
+                v-if="prevPost"
+                class="flex-1 text-left group hover:text-white transition-colors"
+                @click="openPost(prevPost)"
+              >
+                <div class="text-xs uppercase tracking-widest text-gray-500 mb-2">上一篇</div>
+                <div class="text-indigo-300 group-hover:text-indigo-200 text-base font-semibold">
+                  {{ prevPost.title }}
+                </div>
+              </button>
+              <div v-else class="flex-1"></div>
+              <button
+                v-if="nextPost"
+                class="flex-1 text-right group hover:text-white transition-colors"
+                @click="openPost(nextPost)"
+              >
+                <div class="text-xs uppercase tracking-widest text-gray-500 mb-2">下一篇</div>
+                <div class="text-indigo-300 group-hover:text-indigo-200 text-base font-semibold">
+                  {{ nextPost.title }}
+                </div>
+              </button>
+              <div v-else class="flex-1"></div>
             </div>
-          </header>
-          <div class="markdown-content prose prose-invert max-w-none prose-indigo" v-html="renderedContent"></div>
+          </div>
         </section>
 
         <section v-else-if="view === 'categories'" class="animate-slide-up">
@@ -208,12 +256,116 @@
         </div>
       </div>
     </footer>
+
+    <button v-if="showBackTop" class="back-to-top" type="button" @click="scrollToTop">
+      <span class="iconify text-xl" data-icon="lucide:arrow-up"></span>
+    </button>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { marked } from 'marked';
+import hljs from 'highlight.js';
+
+function slugifyHeading(text, idMap) {
+  const plain = String(text || '').replace(/<[^>]+>/g, '');
+  const base = plain
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\u4e00-\u9fff-]/g, '');
+  const safe = base || 'section';
+  const count = idMap.get(safe) || 0;
+  idMap.set(safe, count + 1);
+  return count === 0 ? safe : `${safe}-${count + 1}`;
+}
+
+function inlineMarkdownToText(text) {
+  const html = marked.parseInline(text || '');
+  return html
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
+function encodeBase64(text) {
+  try {
+    return btoa(unescape(encodeURIComponent(text)));
+  } catch (err) {
+    return btoa(text);
+  }
+}
+
+function decodeBase64(text) {
+  try {
+    return decodeURIComponent(escape(atob(text)));
+  } catch (err) {
+    return atob(text);
+  }
+}
+
+function createRenderer() {
+  const idMap = new Map();
+  const renderer = new marked.Renderer();
+  renderer.code = (code, infostring) => {
+    let text = code;
+    let lang = infostring || '';
+    if (code && typeof code === 'object') {
+      text = code.text || '';
+      lang = code.lang || lang;
+    }
+    const language = String(lang || '').trim().split(/\s+/)[0];
+    let highlighted = '';
+    try {
+      if (language && hljs.getLanguage(language)) {
+        highlighted = hljs.highlight(text, { language }).value;
+      } else {
+        highlighted = hljs.highlightAuto(text).value;
+      }
+    } catch (err) {
+      highlighted = String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+    const langClass = language ? ` language-${language}` : '';
+    const langLabel = language || 'text';
+    const encoded = encodeBase64(String(text || ''));
+    return `
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-dots"><i></i><i></i><i></i></span>
+          <div class="code-actions">
+            <span class="code-lang">${langLabel}</span>
+            <button class="code-copy" type="button" data-code="${encoded}">
+              <span class="iconify" data-icon="lucide:copy"></span>
+              <span class="code-copy-text">复制</span>
+            </button>
+          </div>
+        </div>
+        <pre><code class="hljs${langClass}">${highlighted}</code></pre>
+      </div>
+    `;
+  };
+  renderer.heading = (text, level) => {
+    if (text && typeof text === 'object') {
+      const token = text;
+      const tokenText = token.text || '';
+      const tokenLevel = token.depth || 1;
+      const id = slugifyHeading(tokenText, idMap);
+      return `<h${tokenLevel} id="${id}">${marked.parseInline(tokenText)}</h${tokenLevel}>`;
+    }
+    const id = slugifyHeading(text, idMap);
+    return `<h${level} id="${id}">${marked.parseInline(text || '')}</h${level}>`;
+  };
+  return renderer;
+}
 
 const posts = ref([]);
 const categories = ref([]);
@@ -223,9 +375,15 @@ const categoryColorMap = ref({});
 const tagMap = ref({});
 const loading = ref(true);
 const error = ref('');
+const markdownTheme = ref('default');
 const view = ref('home');
 const activeSlug = ref('');
 const mobileOpen = ref(false);
+const showToc = ref(false);
+const showBackTop = ref(false);
+const activeHeadingId = ref('');
+let tocObserver = null;
+let tocScrollRaf = null;
 
 function sortPosts(list) {
   return list.slice().sort((a, b) => {
@@ -261,6 +419,7 @@ function openPost(post) {
   activeSlug.value = post.slug;
   view.value = 'detail';
   window.location.hash = `#/post/${post.slug}`;
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 function namesFromIds(ids, map) {
@@ -330,6 +489,86 @@ function tagSummary(ids) {
   return names.slice(0, 2).join(', ') + (names.length > 2 ? '…' : '');
 }
 
+function buildToc(markdown) {
+  if (!markdown) return [];
+  const tokens = marked.lexer(markdown);
+  const idMap = new Map();
+  return tokens
+    .filter((token) => token.type === 'heading')
+    .map((token) => {
+      const text = token.text || '';
+      return {
+        id: slugifyHeading(text, idMap),
+        text: inlineMarkdownToText(text),
+        level: token.depth || 1,
+      };
+    })
+    .filter((item) => item.level >= 1 && item.level <= 4);
+}
+
+function handleScroll() {
+  const y = window.scrollY || 0;
+  const visible = y > 160 && view.value === 'detail';
+  showToc.value = visible;
+  showBackTop.value = visible;
+}
+
+function scrollToHeading(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const headerOffset = 96;
+  const top = el.getBoundingClientRect().top + window.scrollY - headerOffset;
+  window.scrollTo({ top, behavior: 'smooth' });
+}
+
+function setupTocObserver() {
+  if (tocObserver) {
+    tocObserver.disconnect();
+    tocObserver = null;
+  }
+  if (view.value !== 'detail') return;
+  const container = document.querySelector('.md-editor-preview');
+  if (!container) return;
+  const headings = Array.from(container.querySelectorAll('h1, h2, h3, h4'));
+  if (headings.length === 0) return;
+  activeHeadingId.value = headings[0].id || '';
+  tocObserver = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting && entry.target.id)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      if (visible.length > 0) {
+        activeHeadingId.value = visible[0].target.id;
+        syncTocScroll();
+      }
+    },
+    {
+      rootMargin: '0px 0px -70% 0px',
+      threshold: 0.1,
+    },
+  );
+  headings.forEach((heading) => tocObserver.observe(heading));
+}
+
+function syncTocScroll() {
+  if (!showToc.value) return;
+  if (tocScrollRaf) cancelAnimationFrame(tocScrollRaf);
+  tocScrollRaf = requestAnimationFrame(() => {
+    const list = document.querySelector('.toc-list');
+    const active = document.querySelector('.toc-link-active');
+    if (!list || !active) return;
+    const listRect = list.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    if (activeRect.top < listRect.top || activeRect.bottom > listRect.bottom) {
+      active.scrollIntoView({ block: 'center' });
+    }
+  });
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function syncFromHash() {
   const hash = window.location.hash || '#/';
   if (hash.startsWith('#/post/')) {
@@ -344,10 +583,41 @@ function syncFromHash() {
 }
 
 const activePost = computed(() => posts.value.find((p) => p.slug === activeSlug.value) || null);
+const activeIndex = computed(() => posts.value.findIndex((p) => p.slug === activeSlug.value));
+const prevPost = computed(() => (activeIndex.value > 0 ? posts.value[activeIndex.value - 1] : null));
+const nextPost = computed(() =>
+  activeIndex.value >= 0 && activeIndex.value < posts.value.length - 1 ? posts.value[activeIndex.value + 1] : null,
+);
+const tocItems = computed(() => buildToc(activePost.value?.content || ''));
+const tocBaseLevel = computed(() => {
+  if (!tocItems.value.length) return 1;
+  return Math.min(...tocItems.value.map((item) => item.level));
+});
+const markdownThemeClass = computed(() => `${markdownTheme.value}-theme`);
 const renderedContent = computed(() => {
   if (!activePost.value) return '';
-  return marked.parse(activePost.value.content || '');
+  const renderer = createRenderer();
+  return marked.parse(activePost.value.content || '', { renderer });
 });
+
+async function copyToClipboard(text) {
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand('copy');
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
 
 async function loadData() {
   try {
@@ -356,11 +626,13 @@ async function loadData() {
     const postsUrl = useApi ? '/api/posts' : `${base}data/posts.json`;
     const categoriesUrl = useApi ? '/api/categories' : `${base}data/categories.json`;
     const tagsUrl = useApi ? '/api/tags' : `${base}data/tags.json`;
+    const settingsUrl = useApi ? '/api/settings' : `${base}data/settings.json`;
 
-    const [postsRes, categoriesRes, tagsRes] = await Promise.all([
+    const [postsRes, categoriesRes, tagsRes, settingsRes] = await Promise.all([
       fetch(postsUrl),
       fetch(categoriesUrl),
       fetch(tagsUrl),
+      fetch(settingsUrl),
     ]);
 
     if (!postsRes.ok || !categoriesRes.ok || !tagsRes.ok) {
@@ -370,6 +642,7 @@ async function loadData() {
     const postsData = await postsRes.json();
     const categoriesData = await categoriesRes.json();
     const tagsData = await tagsRes.json();
+    const settingsData = settingsRes.ok ? await settingsRes.json() : {};
 
     const rawPosts = useApi
       ? (Array.isArray(postsData) ? postsData : []).filter((p) => p.status === 'published')
@@ -387,6 +660,7 @@ async function loadData() {
     categoryMap.value = Object.fromEntries(categories.value.map((c) => [c.id, c.name]));
     categoryColorMap.value = Object.fromEntries(categories.value.map((c) => [c.id, c.color || '#6366f1']));
     tagMap.value = Object.fromEntries(tags.value.map((t) => [t.id, t.name]));
+    markdownTheme.value = settingsData.markdownTheme || 'default';
 
     syncFromHash();
   } catch (err) {
@@ -398,8 +672,59 @@ async function loadData() {
 
 onMounted(() => {
   window.addEventListener('hashchange', syncFromHash);
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  document.addEventListener('click', handleCodeCopy);
   loadData();
 });
+
+onUnmounted(() => {
+  window.removeEventListener('hashchange', syncFromHash);
+  window.removeEventListener('scroll', handleScroll);
+  document.removeEventListener('click', handleCodeCopy);
+  if (tocObserver) {
+    tocObserver.disconnect();
+    tocObserver = null;
+  }
+  if (tocScrollRaf) {
+    cancelAnimationFrame(tocScrollRaf);
+    tocScrollRaf = null;
+  }
+});
+
+watch(view, () => {
+  handleScroll();
+});
+
+watch(
+  () => [view.value, activePost.value?.content],
+  async () => {
+    await nextTick();
+    setupTocObserver();
+    syncTocScroll();
+  },
+);
+
+watch(showToc, (visible) => {
+  if (visible) {
+    syncTocScroll();
+  }
+});
+
+function handleCodeCopy(event) {
+  const btn = event.target?.closest?.('.code-copy');
+  if (!btn) return;
+  const encoded = btn.getAttribute('data-code') || '';
+  if (!encoded) return;
+  copyToClipboard(decodeBase64(encoded)).then(() => {
+    const textEl = btn.querySelector('.code-copy-text');
+    if (textEl) {
+      textEl.textContent = '已复制';
+      setTimeout(() => {
+        textEl.textContent = '复制';
+      }, 1200);
+    }
+  }).catch(() => {});
+}
 </script>
 
 <style>
@@ -426,24 +751,234 @@ onMounted(() => {
   animation: slideUp 0.4s ease-out forwards;
 }
 
-.markdown-content p {
+.md-preview {
+  background: transparent;
+}
+.md-preview .md-editor-preview {
+  padding: 0;
+  background: transparent;
   color: #9ca3af;
-  margin-bottom: 1rem;
-  line-height: 1.7;
 }
-
-.markdown-content h2 {
+.md-preview .md-editor-preview h1,
+.md-preview .md-editor-preview h2,
+.md-preview .md-editor-preview h3,
+.md-preview .md-editor-preview h4,
+.md-preview .md-editor-preview h5,
+.md-preview .md-editor-preview h6 {
   color: #f3f4f6;
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
+}
+.md-preview .md-editor-preview h1,
+.md-preview .md-editor-preview h2,
+.md-preview .md-editor-preview h3,
+.md-preview .md-editor-preview h4 {
+  scroll-margin-top: 96px;
 }
 
-.markdown-content code {
-  background: #1f2937;
-  padding: 0.2rem 0.4rem;
-  border-radius: 0.25rem;
-  font-family: monospace;
+.md-preview .code-block {
+  background: #1f2328;
+  border: 1px solid #24292f;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 18px 0;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.md-preview .code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #1c2025;
+  border-bottom: 1px solid #2a2f36;
+}
+
+.md-preview .code-dots {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.md-preview .code-dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.md-preview .code-dots i:nth-child(1) { background: #ff5f56; }
+.md-preview .code-dots i:nth-child(2) { background: #ffbd2e; }
+.md-preview .code-dots i:nth-child(3) { background: #27c93f; }
+
+.md-preview .code-lang {
+  font-size: 0.7rem;
+  text-transform: lowercase;
+  letter-spacing: 0.06em;
+  color: #9aa4b2;
+}
+
+.md-preview .code-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.md-preview .code-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #cbd5f5;
+  font-size: 0.7rem;
+  background: rgba(15, 23, 42, 0.35);
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.md-preview .code-copy:hover {
+  border-color: rgba(99, 102, 241, 0.6);
+  color: #e0e7ff;
+  background: rgba(99, 102, 241, 0.15);
+}
+
+.md-preview .code-copy .iconify {
+  font-size: 0.85rem;
+}
+
+.md-preview .code-block pre {
+  margin: 0;
+  padding: 16px 18px;
+  background: #1f2328;
+  overflow-x: auto;
+}
+
+.md-preview .code-block pre::before,
+.md-preview .code-block pre::after {
+  display: none !important;
+  content: none !important;
+}
+
+.md-preview .code-block code {
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  background: transparent;
+}
+
+.detail-layout {
+  position: relative;
+}
+
+.detail-content {
+  max-width: 48rem;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.toc-panel {
+  position: fixed;
+  top: 120px;
+  width: 220px;
+  left: max(16px, calc(50% - 24rem - 220px - 32px - 200px));
+  max-height: calc(100vh - 160px);
+  padding: 16px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(31, 41, 55, 0.7);
+  background: rgba(17, 24, 39, 0.92);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 40;
+}
+
+.toc-panel.toc-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.toc-title {
+  color: #cbd5f5;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(70vh - 48px);
+  overflow: auto;
+}
+
+.toc-list::-webkit-scrollbar {
+  width: 6px;
+}
+.toc-list::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.35);
+  border-radius: 999px;
+}
+
+.toc-item {
+  position: relative;
+}
+
+.toc-link {
+  width: 100%;
+  text-align: left;
+  font-size: 0.8rem;
+  color: #9ca3af;
+  line-height: 1.4;
+  padding: 4px 6px;
+  border-radius: 8px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.toc-link:hover {
+  color: #e0e7ff;
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.toc-link-active {
+  color: #e0e7ff;
+  background: rgba(99, 102, 241, 0.22);
+  box-shadow: inset 2px 0 0 rgba(99, 102, 241, 0.9);
+}
+
+.back-to-top {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(31, 41, 55, 0.8);
+  background: rgba(31, 41, 55, 0.85);
+  color: #e5e7eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, background 0.2s ease;
+  z-index: 40;
+}
+
+.back-to-top:hover {
+  transform: translateY(-4px);
+  background: rgba(99, 102, 241, 0.35);
+}
+
+@media (max-width: 1100px) {
+  .toc-panel {
+    display: none;
+  }
 }
 </style>

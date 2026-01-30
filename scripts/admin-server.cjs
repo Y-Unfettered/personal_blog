@@ -11,6 +11,7 @@ const HOST = process.env.ADMIN_HOST || '127.0.0.1';
 const PORT = Number(process.env.ADMIN_PORT || 3030);
 const DATA_DIR = path.resolve(process.cwd(), 'data/seed');
 const ADMIN_DIR = path.resolve(process.cwd(), 'admin');
+const DEFAULT_SETTINGS = { markdownTheme: 'default' };
 
 function send(res, status, data, headers = {}) {
   const body = typeof data === 'string' ? data : JSON.stringify(data);
@@ -58,6 +59,22 @@ function normalizeList(input, keyName) {
 
 function listFile(name) {
   return path.join(DATA_DIR, name);
+}
+
+function readSettings() {
+  const filePath = listFile('settings.json');
+  if (!fs.existsSync(filePath)) return { ...DEFAULT_SETTINGS };
+  try {
+    const data = readJson(filePath);
+    return { ...DEFAULT_SETTINGS, ...data };
+  } catch {
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
+function writeSettings(settings) {
+  const filePath = listFile('settings.json');
+  writeJson(filePath, settings);
 }
 
 function slugify(input) {
@@ -330,6 +347,20 @@ const server = http.createServer(async (req, res) => {
       if (!body || !body.title) throw new Error('title required');
       runGenerate(body.title);
       return send(res, 200, { ok: true });
+    }
+
+    if (pathname === '/api/settings') {
+      if (req.method === 'GET') return send(res, 200, readSettings());
+      if (req.method === 'PUT') {
+        const body = await readBody(req);
+        const theme = body && body.markdownTheme ? String(body.markdownTheme) : DEFAULT_SETTINGS.markdownTheme;
+        const allowed = ['default', 'mk-cute', 'smart-blue', 'cyanosis'];
+        if (!allowed.includes(theme)) throw new Error('invalid markdownTheme');
+        const next = { markdownTheme: theme };
+        writeSettings(next);
+        return send(res, 200, next);
+      }
+      return methodNotAllowed(res);
     }
 
     return notFound(res);

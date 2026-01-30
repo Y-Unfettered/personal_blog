@@ -4,7 +4,7 @@
     "title": "探索 2026 年现代前端架构演进",
     "slug": "hello-blog",
     "summary": "随着微前端与边缘计算的普及，我们如何重新审视应用的性能与用户体验？",
-    "content": "本文将深度剖析当前 Web 技术的底层逻辑。在过去的一年里，我们见证了从传统的响应式设计到“流式组件渲染”的范式转移...\n\n核心技术突破\n利用边缘计算（Edge Computing），动态内容可以在最接近用户的节点完成预渲染。这意味着 First Meaningful Paint (FMP) 的时间再次被压缩。\n\n如下所示的代码演示了最新的并发监听模式：\n\nconst obs = new ObservableStream('https://api/v1');\nobs.subscribe(data => console.log(data));\n结论\n技术的迭代并非为了更替而更替，而是为了解决日益增长的性能需求与硬件设备多样性之间的矛盾。",
+    "content": "> 本文将深度剖析当前 Web 技术的底层逻辑。在过去的一年里，我们见证了从传统的响应式设计到“流式组件渲染”的范式转移...\n\n# 核心技术突破\n\n利用边缘计算（Edge Computing），动态内容可以在最接近用户的节点完成预渲染。这意味着 First Meaningful Paint (FMP) 的时间再次被压缩。\n\n**如下所示的代码演示了最新的并发监听模式：**\n\n```JavaScript\nconst obs = new ObservableStream('https://api/v1');\nobs.subscribe(data => console.log(data));\n```\n\n# 结论\n\n技术的迭代并非为了更替而更替，而是为了解决日益增长的性能需求与硬件设备多样性之间的矛盾。\n",
     "cover": "https://plus.unsplash.com/premium_photo-1672423154405-5fd922c11af2?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "categories": [
       "cat-1769704635190"
@@ -36,161 +36,35 @@
     "pinned": true
   },
   {
-    "id": "post-1769698696829",
-    "title": "测试",
-    "slug": "hello-cs",
-    "summary": "测试",
-    "content": "测试",
-    "categories": [
-      "测试",
-      "cat-life"
-    ],
-    "tags": [
-      "tag-vue",
-      "tag-journal"
-    ],
-    "created_at": "2026-01-29",
-    "updated_at": "2026-01-29",
-    "status": "published",
-    "cover": ""
-  },
-  {
-    "id": "post-1769700082271",
-    "title": "sad",
-    "slug": "dsa",
-    "summary": "d a",
-    "content": "dsa das",
-    "categories": [
-      "trssd"
-    ],
-    "tags": [
-      "das，大苏打"
-    ],
-    "created_at": "2026-01-29",
-    "updated_at": "2026-01-29",
-    "status": "published",
-    "cover": ""
-  },
-  {
-    "id": "post-1769701576945",
-    "title": "测试",
-    "slug": "ce",
-    "summary": "dsdadasdasd",
-    "content": "ds dasdas das sadas dasd \n# dsadasd \n# dsadsa\ndsadasd\n## dsadasd",
-    "categories": [],
-    "tags": [],
-    "created_at": "2026-01-29",
-    "updated_at": "2026-01-29",
-    "status": "published"
-  },
-  {
-    "id": "post-1769701809657",
-    "title": "测试VUE",
-    "slug": "csvue",
-    "summary": "测试VUE",
-    "content": "测试VUE测试VUE测试VUE测试VUE\n测试VUE测试VUE\n测试VUE测试VUE测试VUE",
+    "id": "post-1769776447971",
+    "title": "Vue3 开启了前端开发新范式的研究报告",
+    "slug": "vue3",
+    "summary": "Vue3 作为现代前端框架的重要里程碑，通过其革命性的组合式 API、性能优化和更好的 TypeScript 支持，彻底改变了前端开发模式。本报告将深入分析 Vue3 如何重新定义前端开发范式，并通过具体代码示例展示其核心特性。",
+    "content": "## 一、Vue3 的核心革新\n\n### 1.1 组合式 API (Composition API)\n\nVue3 最显著的变革是引入了组合式 API，它解决了 Vue2 选项式 API 在复杂组件中逻辑分散的问题。\n\n#### **传统选项式 API 的问题**\n\n```javascript\n// Vue2 选项式 API - 逻辑分散\nexport default {\n  data() {\n    return {\n      count: 0,\n      user: null,\n      loading: false\n    }\n  },\n  methods: {\n    increment() {\n      this.count++\n    },\n    async fetchUser() {\n      this.loading = true\n      // ... 获取用户数据\n      this.loading = false\n    }\n  },\n  mounted() {\n    this.fetchUser()\n  },\n  watch: {\n    count(newVal) {\n      console.log('count changed:', newVal)\n    }\n  }\n}\n```\n\n#### **组合式 API 的优势**\n\n```javascript\n// Vue3 组合式 API - 逻辑聚合\nimport { ref, onMounted, watch, computed } from 'vue'\n\nexport function useCounter() {\n  const count = ref(0)\n\n  const increment = () => {\n    count.value++\n  }\n\n  const doubleCount = computed(() => count.value * 2)\n\n  watch(count, (newVal) => {\n    console.log('count changed:', newVal)\n  })\n\n  return { count, increment, doubleCount }\n}\n\nexport function useUser() {\n  const user = ref(null)\n  const loading = ref(false)\n\n  const fetchUser = async () => {\n    loading.value = true\n    try {\n      const response = await fetch('/api/user')\n      user.value = await response.json()\n    } finally {\n      loading.value = false\n    }\n  }\n\n  onMounted(fetchUser)\n\n  return { user, loading, fetchUser }\n}\n\n// 在组件中使用\nexport default {\n  setup() {\n    const { count, increment, doubleCount } = useCounter()\n    const { user, loading, fetchUser } = useUser()\n\n    return { count, increment, doubleCount, user, loading, fetchUser }\n  }\n}\n```\n\n### 1.2 响应式系统的重构\n\nVue3 使用 Proxy 重写了响应式系统，带来了更好的性能和更完整的响应式特性。\n\n```javascript\nimport { reactive, ref, watchEffect, computed } from 'vue'\n\n// reactive 用于对象\nconst state = reactive({\n  user: {\n    name: '张三',\n    age: 25\n  },\n  skills: ['Vue', 'TypeScript', 'JavaScript']\n})\n\n// ref 用于基本类型\nconst count = ref(0)\n\n// 深层响应式\nstate.user.name = '李四' // 自动触发更新\nstate.skills.push('React') // 自动触发更新\n\n// 计算属性\nconst userInfo = computed(() => {\n  return `${state.user.name} - ${state.user.age}岁`\n})\n\n// 副作用监听\nwatchEffect(() => {\n  console.log('用户信息更新:', userInfo.value)\n})\n```\n\n## 二、性能优化突破\n\n### 2.1 编译时优化\n\nVue3 的编译器进行了重大改进，生成了更高效的渲染代码。\n\n#### **Patch Flag 优化**\n\n```javascript\n// Vue3 编译后的渲染函数\nimport { createElementVNode as _createElementVNode } from 'vue'\n\nexport function render(_ctx, _cache) {\n  return _createElementVNode(\n    'div',\n    {\n      class: _ctx.dynamicClass,\n      // 只有 class 是动态的，其他属性是静态的\n      _patchFlag: 2 // 2 表示只有 class 需要更新\n    },\n    [\n      _createElementVNode('span', null, '静态内容'),\n      _createElementVNode('span', { class: _ctx.dynamicTextClass }, _ctx.dynamicText)\n    ]\n  )\n}\n```\n\n#### **Tree-shaking 支持**\n\n```javascript\n// 按需导入，减小打包体积\nimport { ref, computed, watchEffect } from 'vue'\n// 而不是 import Vue from 'vue'\n\n// 路由和状态管理也支持 Tree-shaking\nimport { createRouter, createWebHistory } from 'vue-router'\nimport { createPinia } from 'pinia'\n```\n\n### 2.2 更好的 TypeScript 支持\n\nVue3 完全使用 TypeScript 重写，提供了完整的类型推导。\n\n```typescript\n// 完整的 TypeScript 支持示例\nimport { defineComponent, ref, computed, PropType } from 'vue'\n\ninterface User {\n  id: number\n  name: string\n  email: string\n}\n\nexport default defineComponent({\n  name: 'UserProfile',\n\n  props: {\n    user: {\n      type: Object as PropType<User>,\n      required: true\n    },\n    showEmail: {\n      type: Boolean,\n      default: false\n    }\n  },\n\n  emits: {\n    'update:name': (name: string) => typeof name === 'string',\n    'delete': (id: number) => typeof id === 'number'\n  },\n\n  setup(props, { emit }) {\n    // 完整的类型推断\n    const userName = computed({\n      get: () => props.user.name,\n      set: (value: string) => {\n        emit('update:name', value)\n      }\n    })\n\n    const deleteUser = () => {\n      emit('delete', props.user.id)\n    }\n\n    return { userName, deleteUser }\n  }\n})\n```\n\n## 三、新的开发模式\n\n### 3.1 逻辑复用模式\n\n```javascript\n// useFetch 自定义组合式函数\nimport { ref, onUnmounted } from 'vue'\n\nexport function useFetch(url, options = {}) {\n  const data = ref(null)\n  const error = ref(null)\n  const loading = ref(false)\n\n  let controller = null\n\n  const fetchData = async () => {\n    loading.value = true\n    error.value = null\n\n    try {\n      if (controller) {\n        controller.abort()\n      }\n\n      controller = new AbortController()\n\n      const response = await fetch(url, {\n        ...options,\n        signal: controller.signal\n      })\n\n      if (!response.ok) {\n        throw new Error(`HTTP error! status: ${response.status}`)\n      }\n\n      data.value = await response.json()\n    } catch (err) {\n      if (err.name !== 'AbortError') {\n        error.value = err.message\n      }\n    } finally {\n      loading.value = false\n    }\n  }\n\n  onUnmounted(() => {\n    if (controller) {\n      controller.abort()\n    }\n  })\n\n  return {\n    data,\n    error,\n    loading,\n    fetchData,\n    retry: fetchData\n  }\n}\n\n// 在多个组件中复用\nexport default {\n  setup() {\n    const { data: posts, loading, error, retry } = useFetch('/api/posts')\n\n    return { posts, loading, error, retry }\n  }\n}\n```\n\n### 3.2 状态管理新范式\n\n```javascript\n// 使用 Pinia (Vue3 官方推荐的状态管理)\nimport { defineStore } from 'pinia'\n\nexport const useCounterStore = defineStore('counter', {\n  state: () => ({\n    count: 0,\n    user: null\n  }),\n\n  getters: {\n    doubleCount: (state) => state.count * 2,\n    userInitials: (state) => {\n      return state.user\n        ? state.user.name.split(' ').map(n => n[0]).join('')\n        : ''\n    }\n  },\n\n  actions: {\n    increment() {\n      this.count++\n    },\n    async fetchUser() {\n      const response = await fetch('/api/user')\n      this.user = await response.json()\n    }\n  }\n})\n\n// 在组件中使用\nimport { storeToRefs } from 'pinia'\n\nexport default {\n  setup() {\n    const counterStore = useCounterStore()\n\n    // 保持响应式\n    const { count, doubleCount } = storeToRefs(counterStore)\n\n    return {\n      count,\n      doubleCount,\n      increment: counterStore.increment\n    }\n  }\n}\n```\n\n## 四、生态系统演进\n\n### 4.1 Vite 构建工具\n\n```javascript\n// vite.config.js\nimport { defineConfig } from 'vite'\nimport vue from '@vitejs/plugin-vue'\nimport { resolve } from 'path'\n\nexport default defineConfig({\n  plugins: [vue()],\n\n  // 开发服务器配置\n  server: {\n    port: 3000,\n    proxy: {\n      '/api': {\n        target: 'http://localhost:3001',\n        changeOrigin: true\n      }\n    }\n  },\n\n  // 构建配置\n  build: {\n    rollupOptions: {\n      output: {\n        manualChunks: {\n          'vue-vendor': ['vue', 'vue-router', 'pinia']\n        }\n      }\n    }\n  },\n\n  resolve: {\n    alias: {\n      '@': resolve(__dirname, 'src')\n    }\n  }\n})\n```\n\n### 4.2 新的组件开发模式\n\n```vue\n<!-- 单文件组件的新特性 -->\n<template>\n  <!-- v-model 参数化 -->\n  <CustomInput v-model:title=\"pageTitle\" v-model:content=\"pageContent\" />\n\n  <!-- 多根节点支持 -->\n  <header>Header</header>\n  <main>Main Content</main>\n  <footer>Footer</footer>\n</template>\n\n<script setup>\n// <script setup> 语法糖\nimport { ref, defineProps, defineEmits, defineExpose } from 'vue'\n\n// 定义 props\nconst props = defineProps({\n  modelValue: String,\n  title: {\n    type: String,\n    default: 'Default Title'\n  }\n})\n\n// 定义 emits\nconst emit = defineEmits(['update:modelValue', 'submit'])\n\n// 响应式数据\nconst count = ref(0)\n\n// 方法\nconst increment = () => {\n  count.value++\n  emit('submit', count.value)\n}\n\n// 暴露给父组件的方法\ndefineExpose({\n  increment\n})\n</script>\n\n<style scoped>\n/* 作用域样式 */\n.header {\n  color: var(--primary-color);\n}\n\n/* 深度选择器 */\n:deep(.child-component) {\n  padding: 1rem;\n}\n\n/* 插槽选择器 */\n:slotted(.slot-content) {\n  margin: 1rem;\n}\n\n/* 全局规则 */\n:global(.global-class) {\n  font-family: system-ui;\n}\n</style>\n```\n\n## 五、与其他技术的集成\n\n### 5.1 微前端集成\n\n```javascript\n// 作为微前端应用\nimport { createApp } from 'vue'\nimport { createRouter, createWebHistory } from 'vue-router'\n\n// 独立运行\nif (!window.__POWERED_BY_QIANKUN__) {\n  createApp(App).mount('#app')\n}\n\n// 作为子应用\nexport async function bootstrap() {\n  console.log('Vue3 app bootstraped')\n}\n\nexport async function mount(props) {\n  const { container } = props\n\n  const router = createRouter({\n    history: createWebHistory('/vue3-app'),\n    routes: [\n      // 路由配置\n    ]\n  })\n\n  const app = createApp(App)\n  app.use(router)\n  app.mount(container ? container.querySelector('#app') : '#app')\n\n  return app\n}\n\nexport async function unmount() {\n  // 清理工作\n}\n```\n\n### 5.2 Web Components 支持\n\n```javascript\n// 将 Vue 组件包装为 Web Component\nimport { defineCustomElement } from 'vue'\n\nconst MyVueElement = defineCustomElement({\n  props: {\n    title: String,\n    count: Number\n  },\n\n  setup(props) {\n    const internalCount = ref(props.count || 0)\n\n    const increment = () => {\n      internalCount.value++\n    }\n\n    return {\n      internalCount,\n      increment\n    }\n  },\n\n  template: `\n    <div>\n      <h2>{{ title }}</h2>\n      <p>Count: {{ internalCount }}</p>\n      <button @click=\"increment\">Increment</button>\n    </div>\n  `\n})\n\n// 注册自定义元素\ncustomElements.define('my-vue-element', MyVueElement)\n\n// 在任何框架或原生 HTML 中使用\n// <my-vue-element title=\"计数器\" count=\"0\"></my-vue-element>\n```\n\n## 六、总结与展望\n\nVue3 通过组合式 API、性能优化和更好的开发体验，确实开启了一种新的前端开发模式：\n\n1. **逻辑复用性提升**：组合式函数使得逻辑复用更加灵活和强大\n2. **类型安全增强**：完整的 TypeScript 支持提高了代码的可靠性\n3. **性能大幅优化**：编译时优化和响应式系统重构带来了更好的性能\n4. **开发体验改善**：更好的工具链支持和更简洁的 API 设计\n5. **生态系统繁荣**：Vite、Pinia、Volar 等工具形成了完整的开发生态\n\nVue3 不仅是一个框架的升级，更是前端开发理念的一次革新。它推动了前端开发向更加模块化、类型安全和高效的方向发展，为构建大型复杂应用提供了更好的解决方案。\n\n未来，随着 Vue 生态的不断完善和社区的发展，Vue3 将继续引领前端开发的新趋势，推动 Web 开发技术的进步。\n",
     "categories": [
       "cat-1769701776764"
     ],
     "tags": [
       "tag-vue"
     ],
-    "created_at": "2026-01-29",
-    "updated_at": "2026-01-30",
-    "status": "published",
-    "cover": "",
-    "pinned": false
-  },
-  {
-    "id": "post-1769702095704",
-    "title": "测试",
-    "slug": "csvueqq",
-    "summary": "测试测试测试测试",
-    "content": "adasdasdasdasdasdas",
-    "categories": [
-      "cat-tech"
-    ],
-    "tags": [
-      "tag-vue"
-    ],
-    "created_at": "2026-01-26",
-    "updated_at": "2026-01-30",
-    "status": "published",
-    "cover": "",
-    "pinned": false
-  },
-  {
-    "id": "post-1769702480794",
-    "title": "测试",
-    "slug": "hello-blog-o",
-    "summary": "asd0000",
-    "content": "dsadasd",
-    "categories": [
-      "cat-tech"
-    ],
-    "tags": [
-      "tag-vue"
-    ],
     "created_at": "2026-01-30",
     "updated_at": "2026-01-30",
-    "status": "draft",
+    "status": "published",
     "pinned": true,
     "cover": ""
   },
   {
-    "id": "post-1769702977633",
-    "title": "we",
-    "slug": "sd",
-    "summary": "dsad",
-    "content": "dasdas",
-    "categories": [
-      "cat-tech"
-    ],
-    "tags": [
-      "tag-vue"
-    ],
-    "created_at": "2026-01-30",
-    "updated_at": "2026-01-30",
-    "status": "draft",
-    "pinned": false
-  },
-  {
-    "id": "post-1769702988462",
-    "title": "dsadsa",
-    "slug": "dsadd",
-    "summary": "dsa",
-    "content": "dsadasd",
+    "id": "post-1769781653228",
+    "title": "测试",
+    "slug": "cs",
+    "summary": "测试",
+    "content": "这是一个在网络上流传甚广但严重失实的说法，**属于后世对朱熹的污名化传闻，并无可靠史料支持**。关于朱熹的家庭生活，需要进行严谨的澄清。\n\n### **核心事实：朱熹只有一位妻子，无纳妾记载**\n根据正史（如《宋史·朱熹传》）及朱熹门人、友人的可靠记载：\n- **婚姻状况**：朱熹一生只娶了一位妻子**刘氏**（卒于1176年），为老师刘勉之之女。夫妻感情甚笃，刘氏去世后，朱熹写下多首悼亡诗，此后**终身未再娶**，也未有任何纳妾的记录。\n- **子女**：他与刘氏育有三子五女，家庭生活记载清晰。\n\n### **谣言的来源：政治斗争中的污蔑**\n朱熹“纳妾”等污名化说法，主要来源于南宋著名的政治事件——“庆元党禁”。\n\n1.  **时代背景**：1195年，权臣韩侂胄当政，将朱熹及其理学学派斥为“伪学”，发起大规模政治清洗，史称“庆元党禁”。朱熹被列为“伪学魁首”。\n2.  **弹劾奏章**：1196年，监察御史沈继祖为迎合韩侂胄，上奏弹劾朱熹，罗列了**十大罪状**，其中就包括“引诱尼姑二人以为宠妾”等极为不堪的指控。这份奏章是典型的政治陷害文书，目的是从道德上彻底搞臭朱熹。\n3.  **目的与性质**：这些指控**没有任何实证**，是政敌在党争白热化时期使用的污蔑手段，类似于现代政治抹黑。当时许多正直之士都知其虚假。朱熹本人对此上章自辩，但迫于政治压力，最终被罢官，学说遭禁。\n\n### **为何谣言能流传至今？**\n1.  **反差与猎奇**：朱熹是提倡“存天理，灭人欲”的理学宗师，关于他“私德有亏”的传言极具戏剧性和传播力，满足了人们对“道学家虚伪”的想象。\n2.  **后世对理学的反思**：明清以来，理学成为官学，其部分教条（如强调贞节、压抑人性）对社会产生了束缚作用。后世在批判理学流弊时，有时会将情绪投射到其代表人物身上，使这些未经证实的污名化故事被反复提及。\n3.  **文学与民间演绎**：一些笔记小说、民间故事不加甄别地采用了这些传闻，进一步扩大了其影响。\n\n### **学术界的共识**\n严肃的历史学家和宋史研究者均认为：\n- 沈继祖弹劾文中关于朱熹私生活的指控**是政治诬陷，不足为信**。\n- 考察朱熹一生的书信、日记、弟子们的记录，其个人生活严谨清贫，与妻感情深厚，与“妻妾成群”的形象完全不符。\n- 他的主要精力都投入在著述、讲学和政务上。\n\n### **总结**\n- **历史事实**：朱熹一夫一妻，家庭生活清白，并无妾室。\n- **谣言本质**：“纳妾多”等说法源于南宋政敌的政治诬蔑，是“庆元党禁”时期攻击朱熹的工具。\n- **历史启示**：这提醒我们，评价历史人物时应依据可信的史料，而非带有政治目的的攻击性文件或后世演绎的猎奇故事。将朱熹塑造为一个“伪君子”，既不符合史实，也简化了思想与历史语境之间的复杂关系。",
     "categories": [],
     "tags": [],
     "created_at": "2026-01-30",
     "updated_at": "2026-01-30",
-    "status": "draft",
-    "pinned": false
-  },
-  {
-    "id": "post-1769702997544",
-    "title": "dsadasdasas",
-    "slug": "ddd",
-    "summary": "dsaas",
-    "content": "dsadasd",
-    "categories": [],
-    "tags": [],
-    "created_at": "2026-01-30",
-    "updated_at": "2026-01-30",
-    "status": "draft",
-    "pinned": false
-  },
-  {
-    "id": "post-1769703062380",
-    "title": "a'a",
-    "slug": "aa",
-    "summary": "vue",
-    "content": "aa",
-    "categories": [],
-    "tags": [],
-    "created_at": "2026-01-30",
-    "updated_at": "2026-01-30",
-    "status": "draft",
-    "pinned": false
+    "status": "published",
+    "pinned": false,
+    "cover": ""
   }
 ]
