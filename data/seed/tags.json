@@ -5,8 +5,23 @@
     "slug": "vue"
   },
   {
-    "id": "tag-journal",
-    "name": "Journal",
-    "slug": "journal"
+    "id": "tag-1769878846894",
+    "name": "Word",
+    "slug": "word"
+  },
+  {
+    "id": "tag-1769878864683",
+    "name": "PPT",
+    "slug": "ppt"
+  },
+  {
+    "id": "tag-1769878878774",
+    "name": "Excel",
+    "slug": "excel"
+  },
+  {
+    "id": "tag-1769878889807",
+    "name": "Blog",
+    "slug": "blog"
   }
 ]

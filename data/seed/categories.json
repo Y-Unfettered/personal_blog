@@ -1,34 +1,23 @@
 [
   {
-    "id": "cat-tech",
-    "name": "Tech",
-    "slug": "tech",
-    "description": "Tech notes and experiments"
-  },
-  {
-    "id": "cat-life",
-    "name": "Life",
-    "slug": "life",
-    "description": "Personal thoughts",
-    "color": "#2afeb7"
-  },
-  {
     "id": "cat-1769701776764",
     "name": "Vue 3.0",
-    "slug": "Vue_3.0",
+    "slug": "Vue",
     "description": "Vue 3.0 方面的文章合集",
-    "color": "#f29d64"
+    "color": "#45c28a"
   },
   {
-    "id": "cat-1769704635190",
-    "name": "技术架构",
-    "slug": "jsjg"
+    "id": "cat-1769878555807",
+    "name": "博客搭建",
+    "slug": "blog",
+    "description": "分享个人博客搭建",
+    "color": "#f2c564"
   },
   {
-    "id": "cat-1769705464697",
-    "name": "前端框架",
-    "slug": "qdkj",
-    "description": "",
-    "color": "#2d30f0"
+    "id": "cat-1769878741246",
+    "name": "Office 分享",
+    "slug": "office",
+    "description": "关于Office 分享的一些心得分享",
+    "color": "#ff0000"
   }
 ]

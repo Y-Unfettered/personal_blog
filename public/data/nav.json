@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "generated_at": "2026-01-31",
+  "nav": [
+    {
+      "id": "nav-about",
+      "label": "关于我",
+      "href": "/about",
+      "order": 7,
+      "visible": true
+    },
+    {
+      "id": "nav-1769865769907",
+      "label": "首页",
+      "href": "/",
+      "order": 1,
+      "visible": true
+    },
+    {
+      "id": "nav-1769871019438",
+      "label": "设计创作",
+      "href": "/design",
+      "order": 2,
+      "visible": true
+    },
+    {
+      "id": "nav-1769871041577",
+      "label": "技术笔记",
+      "href": "/technology",
+      "order": 3,
+      "visible": true
+    },
+    {
+      "id": "nav-1769871070398",
+      "label": "工具分享",
+      "href": "/tool",
+      "order": 4,
+      "visible": true
+    },
+    {
+      "id": "nav-1769871103215",
+      "label": "问题记录",
+      "href": "/problem",
+      "order": 5,
+      "visible": true
+    },
+    {
+      "id": "nav-1769871130544",
+      "label": "生活随笔",
+      "href": "/life",
+      "order": 6,
+      "visible": true
+    }
+  ]
+}

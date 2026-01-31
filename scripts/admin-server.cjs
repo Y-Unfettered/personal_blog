@@ -353,10 +353,15 @@ const server = http.createServer(async (req, res) => {
       if (req.method === 'GET') return send(res, 200, readSettings());
       if (req.method === 'PUT') {
         const body = await readBody(req);
-        const theme = body && body.markdownTheme ? String(body.markdownTheme) : DEFAULT_SETTINGS.markdownTheme;
+        const current = readSettings();
+        const theme = body && body.markdownTheme ? String(body.markdownTheme) : current.markdownTheme || DEFAULT_SETTINGS.markdownTheme;
         const allowed = ['default', 'mk-cute', 'smart-blue', 'cyanosis'];
         if (!allowed.includes(theme)) throw new Error('invalid markdownTheme');
-        const next = { markdownTheme: theme };
+        const next = {
+          ...current,
+          ...body,
+          markdownTheme: theme,
+        };
         writeSettings(next);
         return send(res, 200, next);
       }

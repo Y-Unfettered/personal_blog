@@ -1,87 +1,78 @@
 ﻿<template>
   <div>
-    <nav class="sticky top-0 z-50 bg-[#0f1115]/80 backdrop-blur-xl border-b border-gray-800">
-      <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <div class="flex items-center space-x-3 group cursor-pointer" @click="goHome">
-          <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center group-hover:rotate-12 transition-transform">
-            <span class="iconify text-white text-xl" data-icon="lucide:terminal"></span>
-          </div>
-          <span class="text-xl font-bold tracking-tight text-white">DevLog<span class="text-indigo-500">_</span></span>
-        </div>
-        <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-400">
-          <button class="hover:text-white transition-colors" @click="setView('home')">文章</button>
-          <button class="hover:text-white transition-colors" @click="setView('categories')">分类</button>
-          <button class="hover:text-white transition-colors" @click="setView('tags')">标签</button>
-          <button class="hover:text-white transition-colors" @click="setView('about')">关于</button>
-        </div>
-        <button class="md:hidden text-gray-400" @click="toggleMobile">
-          <span class="iconify text-2xl" data-icon="lucide:menu"></span>
-        </button>
-      </div>
-      <div v-if="mobileOpen" class="md:hidden border-t border-gray-800 bg-[#0f1115]">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col space-y-2 text-sm text-gray-400">
-          <button class="text-left hover:text-white" @click="setView('home')">文章</button>
-          <button class="text-left hover:text-white" @click="setView('categories')">分类</button>
-          <button class="text-left hover:text-white" @click="setView('tags')">标签</button>
-          <button class="text-left hover:text-white" @click="setView('about')">关于</button>
-        </div>
-      </div>
-    </nav>
+    <NavBar
+      v-model="searchQuery"
+      :items="visibleNavItems"
+      :is-active="isNavActive"
+      @nav="handleNavClick"
+      @search="handleSearchInput"
+      @submit="applySearch"
+      @home="goHome"
+    />
 
-    <main class="max-w-6xl mx-auto px-4 py-8 min-h-[calc(100vh-144px)]">
+    <main class="max-w-7xl mx-auto px-4 py-8 min-h-[calc(100vh-144px)]">
       <div v-if="loading" class="text-gray-400">Loading...</div>
       <div v-else-if="error" class="text-red-400">{{ error }}</div>
 
       <div v-else>
-        <section v-if="view === 'home'" class="animate-slide-up">
-          <div class="flex items-center justify-between mb-8">
-            <h1 class="text-2xl font-bold text-white">最新发布</h1>
+        <section v-if="view === 'home'" class="animate-slide-up space-y-10">
+          <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6">
+            <HeroCarousel
+              :slides="heroSlides"
+              :active-index="heroIndex"
+              @next="nextHero"
+              @prev="prevHero"
+              @select="heroIndex = $event"
+              @open="openPost"
+            />
+            <ProfileCard
+              :name="profile.name"
+              :subtitle="profile.subtitle"
+              :motto="profile.motto"
+              :avatar="profile.avatar"
+            />
           </div>
-          <div v-if="posts.length === 0" class="text-gray-400">No posts.</div>
-          <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <article
-              v-for="post in posts"
-              :key="post.id"
-              class="group bg-[#161b22] border border-gray-800 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all cursor-pointer"
-              @click="openPost(post)"
-            >
-              <div class="h-48 bg-gray-800 overflow-hidden relative">
-                <img
-                  v-if="post.cover"
-                  :alt="post.title"
-                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  :src="post.cover"
-                />
-                <div v-else class="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900"></div>
-                <div v-if="post.categories && post.categories.length" class="absolute top-4 left-4">
-                  <span class="px-2 py-1 text-white text-xs font-bold rounded" :style="categoryBadgeStyle(post.categories[0])">
-                    {{ categoryName(post.categories[0]) }}
-                  </span>
+
+          <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] lg:grid-rows-[auto_1fr] gap-6">
+            <div class="lg:col-start-1 lg:row-start-1">
+              <div class="flex items-center justify-between mb-6">
+                <div>
+                  <h1 class="text-2xl font-bold text-white">{{ homeTitle }}</h1>
                 </div>
+                <button
+                  v-if="hasActiveFilters"
+                  class="text-xs text-indigo-400 hover:text-indigo-300"
+                  type="button"
+                  @click="clearFilters"
+                >
+                  清除筛选
+                </button>
               </div>
-              <div class="p-5 flex flex-col space-y-3">
-                <div class="text-xs text-gray-500 flex items-center">
-                  <span class="iconify mr-1" data-icon="lucide:calendar"></span> {{ post.created_at }}
-                </div>
-                <h3 class="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">
-                  <span v-if="post.pinned" class="mr-2 px-2 py-0.5 text-xs rounded-full border border-indigo-500/40 text-indigo-300 bg-indigo-500/10">
-                    置顶
-                  </span>
-                  {{ post.title }}
-                </h3>
-                <p class="text-sm text-gray-400 line-clamp-2 leading-relaxed">{{ post.summary }}</p>
-                <div class="pt-4 border-t border-gray-800 flex justify-between items-center text-xs text-gray-400">
-                  <span class="flex items-center">
-                    <span class="iconify mr-1" data-icon="lucide:tag"></span>
-                    {{ tagSummary(post.tags) }}
-                  </span>
-                  <span v-if="post.readingTime" class="flex items-center">
-                    <span class="iconify mr-1" data-icon="lucide:clock"></span>
-                    {{ post.readingTime }} min read
-                  </span>
-                </div>
-              </div>
-            </article>
+            </div>
+            <div class="lg:col-start-1 lg:row-start-2">
+              <PostGrid
+                :posts="filteredPosts"
+                :category-name="categoryName"
+                :category-badge-style="categoryBadgeStyle"
+                :tag-summary="tagSummary"
+                @open="openPost"
+              />
+            </div>
+            <div class="hidden lg:block lg:col-start-2 lg:row-start-1"></div>
+            <aside class="space-y-4 lg:col-start-2 lg:row-start-2">
+              <CategorySidebar
+                :categories="orderedCategories"
+                :selected-id="selectedCategoryId"
+                @select="selectCategory"
+                @clear="clearCategoryFilter"
+              />
+              <TagSidebar
+                :tags="orderedTags"
+                :selected-id="selectedTagId"
+                @select="selectTag"
+                @clear="clearTagFilter"
+              />
+            </aside>
           </div>
         </section>
 
@@ -163,9 +154,10 @@
           <h1 class="text-2xl font-bold text-white mb-8">内容分类</h1>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div
-              v-for="cat in categories"
+              v-for="cat in categoriesWithCounts"
               :key="cat.id"
-              class="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-indigo-500/50 transition-all group"
+              class="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-indigo-500/50 transition-all group cursor-pointer"
+              @click="setCategoryFilter(cat.id)"
             >
               <span class="iconify text-4xl mb-4" data-icon="lucide:folder" :style="{ color: cat.color || '#6366f1' }"></span>
               <h3 class="text-lg font-bold text-white mb-2">{{ cat.name }}</h3>
@@ -196,11 +188,17 @@
             <div class="md:col-span-1">
               <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-8 text-center sticky top-24">
                 <div class="w-24 h-24 mx-auto mb-6 relative">
-                  <div class="rounded-full w-full h-full object-cover p-1 bg-indigo-500 shadow-xl shadow-indigo-500/20"></div>
+                  <img
+                    v-if="profile.avatar"
+                    :src="profile.avatar"
+                    :alt="profile.name"
+                    class="rounded-full w-full h-full object-cover p-1 bg-indigo-500 shadow-xl shadow-indigo-500/20"
+                  />
+                  <div v-else class="rounded-full w-full h-full object-cover p-1 bg-indigo-500 shadow-xl shadow-indigo-500/20"></div>
                   <div class="absolute bottom-1 right-1 w-6 h-6 bg-emerald-500 border-4 border-[#161b22] rounded-full"></div>
                 </div>
-                <h2 class="text-xl font-bold text-white mb-2">DevLog</h2>
-                <p class="text-sm text-gray-400 mb-6 font-mono">Full-stack & efficiency enthusiast</p>
+                <h2 class="text-xl font-bold text-white mb-2">{{ profile.name }}</h2>
+                <p class="text-sm text-gray-400 mb-6 font-mono">{{ profile.subtitle }}</p>
                 <div class="flex justify-center space-x-3">
                   <span class="iconify text-gray-400 hover:text-indigo-400 cursor-pointer text-xl" data-icon="lucide:github"></span>
                   <span class="iconify text-gray-400 hover:text-indigo-400 cursor-pointer text-xl" data-icon="lucide:twitter"></span>
@@ -211,32 +209,20 @@
             <div class="md:col-span-2 space-y-8">
               <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-8">
                 <h3 class="text-xl font-bold text-white mb-6 flex items-center">
-                  <span class="iconify text-indigo-500 mr-3" data-icon="lucide:user"></span> 关于这个博客
+                  <span class="iconify text-indigo-500 mr-3" data-icon="lucide:user"></span> {{ about.title }}
                 </h3>
                 <p class="text-gray-400 leading-relaxed text-sm">
-                  这里记录我的学习、实验与思考。内容聚焦于现代 Web 开发、效率工具和工程实践。
+                  {{ about.content }}
                 </p>
               </div>
               <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-8">
                 <h3 class="text-xl font-bold text-white mb-6 flex items-center">
-                  <span class="iconify text-indigo-500 mr-3" data-icon="lucide:zap"></span> 核心技能栈
+                  <span class="iconify text-indigo-500 mr-3" data-icon="lucide:zap"></span> {{ about.skillsTitle }}
                 </h3>
                 <div class="grid grid-cols-2 gap-4">
-                  <div class="flex items-center space-x-3 p-3 bg-gray-900 rounded-xl">
-                    <span class="iconify text-lg text-emerald-400" data-icon="logos:typescript-icon"></span>
-                    <span class="text-sm font-semibold">TypeScript</span>
-                  </div>
-                  <div class="flex items-center space-x-3 p-3 bg-gray-900 rounded-xl">
-                    <span class="iconify text-lg text-orange-400" data-icon="logos:rust"></span>
-                    <span class="text-sm font-semibold">Rust</span>
-                  </div>
-                  <div class="flex items-center space-x-3 p-3 bg-gray-900 rounded-xl">
-                    <span class="iconify text-lg text-blue-400" data-icon="logos:react"></span>
-                    <span class="text-sm font-semibold">React</span>
-                  </div>
-                  <div class="flex items-center space-x-3 p-3 bg-gray-900 rounded-xl">
-                    <span class="iconify text-lg text-purple-400" data-icon="logos:ebpf"></span>
-                    <span class="text-sm font-semibold">Cloud Native</span>
+                  <div v-for="(skill, idx) in about.skills" :key="`skill-${idx}`" class="flex items-center space-x-3 p-3 bg-gray-900 rounded-xl">
+                    <span class="iconify text-lg" :data-icon="skill.icon" :style="{ color: skill.color || '#a3a3a3' }"></span>
+                    <span class="text-sm font-semibold">{{ skill.label }}</span>
                   </div>
                 </div>
               </div>
@@ -264,9 +250,15 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
+import NavBar from './components/NavBar.vue';
+import HeroCarousel from './components/HeroCarousel.vue';
+import ProfileCard from './components/ProfileCard.vue';
+import PostGrid from './components/PostGrid.vue';
+import CategorySidebar from './components/CategorySidebar.vue';
+import TagSidebar from './components/TagSidebar.vue';
 
 function slugifyHeading(text, idMap) {
   const plain = String(text || '').replace(/<[^>]+>/g, '');
@@ -370,6 +362,7 @@ function createRenderer() {
 const posts = ref([]);
 const categories = ref([]);
 const tags = ref([]);
+const navItems = ref([]);
 const categoryMap = ref({});
 const categoryColorMap = ref({});
 const tagMap = ref({});
@@ -378,12 +371,33 @@ const error = ref('');
 const markdownTheme = ref('default');
 const view = ref('home');
 const activeSlug = ref('');
-const mobileOpen = ref(false);
+const searchQuery = ref('');
+const selectedCategoryId = ref('');
+const selectedTagId = ref('');
+const profile = reactive({
+  name: 'Lemon',
+  subtitle: '记录灵感 · 设计 · 代码',
+  motto: '以持续输出为信仰，把每一次学习都变成可复用的经验。',
+  avatar: '',
+});
+const about = reactive({
+  title: '关于这个博客',
+  content: '这里记录我的学习、实验与思考。内容聚焦于现代 Web 开发、效率工具和工程实践。',
+  skillsTitle: '核心技能栈',
+  skills: [
+    { label: 'TypeScript', icon: 'logos:typescript-icon', color: '#34d399' },
+    { label: 'Rust', icon: 'logos:rust', color: '#f97316' },
+    { label: 'React', icon: 'logos:react', color: '#60a5fa' },
+    { label: 'Cloud Native', icon: 'logos:ebpf', color: '#a855f7' },
+  ],
+});
 const showToc = ref(false);
 const showBackTop = ref(false);
 const activeHeadingId = ref('');
 let tocObserver = null;
 let tocScrollRaf = null;
+const heroIndex = ref(0);
+let heroTimer = null;
 
 function sortPosts(list) {
   return list.slice().sort((a, b) => {
@@ -396,13 +410,22 @@ function sortPosts(list) {
   });
 }
 
-function toggleMobile() {
-  mobileOpen.value = !mobileOpen.value;
-}
+const DEFAULT_NAV = [
+  { id: 'nav-home', label: '首页', href: '#/' },
+  { id: 'nav-design', label: '设计创作', href: '#/category/设计创作' },
+  { id: 'nav-tech', label: '技术笔记', href: '#/category/技术笔记' },
+  { id: 'nav-tools', label: '工具分享', href: '#/category/工具分享' },
+  { id: 'nav-issues', label: '问题记录', href: '#/category/问题记录' },
+  { id: 'nav-life', label: '生活随笔', href: '#/category/生活随笔' },
+  { id: 'nav-about', label: '关于我', href: '#/about' },
+];
 
 function setView(nextView) {
   view.value = nextView;
-  mobileOpen.value = false;
+  if (nextView !== 'home') {
+    selectedCategoryId.value = '';
+    selectedTagId.value = '';
+  }
   if (nextView === 'home') {
     window.location.hash = '#/';
   } else {
@@ -411,7 +434,145 @@ function setView(nextView) {
 }
 
 function goHome() {
+  clearFilters();
   setView('home');
+}
+
+function normalizeNavHref(item) {
+  return item && item.href ? String(item.href).trim() : '';
+}
+
+function categorySlugFromId(categoryId) {
+  const cat = categories.value.find((c) => c.id === categoryId);
+  if (!cat) return categoryId || '';
+  return cat.slug || cat.id;
+}
+
+function tagSlugFromId(tagId) {
+  const tag = tags.value.find((t) => t.id === tagId);
+  if (!tag) return tagId || '';
+  return tag.slug || tag.id;
+}
+
+function findCategoryBySlugOrName(slugOrName) {
+  const key = String(slugOrName || '').trim();
+  if (!key) return null;
+  return (
+    categories.value.find((c) => c.slug === key) ||
+    categories.value.find((c) => c.id === key) ||
+    categories.value.find((c) => c.name === key)
+  );
+}
+
+function findTagBySlugOrName(slugOrName) {
+  const key = String(slugOrName || '').trim();
+  if (!key) return null;
+  return (
+    tags.value.find((t) => t.slug === key) ||
+    tags.value.find((t) => t.id === key) ||
+    tags.value.find((t) => t.name === key)
+  );
+}
+
+function setCategoryFilter(categoryId) {
+  selectedCategoryId.value = categoryId || '';
+  selectedTagId.value = '';
+  view.value = 'home';
+  const slug = categorySlugFromId(categoryId);
+  window.location.hash = slug ? `#/category/${encodeURIComponent(slug)}` : '#/';
+}
+
+function setTagFilter(tagId) {
+  selectedTagId.value = tagId || '';
+  selectedCategoryId.value = '';
+  view.value = 'home';
+  const slug = tagSlugFromId(tagId);
+  window.location.hash = slug ? `#/tag/${encodeURIComponent(slug)}` : '#/';
+}
+
+function clearCategoryFilter() {
+  selectedCategoryId.value = '';
+  window.location.hash = '#/';
+}
+
+function clearTagFilter() {
+  selectedTagId.value = '';
+  window.location.hash = '#/';
+}
+
+function clearFilters() {
+  searchQuery.value = '';
+  selectedCategoryId.value = '';
+  selectedTagId.value = '';
+}
+
+function handleNavClick(item) {
+  const href = normalizeNavHref(item);
+  if (/^https?:\/\//i.test(href)) {
+    window.open(href, '_blank');
+    return;
+  }
+  if (href.startsWith('#/category/')) {
+    const slug = decodeURIComponent(href.replace('#/category/', '').trim());
+    const cat = findCategoryBySlugOrName(slug);
+    if (cat) setCategoryFilter(cat.id);
+    else window.location.hash = href;
+    return;
+  }
+  if (href.startsWith('#/tag/')) {
+    const slug = decodeURIComponent(href.replace('#/tag/', '').trim());
+    const tag = findTagBySlugOrName(slug);
+    if (tag) setTagFilter(tag.id);
+    else window.location.hash = href;
+    return;
+  }
+  if (href === '#/' || href === '#') {
+    clearFilters();
+    setView('home');
+    return;
+  }
+  if (href === '#/about') {
+    setView('about');
+    return;
+  }
+  if (href) {
+    window.location.hash = href;
+    return;
+  }
+  const fallback = findCategoryBySlugOrName(item?.label || '');
+  if (fallback) {
+    setCategoryFilter(fallback.id);
+  }
+}
+
+function handleSearchInput() {
+  if (view.value !== 'home') {
+    view.value = 'home';
+    window.location.hash = '#/';
+  }
+}
+
+function applySearch() {
+  handleSearchInput();
+}
+
+function isNavActive(item) {
+  const href = normalizeNavHref(item);
+  if (!href || href === '#/' || href === '#') {
+    return view.value === 'home' && !selectedCategoryId.value;
+  }
+  if (href === '#/about') return view.value === 'about';
+  if (href.startsWith('#/category/')) {
+    const slug = decodeURIComponent(href.replace('#/category/', '').trim());
+    const cat = findCategoryBySlugOrName(slug);
+    return cat ? selectedCategoryId.value === cat.id : false;
+  }
+  if (href.startsWith('#/tag/')) {
+    const slug = decodeURIComponent(href.replace('#/tag/', '').trim());
+    const tag = findTagBySlugOrName(slug);
+    return tag ? selectedTagId.value === tag.id : false;
+  }
+  return false;
 }
 
 function openPost(post) {
@@ -429,6 +590,16 @@ function namesFromIds(ids, map) {
 
 function categoryName(id) {
   return categoryMap.value[id] || id || '';
+}
+
+function selectCategory(cat) {
+  if (!cat) return;
+  setCategoryFilter(cat.id);
+}
+
+function selectTag(tag) {
+  if (!tag) return;
+  setTagFilter(tag.id);
 }
 
 function hexToRgba(hex, alpha) {
@@ -487,6 +658,15 @@ function tagSummary(ids) {
   if (!Array.isArray(ids) || ids.length === 0) return '无标签';
   const names = ids.map((id) => tagMap.value[id] || id);
   return names.slice(0, 2).join(', ') + (names.length > 2 ? '…' : '');
+}
+
+function matchesSearch(post, query) {
+  if (!query) return true;
+  const q = String(query || '').toLowerCase();
+  const categoriesText = (post.categories || []).map((id) => categoryName(id)).join(' ');
+  const tagsText = (post.tags || []).map((id) => tagMap.value[id] || id).join(' ');
+  const base = `${post.title || ''} ${post.summary || ''} ${categoriesText} ${tagsText}`.toLowerCase();
+  return base.includes(q);
 }
 
 function buildToc(markdown) {
@@ -569,6 +749,24 @@ function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function nextHero() {
+  if (!heroSlides.value.length) return;
+  heroIndex.value = (heroIndex.value + 1) % heroSlides.value.length;
+}
+
+function prevHero() {
+  if (!heroSlides.value.length) return;
+  heroIndex.value = (heroIndex.value - 1 + heroSlides.value.length) % heroSlides.value.length;
+}
+
+function startHeroTimer() {
+  if (heroTimer) clearInterval(heroTimer);
+  if (heroSlides.value.length <= 1) return;
+  heroTimer = setInterval(() => {
+    nextHero();
+  }, 6000);
+}
+
 function syncFromHash() {
   const hash = window.location.hash || '#/';
   if (hash.startsWith('#/post/')) {
@@ -576,11 +774,139 @@ function syncFromHash() {
     activeSlug.value = hash.replace('#/post/', '').trim();
     return;
   }
-  if (hash === '#/categories') return (view.value = 'categories');
-  if (hash === '#/tags') return (view.value = 'tags');
-  if (hash === '#/about') return (view.value = 'about');
+  if (hash.startsWith('#/category/')) {
+    const slug = decodeURIComponent(hash.replace('#/category/', '').trim());
+    const cat = findCategoryBySlugOrName(slug);
+    if (cat) selectedCategoryId.value = cat.id;
+    selectedTagId.value = '';
+    view.value = 'home';
+    return;
+  }
+  if (hash.startsWith('#/tag/')) {
+    const slug = decodeURIComponent(hash.replace('#/tag/', '').trim());
+    const tag = findTagBySlugOrName(slug);
+    if (tag) selectedTagId.value = tag.id;
+    selectedCategoryId.value = '';
+    view.value = 'home';
+    return;
+  }
+  if (hash === '#/categories') {
+    selectedCategoryId.value = '';
+    selectedTagId.value = '';
+    return (view.value = 'categories');
+  }
+  if (hash === '#/tags') {
+    selectedCategoryId.value = '';
+    selectedTagId.value = '';
+    return (view.value = 'tags');
+  }
+  if (hash === '#/about') {
+    selectedCategoryId.value = '';
+    selectedTagId.value = '';
+    return (view.value = 'about');
+  }
   view.value = 'home';
 }
+
+const categoryCounts = computed(() => {
+  const counts = {};
+  posts.value.forEach((post) => {
+    if (!Array.isArray(post.categories)) return;
+    post.categories.forEach((id) => {
+      counts[id] = (counts[id] || 0) + 1;
+    });
+  });
+  return counts;
+});
+
+const tagCounts = computed(() => {
+  const counts = {};
+  posts.value.forEach((post) => {
+    if (!Array.isArray(post.tags)) return;
+    post.tags.forEach((id) => {
+      counts[id] = (counts[id] || 0) + 1;
+    });
+  });
+  return counts;
+});
+
+const categoriesWithCounts = computed(() =>
+  categories.value.map((cat) => ({
+    ...cat,
+    count: categoryCounts.value[cat.id] || 0,
+  })),
+);
+
+const tagsWithCounts = computed(() =>
+  tags.value.map((tag) => ({
+    ...tag,
+    count: tagCounts.value[tag.id] || 0,
+  })),
+);
+
+const orderedCategories = computed(() =>
+  categoriesWithCounts.value
+    .slice()
+    .sort((a, b) => {
+      if (b.count !== a.count) return b.count - a.count;
+      return String(a.name || '').localeCompare(String(b.name || ''));
+    }),
+);
+
+const orderedTags = computed(() =>
+  tagsWithCounts.value
+    .slice()
+    .sort((a, b) => {
+      if (b.count !== a.count) return b.count - a.count;
+      return String(a.name || '').localeCompare(String(b.name || ''));
+    }),
+);
+
+const visibleNavItems = computed(() => {
+  const list = Array.isArray(navItems.value) && navItems.value.length ? navItems.value : DEFAULT_NAV;
+  return list
+    .filter((item) => item && item.label && item.visible !== false)
+    .slice()
+    .sort((a, b) => (Number(a.order || 0) || 0) - (Number(b.order || 0) || 0));
+});
+
+const heroSlides = computed(() => {
+  const slides = posts.value.filter((post) => post.pinned && post.cover).slice(0, 4);
+  return slides;
+});
+
+const filteredPosts = computed(() => {
+  const query = String(searchQuery.value || '').trim();
+  let list = posts.value.slice();
+  if (selectedCategoryId.value) {
+    list = list.filter((post) => Array.isArray(post.categories) && post.categories.includes(selectedCategoryId.value));
+  }
+  if (selectedTagId.value) {
+    list = list.filter((post) => Array.isArray(post.tags) && post.tags.includes(selectedTagId.value));
+  }
+  if (query) {
+    list = list.filter((post) => matchesSearch(post, query));
+  }
+  return list;
+});
+
+const hasActiveFilters = computed(() => {
+  return !!(selectedCategoryId.value || selectedTagId.value || String(searchQuery.value || '').trim());
+});
+
+const homeTitle = computed(() => {
+  if (selectedCategoryId.value) {
+    const cat = categories.value.find((c) => c.id === selectedCategoryId.value);
+    return cat ? `当前分类：${cat.name}` : '当前分类';
+  }
+  if (selectedTagId.value) {
+    const tag = tags.value.find((t) => t.id === selectedTagId.value);
+    return tag ? `当前标签：${tag.name}` : '当前标签';
+  }
+  const query = String(searchQuery.value || '').trim();
+  if (query) return `搜索结果：${query}`;
+  return '最新发布';
+});
 
 const activePost = computed(() => posts.value.find((p) => p.slug === activeSlug.value) || null);
 const activeIndex = computed(() => posts.value.findIndex((p) => p.slug === activeSlug.value));
@@ -626,13 +952,15 @@ async function loadData() {
     const postsUrl = useApi ? '/api/posts' : `${base}data/posts.json`;
     const categoriesUrl = useApi ? '/api/categories' : `${base}data/categories.json`;
     const tagsUrl = useApi ? '/api/tags' : `${base}data/tags.json`;
+    const navUrl = useApi ? '/api/nav' : `${base}data/nav.json`;
     const settingsUrl = useApi ? '/api/settings' : `${base}data/settings.json`;
 
-    const [postsRes, categoriesRes, tagsRes, settingsRes] = await Promise.all([
+    const [postsRes, categoriesRes, tagsRes, settingsRes, navRes] = await Promise.all([
       fetch(postsUrl),
       fetch(categoriesUrl),
       fetch(tagsUrl),
       fetch(settingsUrl),
+      fetch(navUrl).catch(() => null),
     ]);
 
     if (!postsRes.ok || !categoriesRes.ok || !tagsRes.ok) {
@@ -643,6 +971,7 @@ async function loadData() {
     const categoriesData = await categoriesRes.json();
     const tagsData = await tagsRes.json();
     const settingsData = settingsRes.ok ? await settingsRes.json() : {};
+    const navData = navRes && navRes.ok ? await navRes.json() : null;
 
     const rawPosts = useApi
       ? (Array.isArray(postsData) ? postsData : []).filter((p) => p.status === 'published')
@@ -657,10 +986,25 @@ async function loadData() {
     tags.value = useApi
       ? (Array.isArray(tagsData) ? tagsData : [])
       : (Array.isArray(tagsData.tags) ? tagsData.tags : []);
+    navItems.value = useApi
+      ? (Array.isArray(navData) ? navData : [])
+      : (Array.isArray(navData?.nav) ? navData.nav : []);
     categoryMap.value = Object.fromEntries(categories.value.map((c) => [c.id, c.name]));
     categoryColorMap.value = Object.fromEntries(categories.value.map((c) => [c.id, c.color || '#6366f1']));
     tagMap.value = Object.fromEntries(tags.value.map((t) => [t.id, t.name]));
     markdownTheme.value = settingsData.markdownTheme || 'default';
+    const profileData = settingsData.profile || {};
+    profile.name = profileData.name || profile.name;
+    profile.subtitle = profileData.subtitle || profile.subtitle;
+    profile.motto = profileData.motto || profile.motto;
+    profile.avatar = profileData.avatar || profile.avatar;
+    const aboutData = settingsData.about || {};
+    about.title = aboutData.title || about.title;
+    about.content = aboutData.content || about.content;
+    about.skillsTitle = aboutData.skillsTitle || about.skillsTitle;
+    if (Array.isArray(aboutData.skills) && aboutData.skills.length) {
+      about.skills = aboutData.skills;
+    }
 
     syncFromHash();
   } catch (err) {
@@ -681,6 +1025,10 @@ onUnmounted(() => {
   window.removeEventListener('hashchange', syncFromHash);
   window.removeEventListener('scroll', handleScroll);
   document.removeEventListener('click', handleCodeCopy);
+  if (heroTimer) {
+    clearInterval(heroTimer);
+    heroTimer = null;
+  }
   if (tocObserver) {
     tocObserver.disconnect();
     tocObserver = null;
@@ -708,6 +1056,13 @@ watch(showToc, (visible) => {
   if (visible) {
     syncTocScroll();
   }
+});
+
+watch(heroSlides, () => {
+  if (heroIndex.value >= heroSlides.value.length) {
+    heroIndex.value = 0;
+  }
+  startHeroTimer();
 });
 
 function handleCodeCopy(event) {
@@ -749,6 +1104,254 @@ function handleCodeCopy(event) {
 
 .animate-slide-up {
   animation: slideUp 0.4s ease-out forwards;
+}
+
+.card-title {
+  line-height: 1.4;
+  height: calc(1.4em * 2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-summary {
+  line-height: 1.5;
+  height: calc(1.5em * 2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hero-card {
+  border-radius: 24px;
+  border: 1px solid rgba(31, 41, 55, 0.7);
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(17, 24, 39, 0.85));
+  min-height: 320px;
+  position: relative;
+}
+
+.hero-carousel {
+  position: relative;
+  height: 320px;
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  cursor: pointer;
+}
+
+.hero-slide.active {
+  opacity: 1;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.85);
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: 28px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 0.85));
+}
+
+.hero-content {
+  max-width: 70%;
+}
+
+.hero-kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.65rem;
+  color: #93c5fd;
+  margin-bottom: 8px;
+}
+
+.hero-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.hero-desc {
+  font-size: 0.85rem;
+  color: #d1d5db;
+  max-width: 26rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hero-cta {
+  margin-top: 16px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(147, 197, 253, 0.5);
+  color: #e0f2fe;
+  font-size: 0.75rem;
+  background: rgba(59, 130, 246, 0.18);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.hero-cta:hover {
+  transform: translateY(-1px);
+  border-color: rgba(147, 197, 253, 0.9);
+}
+
+.hero-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(15, 23, 42, 0.6);
+  color: #e5e7eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.hero-card:hover .hero-nav {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) scale(1.02);
+}
+
+.hero-prev {
+  left: 16px;
+}
+
+.hero-next {
+  right: 16px;
+}
+
+.hero-dots {
+  position: absolute;
+  bottom: 14px;
+  right: 18px;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.hero-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.6);
+  border: none;
+}
+
+.hero-dot.active {
+  background: #60a5fa;
+}
+
+.profile-card {
+  background: rgba(22, 27, 34, 0.9);
+  border: 1px solid rgba(31, 41, 55, 0.7);
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 320px;
+}
+
+.profile-avatar {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 12px;
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: conic-gradient(from 90deg, #38bdf8, #6366f1, #22c55e, #38bdf8);
+}
+
+.profile-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.profile-actions button {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  border: 1px solid rgba(99, 102, 241, 0.45);
+  background: rgba(99, 102, 241, 0.18);
+  color: #e0e7ff;
+}
+
+.profile-actions .ghost {
+  background: transparent;
+  border-color: rgba(148, 163, 184, 0.4);
+  color: #cbd5f5;
+}
+
+.category-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(31, 41, 55, 0.8);
+  background: rgba(15, 23, 42, 0.35);
+  color: #cbd5f5;
+  font-size: 0.8rem;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.category-card:hover {
+  border-color: rgba(99, 102, 241, 0.6);
+  transform: translateX(2px);
+}
+
+.category-card.active {
+  border-color: rgba(99, 102, 241, 0.9);
+  background: rgba(99, 102, 241, 0.15);
+  color: #e0e7ff;
+}
+
+.category-name {
+  font-weight: 600;
+}
+
+.category-count {
+  font-size: 0.7rem;
+  color: #9ca3af;
 }
 
 .md-preview {
