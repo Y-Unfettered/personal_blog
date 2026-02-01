@@ -78,6 +78,7 @@
             <thead class="bg-gray-900/50 text-gray-400 uppercase text-xs tracking-wider">
               <tr>
                 <th class="px-6 py-4 font-semibold">标题</th>
+                <th class="px-6 py-4 font-semibold">栏目</th>
                 <th class="px-6 py-4 font-semibold">状态</th>
                 <th class="px-6 py-4 font-semibold">日期</th>
                 <th class="px-6 py-4 font-semibold text-right">操作</th>
@@ -229,6 +230,18 @@
             <div>
               <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">头像 URL</label>
               <input id="profile-avatar" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" placeholder="https://..." />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">GitHub 主页</label>
+              <input id="profile-github" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" placeholder="https://github.com/username" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">知识星球链接</label>
+              <input id="profile-planet" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" placeholder="https://wx.zsxq.com/..." />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">邮箱</label>
+              <input id="profile-email" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" placeholder="name@example.com" />
             </div>
           </div>
           <div class="bg-[#161b22] border border-gray-800 rounded-xl p-6 space-y-4">
@@ -466,6 +479,28 @@
         });
       }
 
+      function getColumnNavItems() {
+        if (!Array.isArray(navItems) || navItems.length === 0) return [];
+        return navItems
+          .filter((item) => {
+            if (!item || !item.label) return false;
+            if (item.visible === false) return false;
+            const href = String(item.href || '').trim().toLowerCase();
+            if (!href) return true;
+            if (href === '/' || href === '#/' || href === '#') return false;
+            if (href.includes('about')) return false;
+            return true;
+          })
+          .slice()
+          .sort((a, b) => (Number(a.order || 0) || 0) - (Number(b.order || 0) || 0));
+      }
+
+      function getColumnLabels() {
+        return getColumnNavItems()
+          .map((item) => String(item.label || '').trim())
+          .filter(Boolean);
+      }
+
       function renderPageButtons(containerId, current, totalPages, goTo) {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -535,12 +570,20 @@
         const start = (currentPage - 1) * pageSize;
         const pageItems = filtered.slice(start, start + pageSize);
         const body = document.getElementById('posts-body');
+        const resolveColumnLabel = (post) => {
+          const ids = Array.isArray(post?.categories) ? post.categories : [];
+          if (!ids.length) return '-';
+          const names = ids.map((id) => categoryNameMap[id] || id).filter(Boolean);
+          if (!names.length) return ids[0] || '-';
+          return names[0];
+        };
         body.innerHTML = pageItems.map((p) => `
           <tr class="hover:bg-gray-800/30 transition-colors">
             <td class="px-6 py-4 text-gray-200 font-medium">
               ${p.title}
               ${p.pinned ? '<span class="ml-2 px-2 py-0.5 text-xs rounded-full border border-indigo-500/40 text-indigo-300 bg-indigo-500/10">置顶</span>' : ''}
             </td>
+            <td class="px-6 py-4 text-gray-400">${resolveColumnLabel(p)}</td>
             <td class="px-6 py-4">${statusLabel(p.status)}</td>
             <td class="px-6 py-4 text-gray-500">${p.created_at || p.updated_at || ''}</td>
             <td class="px-6 py-4 text-right space-x-3">
@@ -898,6 +941,22 @@
           .filter(Boolean);
       }
 
+      async function ensureCategoryByLabel(label) {
+        const name = String(label || '').trim();
+        if (!name) return null;
+        let existing = categories.find((c) => String(c.name || '').trim() === name);
+        if (existing) return existing;
+        const slug = simpleSlugify(name) || name;
+        const created = await api('/api/categories', {
+          method: 'POST',
+          body: JSON.stringify({ name, slug }),
+        });
+        categories.push(created);
+        categoryNameMap[created.id] = created.name;
+        renderCategories();
+        return created;
+      }
+
       function collectUsageCounts(kind) {
         const counts = {};
         posts.forEach((post) => {
@@ -956,6 +1015,10 @@
         const createdValue = post?.created_at || todayISO();
         const pinnedChecked = post?.pinned ? 'checked' : '';
         const slugValue = post?.slug || '';
+        const columnLabels = getColumnLabels();
+        const categoryOptions = columnLabels.map((label) => `
+            <option value="${label}">${label}</option>
+          `).join('');
         return `
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div class="space-y-4">
@@ -980,6 +1043,14 @@
               </div>
             </div>
             <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">栏目</label>
+                <select id="post-column" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5">
+                  <option value="">请选择栏目</option>
+                  ${categoryOptions}
+                </select>
+                <p class="text-xs text-gray-500 mt-2">栏目来自导航名称，选择后会自动写入分类</p>
+              </div>
               <div>
                 <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">分类（点击卡片选择 / 取消）</label>
                 <input id="post-categories" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${catValues}" placeholder="cat-tech, cat-life" />
@@ -1206,8 +1277,28 @@
         const slugInput = document.getElementById('post-slug');
         const slugStatus = document.getElementById('post-slug-status');
         const slugLockNote = document.getElementById('post-slug-lock-note');
+        const columnSelect = document.getElementById('post-column');
         const currentPostId = post?.id || null;
         const isPublished = post?.status === 'published';
+
+        const syncColumnFromCategories = () => {
+          if (!columnSelect || !categoryInput) return;
+          const first = parseCsv(categoryInput.value)[0] || '';
+          const name = first ? (categoryNameMap[first] || '') : '';
+          columnSelect.value = name;
+        };
+
+        const syncCategoriesFromColumn = async () => {
+          if (!columnSelect || !categoryInput) return;
+          const label = String(columnSelect.value || '').trim();
+          if (!label) {
+            categoryInput.value = '';
+            return;
+          }
+          const category = await ensureCategoryByLabel(label);
+          if (!category) return;
+          categoryInput.value = category.id;
+        };
 
         const applySlugLock = () => {
           if (!slugInput) return;
@@ -1235,13 +1326,27 @@
           }
         };
 
-        updateChips('cat-chips', categories, 'post-categories', 'categories', applyCategorySlug);
+        const handleCategoryChange = () => {
+          applyCategorySlug();
+          syncColumnFromCategories();
+        };
+
+        updateChips('cat-chips', categories, 'post-categories', 'categories', handleCategoryChange);
         updateChips('tag-chips', tags, 'post-tags', 'tags');
+
+        syncColumnFromCategories();
+        if (columnSelect) {
+          columnSelect.addEventListener('change', async () => {
+            await syncCategoriesFromColumn();
+            updateChips('cat-chips', categories, 'post-categories', 'categories', handleCategoryChange);
+            handleCategoryChange();
+          });
+        }
 
         if (categoryInput) {
           categoryInput.addEventListener('input', () => {
-            updateChips('cat-chips', categories, 'post-categories', 'categories', applyCategorySlug);
-            applyCategorySlug();
+            updateChips('cat-chips', categories, 'post-categories', 'categories', handleCategoryChange);
+            handleCategoryChange();
           });
         }
         if (tagInput) {
@@ -1412,6 +1517,9 @@
           subtitle: '记录灵感 · 设计 · 代码',
           motto: '以持续输出为信仰，把每一次学习都变成可复用的经验。',
           avatar: '',
+          github: '',
+          planet: '',
+          email: '',
         };
         const defaultAbout = {
           title: '关于这个博客',
@@ -1434,6 +1542,9 @@
         setValue('profile-subtitle', profile.subtitle);
         setValue('profile-motto', profile.motto);
         setValue('profile-avatar', profile.avatar);
+        setValue('profile-github', profile.github);
+        setValue('profile-planet', profile.planet);
+        setValue('profile-email', profile.email);
         setValue('about-title', about.title);
         setValue('about-content', about.content);
         setValue('skills-title', about.skillsTitle);
@@ -1464,6 +1575,9 @@
               subtitle: document.getElementById('profile-subtitle')?.value?.trim() || '',
               motto: document.getElementById('profile-motto')?.value?.trim() || '',
               avatar: document.getElementById('profile-avatar')?.value?.trim() || '',
+              github: document.getElementById('profile-github')?.value?.trim() || '',
+              planet: document.getElementById('profile-planet')?.value?.trim() || '',
+              email: document.getElementById('profile-email')?.value?.trim() || '',
             },
             about: {
               title: document.getElementById('about-title')?.value?.trim() || '',

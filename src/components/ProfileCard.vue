@@ -11,7 +11,7 @@
     </p>
     <div class="profile-actions">
       <button type="button" @click="$emit('primary')">{{ primaryLabel }}</button>
-      <button type="button" class="ghost" @click="$emit('secondary')">{{ secondaryLabel }}</button>
+      <button v-if="secondaryLabel" type="button" class="ghost" @click="$emit('secondary')">{{ secondaryLabel }}</button>
     </div>
   </div>
 </template>
@@ -25,8 +25,8 @@ defineProps({
     default: '以持续输出为信仰，把每一次学习都变成可复用的经验。',
   },
   avatar: { type: String, default: '' },
-  primaryLabel: { type: String, default: '阅读精选' },
-  secondaryLabel: { type: String, default: '联系我' },
+  primaryLabel: { type: String, default: '了解我' },
+  secondaryLabel: { type: String, default: '' },
 });
 
 defineEmits(['primary', 'secondary']);

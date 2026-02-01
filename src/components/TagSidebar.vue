@@ -11,7 +11,7 @@
         查看全部
       </button>
     </div>
-    <div class="mt-4 flex flex-col gap-3">
+    <div class="mt-4 flex flex-wrap gap-2">
       <button
         v-for="tag in tags"
         :key="tag.id"

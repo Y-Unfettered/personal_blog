@@ -9,6 +9,7 @@
       @submit="applySearch"
       @home="goHome"
     />
+    <div v-if="emailCopied" class="toast">已复制邮箱</div>
 
     <main class="max-w-7xl mx-auto px-4 py-8 min-h-[calc(100vh-144px)]">
       <div v-if="loading" class="text-gray-400">Loading...</div>
@@ -30,6 +31,7 @@
               :subtitle="profile.subtitle"
               :motto="profile.motto"
               :avatar="profile.avatar"
+              @primary="setView('about')"
             />
           </div>
 
@@ -170,6 +172,49 @@
           </div>
         </section>
 
+        <section v-else-if="view === 'column'" class="animate-slide-up">
+          <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] lg:grid-rows-[auto_1fr] gap-6">
+            <div class="lg:col-start-1 lg:row-start-1">
+              <div class="flex items-center justify-between mb-6">
+                <div>
+                  <h1 class="text-2xl font-bold text-white">{{ columnTitle }}</h1>
+                </div>
+                <button
+                  class="text-xs text-indigo-400 hover:text-indigo-300"
+                  type="button"
+                  @click="goHome"
+                >
+                  返回首页
+                </button>
+              </div>
+            </div>
+            <div class="lg:col-start-1 lg:row-start-2">
+              <PostGrid
+                :posts="columnPosts"
+                :category-name="categoryName"
+                :category-badge-style="categoryBadgeStyle"
+                :tag-summary="tagSummary"
+                @open="openPost"
+              />
+            </div>
+            <div class="hidden lg:block lg:col-start-2 lg:row-start-1"></div>
+            <aside class="space-y-4 lg:col-start-2 lg:row-start-2">
+              <CategorySidebar
+                :categories="orderedCategories"
+                :selected-id="selectedCategoryId"
+                @select="selectCategory"
+                @clear="clearCategoryFilter"
+              />
+              <TagSidebar
+                :tags="orderedTags"
+                :selected-id="selectedTagId"
+                @select="selectTag"
+                @clear="clearTagFilter"
+              />
+            </aside>
+          </div>
+        </section>
+
         <section v-else-if="view === 'tags'" class="animate-slide-up">
           <h1 class="text-2xl font-bold text-white mb-8">标签</h1>
           <div class="flex flex-wrap gap-3">
@@ -199,10 +244,34 @@
                 </div>
                 <h2 class="text-xl font-bold text-white mb-2">{{ profile.name }}</h2>
                 <p class="text-sm text-gray-400 mb-6 font-mono">{{ profile.subtitle }}</p>
-                <div class="flex justify-center space-x-3">
-                  <span class="iconify text-gray-400 hover:text-indigo-400 cursor-pointer text-xl" data-icon="lucide:github"></span>
-                  <span class="iconify text-gray-400 hover:text-indigo-400 cursor-pointer text-xl" data-icon="lucide:twitter"></span>
-                  <span class="iconify text-gray-400 hover:text-indigo-400 cursor-pointer text-xl" data-icon="lucide:mail"></span>
+                <div class="profile-social">
+                  <button
+                    class="profile-social-btn"
+                    type="button"
+                    :disabled="!profile.github"
+                    aria-label="GitHub"
+                    @click="openExternal(profile.github)"
+                  >
+                    <span class="iconify text-xl" data-icon="lucide:github"></span>
+                  </button>
+                  <button
+                    class="profile-social-btn"
+                    type="button"
+                    :disabled="!profile.planet"
+                    aria-label="知识星球"
+                    @click="openExternal(profile.planet)"
+                  >
+                    <img class="profile-social-icon" src="https://img.lemontop.asia/zhishi.svg" alt="知识星球" />
+                  </button>
+                  <button
+                    class="profile-social-btn"
+                    type="button"
+                    :disabled="!profile.email"
+                    aria-label="邮箱"
+                    @click="copyProfileEmail"
+                  >
+                    <span class="iconify text-xl" data-icon="lucide:mail"></span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -379,6 +448,9 @@ const profile = reactive({
   subtitle: '记录灵感 · 设计 · 代码',
   motto: '以持续输出为信仰，把每一次学习都变成可复用的经验。',
   avatar: '',
+  github: '',
+  planet: '',
+  email: '',
 });
 const about = reactive({
   title: '关于这个博客',
@@ -393,11 +465,16 @@ const about = reactive({
 });
 const showToc = ref(false);
 const showBackTop = ref(false);
+const emailCopied = ref(false);
+const activeColumnLabel = ref('');
+const activeColumnPath = ref('');
+const activeColumnCategoryId = ref('');
 const activeHeadingId = ref('');
 let tocObserver = null;
 let tocScrollRaf = null;
 const heroIndex = ref(0);
 let heroTimer = null;
+let emailCopyTimer = null;
 
 function sortPosts(list) {
   return list.slice().sort((a, b) => {
@@ -422,6 +499,11 @@ const DEFAULT_NAV = [
 
 function setView(nextView) {
   view.value = nextView;
+  if (nextView !== 'column') {
+    activeColumnLabel.value = '';
+    activeColumnPath.value = '';
+    activeColumnCategoryId.value = '';
+  }
   if (nextView !== 'home') {
     selectedCategoryId.value = '';
     selectedTagId.value = '';
@@ -440,6 +522,48 @@ function goHome() {
 
 function normalizeNavHref(item) {
   return item && item.href ? String(item.href).trim() : '';
+}
+
+function normalizePath(value) {
+  if (!value) return '';
+  let path = String(value).trim();
+  if (path.startsWith('#')) path = path.slice(1);
+  if (!path.startsWith('/')) path = `/${path}`;
+  return path;
+}
+
+function isColumnNavItem(item) {
+  if (!item) return false;
+  const path = normalizePath(item.href).toLowerCase();
+  if (!path || path === '/' || path === '#/' || path === '#') return false;
+  if (path.includes('/about')) return false;
+  return true;
+}
+
+function findNavByPath(path) {
+  const target = normalizePath(path).toLowerCase();
+  const list = visibleNavItems.value;
+  return list.find((item) => normalizePath(item.href).toLowerCase() === target);
+}
+
+function setColumnView(navItem) {
+  if (!navItem) return;
+  const label = String(navItem.label || '').trim();
+  const path = normalizePath(navItem.href);
+  activeColumnLabel.value = label;
+  activeColumnPath.value = path;
+  const cat = findCategoryBySlugOrName(label);
+  activeColumnCategoryId.value = cat ? cat.id : '';
+  view.value = 'column';
+  selectedCategoryId.value = '';
+  selectedTagId.value = '';
+}
+
+function setColumnViewByPath(path) {
+  const nav = findNavByPath(path);
+  if (!nav || !isColumnNavItem(nav)) return false;
+  setColumnView(nav);
+  return true;
 }
 
 function categorySlugFromId(categoryId) {
@@ -536,6 +660,10 @@ function handleNavClick(item) {
     return;
   }
   if (href) {
+    if (setColumnViewByPath(href)) {
+      window.location.hash = `#${normalizePath(href)}`;
+      return;
+    }
     window.location.hash = href;
     return;
   }
@@ -571,6 +699,9 @@ function isNavActive(item) {
     const slug = decodeURIComponent(href.replace('#/tag/', '').trim());
     const tag = findTagBySlugOrName(slug);
     return tag ? selectedTagId.value === tag.id : false;
+  }
+  if (view.value === 'column') {
+    return normalizePath(href) === activeColumnPath.value;
   }
   return false;
 }
@@ -805,6 +936,10 @@ function syncFromHash() {
     selectedTagId.value = '';
     return (view.value = 'about');
   }
+  const path = normalizePath(hash);
+  if (setColumnViewByPath(path)) {
+    return;
+  }
   view.value = 'home';
 }
 
@@ -890,6 +1025,26 @@ const filteredPosts = computed(() => {
   return list;
 });
 
+const columnPosts = computed(() => {
+  const query = String(searchQuery.value || '').trim();
+  let list = posts.value.slice();
+  if (activeColumnCategoryId.value) {
+    list = list.filter((post) => Array.isArray(post.categories) && post.categories.includes(activeColumnCategoryId.value));
+  } else if (activeColumnLabel.value) {
+    list = list.filter((post) =>
+      Array.isArray(post.categories) && post.categories.some((id) => categoryMap.value[id] === activeColumnLabel.value)
+    );
+  } else {
+    list = [];
+  }
+  if (query) {
+    list = list.filter((post) => matchesSearch(post, query));
+  }
+  return list;
+});
+
+const columnTitle = computed(() => activeColumnLabel.value || '栏目');
+
 const hasActiveFilters = computed(() => {
   return !!(selectedCategoryId.value || selectedTagId.value || String(searchQuery.value || '').trim());
 });
@@ -942,6 +1097,28 @@ async function copyToClipboard(text) {
     document.execCommand('copy');
   } finally {
     document.body.removeChild(textarea);
+  }
+}
+
+function openExternal(url) {
+  const target = String(url || '').trim();
+  if (!target) return;
+  const href = /^https?:\/\//i.test(target) ? target : `https://${target}`;
+  window.open(href, '_blank', 'noopener');
+}
+
+async function copyProfileEmail() {
+  const email = String(profile.email || '').trim();
+  if (!email) return;
+  try {
+    await copyToClipboard(email);
+    emailCopied.value = true;
+    if (emailCopyTimer) clearTimeout(emailCopyTimer);
+    emailCopyTimer = setTimeout(() => {
+      emailCopied.value = false;
+    }, 1500);
+  } catch {
+    // ignore
   }
 }
 
@@ -998,6 +1175,9 @@ async function loadData() {
     profile.subtitle = profileData.subtitle || profile.subtitle;
     profile.motto = profileData.motto || profile.motto;
     profile.avatar = profileData.avatar || profile.avatar;
+    profile.github = profileData.github || profile.github;
+    profile.planet = profileData.planet || profile.planet;
+    profile.email = profileData.email || profile.email;
     const aboutData = settingsData.about || {};
     about.title = aboutData.title || about.title;
     about.content = aboutData.content || about.content;
@@ -1036,6 +1216,10 @@ onUnmounted(() => {
   if (tocScrollRaf) {
     cancelAnimationFrame(tocScrollRaf);
     tocScrollRaf = null;
+  }
+  if (emailCopyTimer) {
+    clearTimeout(emailCopyTimer);
+    emailCopyTimer = null;
   }
 });
 
@@ -1144,10 +1328,13 @@ function handleCodeCopy(event) {
   opacity: 0;
   transition: opacity 0.6s ease;
   cursor: pointer;
+  pointer-events: none;
 }
 
 .hero-slide.active {
   opacity: 1;
+  pointer-events: auto;
+  z-index: 1;
 }
 
 .hero-image {
@@ -1226,6 +1413,7 @@ function handleCodeCopy(event) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  z-index: 2;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease;
@@ -1249,6 +1437,7 @@ function handleCodeCopy(event) {
   position: absolute;
   bottom: 14px;
   right: 18px;
+  z-index: 2;
   display: inline-flex;
   gap: 6px;
 }
@@ -1321,16 +1510,80 @@ function handleCodeCopy(event) {
   color: #cbd5f5;
 }
 
-.category-card {
+.profile-social {
   display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.profile-social-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: transparent;
+  color: #9ca3af;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
+  justify-content: center;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.profile-social-btn:hover {
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.5);
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.profile-social-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.profile-social-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.toast {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  background: rgba(5, 150, 105, 0.2);
+  color: #d1fae5;
+  font-size: 0.75rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  animation: toastIn 0.2s ease-out;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.category-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 6px 10px;
   border-radius: 14px;
   border: 1px solid rgba(31, 41, 55, 0.8);
   background: rgba(15, 23, 42, 0.35);
   color: #cbd5f5;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
