@@ -1,48 +1,58 @@
 {
   "version": 1,
-  "generated_at": "2026-01-31",
+  "generated_at": "2026-02-02",
   "categories": [
     {
       "id": "cat-1769701776764",
       "name": "Vue 3.0",
       "slug": "Vue",
-      "color": "#f29d64",
+      "color": "#45c28a",
       "description": "Vue 3.0 方面的文章合集",
       "count": 1
     },
     {
-      "id": "cat-1769704635190",
-      "name": "技术架构",
-      "slug": "jsjg",
+      "id": "cat-1769878555807",
+      "name": "博客搭建",
+      "slug": "blog",
+      "color": "#f2c564",
+      "description": "分享个人博客搭建",
       "count": 2
     },
     {
-      "id": "cat-1769705464697",
-      "name": "前端框架",
-      "slug": "qdkj",
-      "color": "#2d30f0",
+      "id": "cat-1769878741246",
+      "name": "Office 分享",
+      "slug": "office",
+      "color": "#ff0000",
+      "description": "关于Office 分享的一些心得分享",
+      "count": 1
+    },
+    {
+      "id": "cat-1769944977150",
+      "name": "AI ART",
+      "slug": "aiart",
+      "color": "#8166f1",
+      "count": 2
+    },
+    {
+      "id": "cat-1769950172241",
+      "name": "Illustrator",
+      "slug": "Illustrator",
+      "color": "#ee811b",
       "count": 0
     },
     {
-      "id": "cat-1769865481938",
-      "name": "测试",
-      "slug": "cs",
+      "id": "cat-1769957216083",
+      "name": "UI 设计",
+      "slug": "UI",
       "color": "#6366f1",
-      "count": 0
+      "count": 1
     },
     {
-      "id": "cat-1769865490891",
-      "name": "测试22",
-      "slug": "cs22",
+      "id": "cat-1769957295121",
+      "name": "读书心得",
+      "slug": "bookshare",
       "color": "#6366f1",
-      "count": 0
-    },
-    {
-      "id": "cat-1769865502440",
-      "name": "测试221",
-      "slug": "csa",
-      "color": "#6366f1",
-      "count": 0
+      "count": 3
     }
   ]
 }

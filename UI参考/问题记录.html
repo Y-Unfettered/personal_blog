@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>问题记录 - DevLog</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+<style>
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .step-line::before {
+      content: '';
+      position: absolute;
+      left: 0.75rem;
+      top: 2rem;
+      bottom: 0;
+      width: 2px;
+      background: #333;
+    }
+  </style>
+</head>
+<body class="bg-[#0a0a0a] text-gray-200 min-h-screen font-sans">
+<!-- 导航栏 -->
+<nav class="sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-gray-800 px-6 py-4">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center space-x-10">
+<div class="flex items-center space-x-2">
+<span class="iconify text-2xl text-indigo-500" data-icon="material-symbols:terminal-rounded"></span>
+<span class="text-xl font-bold text-white tracking-tight">DevLog</span>
+</div>
+<ul class="hidden md:flex items-center space-x-8 text-sm font-medium">
+<li><a class="hover:text-indigo-400 transition-colors" href="#">首页</a></li>
+<li><a class="hover:text-indigo-400 transition-colors" href="#">技术笔记</a></li>
+<li><a class="text-indigo-400 border-b-2 border-indigo-400 pb-1" href="#">问题记录</a></li>
+<li><a class="hover:text-indigo-400 transition-colors" href="#">生活随笔</a></li>
+<li><a class="hover:text-indigo-400 transition-colors" href="#">关于我</a></li>
+</ul>
+</div>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 iconify text-gray-500" data-icon="lucide:search"></span>
+<input class="bg-gray-900/50 border border-gray-700 rounded-full py-2 pl-10 pr-4 text-xs w-64 focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all" placeholder="搜索异常代码或错误信息..." type="text"/>
+</div>
+</div>
+</nav>
+<main class="max-w-5xl mx-auto px-6 py-10">
+<!-- 头部统计 -->
+<header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h1 class="text-3xl font-bold text-white mb-2">问题记录</h1>
+<p class="text-gray-400 text-sm">记录每一次 Bug 的产生与消亡，把“踩坑”转化为成长的阶梯。</p>
+</div>
+<div class="flex gap-4">
+<div class="bg-[#111] border border-gray-800 px-4 py-2 rounded-xl text-center">
+<div class="text-xs text-gray-500">已解决</div>
+<div class="text-lg font-bold text-indigo-400">128</div>
+</div>
+<div class="bg-[#111] border border-gray-800 px-4 py-2 rounded-xl text-center">
+<div class="text-xs text-gray-500">待跟进</div>
+<div class="text-lg font-bold text-orange-400">3</div>
+</div>
+</div>
+</header>
+<!-- 过滤器 -->
+<div class="flex items-center space-x-3 mb-8 overflow-x-auto pb-2 hide-scrollbar">
+<button class="px-4 py-1.5 rounded-full bg-indigo-600 text-white text-xs font-medium shrink-0">全部记录</button>
+<button class="px-4 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400 text-xs hover:border-gray-600 shrink-0">环境配置</button>
+<button class="px-4 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400 text-xs hover:border-gray-600 shrink-0">性能调优</button>
+<button class="px-4 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400 text-xs hover:border-gray-600 shrink-0">逻辑 Bug</button>
+<button class="px-4 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400 text-xs hover:border-gray-600 shrink-0">生活杂项</button>
+</div>
+<!-- 问题列表 -->
+<div class="space-y-8">
+<!-- 记录条目 1 -->
+<section class="bg-[#111] border border-gray-800 rounded-2xl overflow-hidden shadow-lg">
+<div class="p-6 border-b border-gray-800 flex justify-between items-start">
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-red-500/10 text-red-500 text-[10px] font-bold rounded">紧急</span>
+<span class="text-xs text-gray-500">2026-02-01</span>
+</div>
+<h3 class="text-xl font-bold text-white">Word VBA 宏：运行后会生成 1000 页空白页的异常分析</h3>
+</div>
+<span class="iconify text-2xl text-emerald-500" data-icon="lucide:check-circle"></span>
+</div>
+<div class="p-6 space-y-6">
+<!-- 问题描述 -->
+<div>
+<h4 class="text-sm font-bold text-gray-300 mb-2 flex items-center">
+<span class="iconify mr-2" data-icon="lucide:info"></span> 问题描述
+            </h4>
+<p class="text-sm text-gray-400 leading-relaxed bg-black/30 p-4 rounded-lg italic">
+              在调用文档自动化脚本时，由于循环终止条件失效，导致进程通过 Selection.InsertNewPage 无限触发分页，最终导致 Word 内存溢出。
+            </p>
+</div>
+<!-- 解决步骤 -->
+<div>
+<h4 class="text-sm font-bold text-gray-300 mb-4 flex items-center">
+<span class="iconify mr-2" data-icon="lucide:list-ordered"></span> 解决步骤
+            </h4>
+<div class="space-y-6 relative ml-2">
+<div class="flex items-start gap-4 relative z-10">
+<div class="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0">1</div>
+<div class="text-sm text-gray-400 pt-0.5">中断当前所有 Winword.exe 进程，清理临时缓存。</div>
+</div>
+<div class="flex items-start gap-4 relative z-10">
+<div class="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0">2</div>
+<div class="text-sm text-gray-400 pt-0.5 text-step-line">定位代码第 142 行，将 <code class="bg-gray-800 px-1 rounded text-red-400">Do Until EOF</code> 修改为基于 Range 对象长度的控制。</div>
+</div>
+<div class="flex items-start gap-4 relative z-10">
+<div class="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0">3</div>
+<div class="text-sm text-gray-400 pt-0.5">增加安全熔断机制：当页面数超过预设阈值（例如 200）时自动弹出警告并停止递归。</div>
+</div>
+<div class="absolute left-3 top-3 bottom-3 w-[1px] bg-gray-800"></div>
+</div>
+</div>
+<!-- 经验总结 -->
+<div class="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4">
+<h4 class="text-xs font-bold text-emerald-500 uppercase tracking-tighter mb-2 italic">Result &amp; Summary</h4>
+<p class="text-sm text-gray-300">永远不要信任动态改变长度的集合遍历。使用对象快照而非视图直接操作，能有效避免无限递归。</p>
+</div>
+</div>
+</section>
+<!-- 记录条目 2 -->
+<section class="bg-[#111] border border-gray-800 rounded-2xl overflow-hidden opacity-80">
+<div class="p-6 border-b border-gray-800 flex justify-between items-start">
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-gray-800 text-gray-500 text-[10px] font-bold rounded">普通</span>
+<span class="text-xs text-gray-500">2026-01-28</span>
+</div>
+<h3 class="text-lg font-bold text-white/80 group-hover:text-white transition-colors">Tailwind CSS 生产环境下动态类名失效的问题</h3>
+</div>
+<span class="iconify text-xl text-emerald-500" data-icon="lucide:check-circle"></span>
+</div>
+</section>
+</div>
+<!-- 底部翻页 -->
+<div class="mt-12 flex justify-center">
+<div class="flex items-center space-x-2">
+<button class="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-all">
+<span class="iconify" data-icon="lucide:chevron-left"></span>
+</button>
+<span class="text-xs text-gray-500">1 / 12</span>
+<button class="w-10 h-10 rounded-lg bg-[#111] border border-indigo-500/30 flex items-center justify-center text-white">
+<span class="iconify" data-icon="lucide:chevron-right"></span>
+</button>
+</div>
+</div>
+</main>
+<footer class="mt-20 py-8 border-t border-gray-900 text-center">
+<p class="text-[10px] text-gray-700 tracking-[0.2em] font-light">DEBUGGING IS LIKE BEING THE DETECTIVE IN A CRIME MOVIE WHERE YOU ARE ALSO THE MURDERER.</p>
+</footer>
+</body>
+</html>

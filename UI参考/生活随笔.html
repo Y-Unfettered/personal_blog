@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>生活随笔 - DevLog</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+<style>
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .serif-text { font-family: "Noto Serif SC", serif; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+  </style>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&amp;display=swap" rel="stylesheet"/>
+</head>
+<body class="bg-[#080808] text-gray-300 min-h-screen selection:bg-indigo-500/30">
+<!-- 导航栏 -->
+<nav class="sticky top-0 z-50 bg-[#080808]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center space-x-10">
+<div class="flex items-center space-x-2">
+<span class="iconify text-2xl text-indigo-500" data-icon="material-symbols:terminal-rounded"></span>
+<span class="text-xl font-bold text-white tracking-widest">DevLog</span>
+</div>
+<div class="hidden md:flex items-center space-x-8 text-sm tracking-wide">
+<a class="hover:text-white transition-colors" href="#">首页</a>
+<a class="hover:text-white transition-colors" href="#">设计创作</a>
+<a class="hover:text-white transition-colors" href="#">技术笔记</a>
+<a class="text-white border-b border-indigo-500 pb-1" href="#">生活随笔</a>
+<a class="hover:text-white transition-colors" href="#">关于我</a>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<span class="iconify text-xl text-gray-500 cursor-pointer hover:text-white" data-icon="lucide:search"></span>
+<div class="h-4 w-[1px] bg-white/10"></div>
+<span class="text-xs text-gray-500 italic">2026.02.01</span>
+</div>
+</div>
+</nav>
+<main class="max-w-4xl mx-auto px-6 py-16">
+<!-- 头部引导 -->
+<header class="text-center mb-20 fade-in">
+<h1 class="text-4xl font-bold text-white mb-6 tracking-tight serif-text">文字里的呼吸</h1>
+<p class="text-gray-500 italic text-sm">“代码之外，生活依然有迹可循。”</p>
+<div class="w-12 h-[1px] bg-indigo-500 mx-auto mt-8"></div>
+</header>
+<!-- 随笔列表 -->
+<div class="space-y-24">
+<!-- 列表项 1 -->
+<article class="fade-in group" style="animation-delay: 0.2s;">
+<div class="flex flex-col md:flex-row gap-10 items-center">
+<div class="w-full md:w-1/2 overflow-hidden rounded-sm">
+<img alt="Moody evening sky with street lamps reflecting on wet pavement" class="w-full h-64 object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" id="1" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/ba9509e28b3b441bb73f07b7e2397b8d.jpg"/>
+</div>
+<div class="w-full md:w-1/2 space-y-4">
+<div class="flex items-center space-x-3 text-[10px] tracking-[0.2em] text-indigo-400 uppercase font-bold">
+<span>观影心得</span>
+<span class="w-1 h-1 rounded-full bg-gray-700"></span>
+<span class="text-gray-500">2026-01-25</span>
+</div>
+<h2 class="text-2xl font-bold text-white group-hover:text-indigo-400 transition-colors serif-text leading-snug">
+              重看《银翼杀手2049》：关于灵魂的电子注脚
+            </h2>
+<p class="text-gray-400 text-sm leading-relaxed line-clamp-3 italic">
+              当雨水冲刷过那些冰冷的合金架构，我突然意识到，我们追求的真实，或许仅仅是一段被精心编织的记忆碎片。代码能够模拟情感，但无法模拟那种在废墟中等待雪花落下的寂寥……
+            </p>
+<a class="inline-flex items-center text-xs text-white border-b border-indigo-500/50 pb-1 hover:border-indigo-500 transition-all" href="#">
+              继续阅读
+              <span class="iconify ml-1" data-icon="lucide:arrow-right"></span>
+</a>
+</div>
+</div>
+</article>
+<!-- 列表项 2 -->
+<article class="fade-in group" style="animation-delay: 0.4s;">
+<div class="flex flex-col md:flex-row-reverse gap-10 items-center">
+<div class="w-full md:w-1/2 overflow-hidden rounded-sm">
+<img alt="A quiet bookstore corner with old wooden shelves and a warm table lamp" class="w-full h-64 object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" id="2" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/bdeb449febeb4ce286355a40214bd12f.jpg"/>
+</div>
+<div class="w-full md:w-1/2 space-y-4 text-right md:text-right">
+<div class="flex items-center justify-end space-x-3 text-[10px] tracking-[0.2em] text-indigo-400 uppercase font-bold">
+<span class="text-gray-500">2026-01-12</span>
+<span class="w-1 h-1 rounded-full bg-gray-700"></span>
+<span>读书笔记</span>
+</div>
+<h2 class="text-2xl font-bold text-white group-hover:text-indigo-400 transition-colors serif-text leading-snug">
+              《存在与时间》：在忙碌的代码世界寻回本真
+            </h2>
+<p class="text-gray-400 text-sm leading-relaxed line-clamp-3 italic">
+              如果我们把生活看作是一次漫长的 Debug，那么每一个存在的瞬间都是一个断点。海德格尔告诉我们，向死而生并不是终点，而是一种对生命完整性的深刻觉知……
+            </p>
+<a class="inline-flex items-center text-xs text-white border-b border-indigo-500/50 pb-1 hover:border-indigo-500 transition-all" href="#">
+              继续阅读
+              <span class="iconify ml-1" data-icon="lucide:arrow-right"></span>
+</a>
+</div>
+</div>
+</article>
+<!-- 列表项 3 -->
+<article class="fade-in group" style="animation-delay: 0.6s;">
+<div class="flex flex-col md:flex-row gap-10 items-center">
+<div class="w-full md:w-1/2 overflow-hidden rounded-sm text-center py-12 bg-white/5 border border-white/5">
+<span class="iconify text-6xl text-gray-800" data-icon="lucide:feather"></span>
+</div>
+<div class="w-full md:w-1/2 space-y-4">
+<div class="flex items-center space-x-3 text-[10px] tracking-[0.2em] text-indigo-400 uppercase font-bold">
+<span>短篇小说</span>
+<span class="w-1 h-1 rounded-full bg-gray-700"></span>
+<span class="text-gray-500">2026-01-02</span>
+</div>
+<h2 class="text-2xl font-bold text-white group-hover:text-indigo-400 transition-colors serif-text leading-snug">
+              最后一个未被优化的开发者
+            </h2>
+<p class="text-gray-400 text-sm leading-relaxed line-clamp-3 italic">
+              在那个被 AGI 统治的纪元里，他坚持用指尖敲击机械键盘。咔哒声在这座静默的数据中心里显得格格不入。他在写诗，用那种已经被淘汰的、带有冗余和错误的语言……
+            </p>
+<a class="inline-flex items-center text-xs text-white border-b border-indigo-500/50 pb-1 hover:border-indigo-500 transition-all" href="#">
+              继续阅读
+              <span class="iconify ml-1" data-icon="lucide:arrow-right"></span>
+</a>
+</div>
+</div>
+</article>
+</div>
+<!-- 底部页码 -->
+<div class="mt-32 flex justify-center space-x-8 text-[10px] tracking-widest uppercase font-bold text-gray-600">
+<button class="hover:text-white transition-colors">Previous</button>
+<div class="flex space-x-4">
+<span class="text-white">01</span>
+<button class="hover:text-white">02</button>
+<button class="hover:text-white">03</button>
+</div>
+<button class="hover:text-white transition-colors">Next</button>
+</div>
+</main>
+<!-- 脚部 -->
+<footer class="py-16 border-t border-white/5 bg-black/40">
+<div class="max-w-4xl mx-auto px-6 text-center">
+<p class="text-[10px] text-gray-700 tracking-[0.4em] uppercase mb-4">Thoughts, Memories &amp; Fragments</p>
+<p class="text-xs text-gray-500">© 2026 DevLog / Lemon. 字里行间，皆是余晖。</p>
+</div>
+</footer>
+</body>
+</html>

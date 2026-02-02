@@ -164,13 +164,16 @@ function cmdPostDelete(opts) {
 function cmdCategoryAdd(opts) {
   const { filePath, list } = loadList('categories.json', 'categories');
   requireField(opts.name, 'name');
+  requireField(opts.parent, 'parent');
   const id = opts.id || `cat-${Date.now()}`;
   const slug = opts.slug || slugify(opts.name);
   list.push({
     id,
     name: opts.name,
     slug,
+    parent: opts.parent,
     ...(opts.description ? { description: opts.description } : {}),
+    ...(opts.color ? { color: opts.color } : {}),
   });
   saveList(filePath, 'categories', list);
   console.log(`category added: ${id}`);
@@ -183,6 +186,8 @@ function cmdCategoryUpdate(opts) {
   if (opts.name) target.name = opts.name;
   if (opts.slug) target.slug = opts.slug;
   if (opts.description !== undefined) target.description = opts.description;
+  if (opts.parent !== undefined) target.parent = opts.parent;
+  if (opts.color !== undefined) target.color = opts.color;
   saveList(filePath, 'categories', list);
   console.log(`category updated: ${target.id}`);
 }

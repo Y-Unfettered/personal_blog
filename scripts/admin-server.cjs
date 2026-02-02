@@ -175,18 +175,15 @@ const server = http.createServer(async (req, res) => {
           }
           const pinnedCount = list.filter((p) => p.pinned === true).length;
           if (body.pinned === true && pinnedCount >= 3) {
-            if (body.auto_unpin === true) {
-              const pinnedPosts = list
-                .filter((p) => p.pinned === true)
-                .sort((a, b) => {
-                  const ad = a.updated_at || a.created_at || '';
-                  const bd = b.updated_at || b.created_at || '';
-                  return ad.localeCompare(bd);
-                });
-              if (pinnedPosts[0]) pinnedPosts[0].pinned = false;
-            } else {
-              throw new Error('only 3 pinned posts allowed');
-            }
+            // 自动取消最早的置顶帖子
+            const pinnedPosts = list
+              .filter((p) => p.pinned === true)
+              .sort((a, b) => {
+                const ad = a.updated_at || a.created_at || '';
+                const bd = b.updated_at || b.created_at || '';
+                return ad.localeCompare(bd);
+              });
+            if (pinnedPosts[0]) pinnedPosts[0].pinned = false;
           }
           return {
             id: body.id || `post-${Date.now()}`,
@@ -253,12 +250,14 @@ const server = http.createServer(async (req, res) => {
       if (req.method === 'POST') {
         return handleCreate(req, res, 'categories.json', 'categories', (body) => {
           if (!body.name) throw new Error('name required');
+          if (!body.parent) throw new Error('parent required');
           return {
             id: body.id || `cat-${Date.now()}`,
             name: body.name,
             slug: body.slug || slugify(body.name),
             description: body.description || undefined,
             color: body.color || undefined,
+            parent: body.parent,
           };
         });
       }
@@ -273,6 +272,7 @@ const server = http.createServer(async (req, res) => {
           if (body.slug) target.slug = body.slug;
           if (body.description !== undefined) target.description = body.description;
           if (body.color !== undefined) target.color = body.color;
+          if (body.parent !== undefined) target.parent = body.parent;
         });
       }
       if (req.method === 'DELETE') return handleDelete(res, 'categories.json', 'categories', id);
@@ -365,6 +365,86 @@ const server = http.createServer(async (req, res) => {
         writeSettings(next);
         return send(res, 200, next);
       }
+      return methodNotAllowed(res);
+    }
+
+    // 问题管理 API
+    if (pathname === '/api/issues') {
+      if (req.method === 'GET') return handleList(res, 'issues.json', 'issues');
+      if (req.method === 'POST') {
+        return handleCreate(req, res, 'issues.json', 'issues', (body) => {
+          if (!body.title) throw new Error('title required');
+          if (!body.description) throw new Error('description required');
+          return {
+            id: body.id || `issue-${Date.now()}`,
+            title: body.title,
+            description: body.description,
+            priority: body.priority || '普通',
+            status: body.status || '待解决',
+            solution_steps: body.solution_steps || '',
+            result_summary: body.result_summary || '',
+            created_at: body.created_at || todayISO(),
+            updated_at: todayISO(),
+          };
+        });
+      }
+      return methodNotAllowed(res);
+    }
+
+    if (pathname.startsWith('/api/issues/')) {
+      const id = pathname.split('/').pop();
+      if (req.method === 'PUT') {
+        return handleUpdate(req, res, 'issues.json', 'issues', id, (target, body) => {
+          if (body.title) target.title = body.title;
+          if (body.description) target.description = body.description;
+          if (body.priority) target.priority = body.priority;
+          if (body.status) target.status = body.status;
+          if (body.solution_steps !== undefined) target.solution_steps = body.solution_steps;
+          if (body.result_summary !== undefined) target.result_summary = body.result_summary;
+          if (body.created_at) target.created_at = body.created_at;
+          target.updated_at = todayISO();
+        });
+      }
+      if (req.method === 'DELETE') return handleDelete(res, 'issues.json', 'issues', id);
+      return methodNotAllowed(res);
+    }
+
+    // 工具管理 API
+    if (pathname === '/api/tools') {
+      if (req.method === 'GET') return handleList(res, 'tools.json', 'tools');
+      if (req.method === 'POST') {
+        return handleCreate(req, res, 'tools.json', 'tools', (body) => {
+          if (!body.name) throw new Error('name required');
+          if (!body.description) throw new Error('description required');
+          return {
+            id: body.id || `tool-${Date.now()}`,
+            name: body.name,
+            description: body.description,
+            type: body.type || '在线工具',
+            url: body.url || undefined,
+            source: body.source || '网络',
+            update_date: body.update_date || todayISO(),
+            created_at: body.created_at || todayISO(),
+          };
+        });
+      }
+      return methodNotAllowed(res);
+    }
+
+    if (pathname.startsWith('/api/tools/')) {
+      const id = pathname.split('/').pop();
+      if (req.method === 'PUT') {
+        return handleUpdate(req, res, 'tools.json', 'tools', id, (target, body) => {
+          if (body.name) target.name = body.name;
+          if (body.description) target.description = body.description;
+          if (body.type) target.type = body.type;
+          if (body.url !== undefined) target.url = body.url;
+          if (body.source) target.source = body.source;
+          if (body.update_date) target.update_date = body.update_date;
+          if (body.created_at) target.created_at = body.created_at;
+        });
+      }
+      if (req.method === 'DELETE') return handleDelete(res, 'tools.json', 'tools', id);
       return methodNotAllowed(res);
     }
 

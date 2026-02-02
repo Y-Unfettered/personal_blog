@@ -1,0 +1,38 @@
+[
+  {
+    "id": "tool-1",
+    "name": "JSON 极致美化器",
+    "description": "针对超大 JSON 文件的秒级解析与层级可视化，支持一键类型生成与格式化。",
+    "type": "个人工具",
+    "source": "自主开发",
+    "update_date": "2026-02-01",
+    "created_at": "2026-02-01"
+  },
+  {
+    "id": "tool-2",
+    "name": "Radix Colors",
+    "description": "一套面向设计系统的调色板工具，完美适配无障碍对比度与深色模式切换。",
+    "type": "在线工具",
+    "source": "优质推荐",
+    "update_date": "2026-01-28",
+    "created_at": "2026-01-28"
+  },
+  {
+    "id": "tool-3",
+    "name": "Word VBA 文档引擎",
+    "description": "批量化处理公文格式、自动生成页码与目录的高级宏脚本工具集成。",
+    "type": "个人工具",
+    "source": "自主开发",
+    "update_date": "2026-01-20",
+    "created_at": "2026-01-20"
+  },
+  {
+    "id": "tool-4",
+    "name": "UI Faces AI",
+    "description": "利用 AI 技术生成的免费版权个人头像资产，为原型设计提供真实感载体。",
+    "type": "在线工具",
+    "source": "资源网站",
+    "update_date": "2026-01-10",
+    "created_at": "2026-01-10"
+  }
+]

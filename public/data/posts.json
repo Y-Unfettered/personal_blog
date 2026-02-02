@@ -1,25 +1,24 @@
 {
   "version": 1,
-  "generated_at": "2026-01-31",
+  "generated_at": "2026-02-02",
   "posts": [
     {
       "id": "post-hello",
       "title": "探索 2026 年现代前端架构演进",
-      "slug": "hello-blog",
+      "slug": "blog?id=1",
       "summary": "随着微前端与边缘计算的普及，我们如何重新审视应用的性能与用户体验？",
       "content": "> 本文将深度剖析当前 Web 技术的底层逻辑。在过去的一年里，我们见证了从传统的响应式设计到“流式组件渲染”的范式转移...\n\n# 核心技术突破\n\n利用边缘计算（Edge Computing），动态内容可以在最接近用户的节点完成预渲染。这意味着 First Meaningful Paint (FMP) 的时间再次被压缩。\n\n![](https://img.lemontop.asia/2026131-00647.jpg)\n\n**如下所示的代码演示了最新的并发监听模式：**\n\n```JavaScript\nconst obs = new ObservableStream('https://api/v1');\nobs.subscribe(data => console.log(data));\n```\n\n# 结论\n\n技术的迭代并非为了更替而更替，而是为了解决日益增长的性能需求与硬件设备多样性之间的矛盾。\n",
       "wordCount": 163,
       "readingTime": 1,
-      "pinned": true,
       "cover": "https://plus.unsplash.com/premium_photo-1672423154405-5fd922c11af2?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       "categories": [
-        "cat-1769704635190"
+        "cat-1769701776764"
       ],
       "tags": [
         "tag-vue"
       ],
       "created_at": "2026-01-29",
-      "updated_at": "2026-01-31",
+      "updated_at": "2026-02-01",
       "status": "published"
     },
     {
@@ -30,16 +29,15 @@
       "content": "## 一、Vue3 的核心革新\n\n### 1.1 组合式 API (Composition API)\n\nVue3 最显著的变革是引入了组合式 API，它解决了 Vue2 选项式 API 在复杂组件中逻辑分散的问题。\n\n#### **传统选项式 API 的问题**\n\n```javascript\n// Vue2 选项式 API - 逻辑分散\nexport default {\n  data() {\n    return {\n      count: 0,\n      user: null,\n      loading: false\n    }\n  },\n  methods: {\n    increment() {\n      this.count++\n    },\n    async fetchUser() {\n      this.loading = true\n      // ... 获取用户数据\n      this.loading = false\n    }\n  },\n  mounted() {\n    this.fetchUser()\n  },\n  watch: {\n    count(newVal) {\n      console.log('count changed:', newVal)\n    }\n  }\n}\n```\n\n#### **组合式 API 的优势**\n\n```javascript\n// Vue3 组合式 API - 逻辑聚合\nimport { ref, onMounted, watch, computed } from 'vue'\n\nexport function useCounter() {\n  const count = ref(0)\n\n  const increment = () => {\n    count.value++\n  }\n\n  const doubleCount = computed(() => count.value * 2)\n\n  watch(count, (newVal) => {\n    console.log('count changed:', newVal)\n  })\n\n  return { count, increment, doubleCount }\n}\n\nexport function useUser() {\n  const user = ref(null)\n  const loading = ref(false)\n\n  const fetchUser = async () => {\n    loading.value = true\n    try {\n      const response = await fetch('/api/user')\n      user.value = await response.json()\n    } finally {\n      loading.value = false\n    }\n  }\n\n  onMounted(fetchUser)\n\n  return { user, loading, fetchUser }\n}\n\n// 在组件中使用\nexport default {\n  setup() {\n    const { count, increment, doubleCount } = useCounter()\n    const { user, loading, fetchUser } = useUser()\n\n    return { count, increment, doubleCount, user, loading, fetchUser }\n  }\n}\n```\n\n### 1.2 响应式系统的重构\n\nVue3 使用 Proxy 重写了响应式系统，带来了更好的性能和更完整的响应式特性。\n\n```javascript\nimport { reactive, ref, watchEffect, computed } from 'vue'\n\n// reactive 用于对象\nconst state = reactive({\n  user: {\n    name: '张三',\n    age: 25\n  },\n  skills: ['Vue', 'TypeScript', 'JavaScript']\n})\n\n// ref 用于基本类型\nconst count = ref(0)\n\n// 深层响应式\nstate.user.name = '李四' // 自动触发更新\nstate.skills.push('React') // 自动触发更新\n\n// 计算属性\nconst userInfo = computed(() => {\n  return `${state.user.name} - ${state.user.age}岁`\n})\n\n// 副作用监听\nwatchEffect(() => {\n  console.log('用户信息更新:', userInfo.value)\n})\n```\n\n## 二、性能优化突破\n\n### 2.1 编译时优化\n\nVue3 的编译器进行了重大改进，生成了更高效的渲染代码。\n\n#### **Patch Flag 优化**\n\n```javascript\n// Vue3 编译后的渲染函数\nimport { createElementVNode as _createElementVNode } from 'vue'\n\nexport function render(_ctx, _cache) {\n  return _createElementVNode(\n    'div',\n    {\n      class: _ctx.dynamicClass,\n      // 只有 class 是动态的，其他属性是静态的\n      _patchFlag: 2 // 2 表示只有 class 需要更新\n    },\n    [\n      _createElementVNode('span', null, '静态内容'),\n      _createElementVNode('span', { class: _ctx.dynamicTextClass }, _ctx.dynamicText)\n    ]\n  )\n}\n```\n\n#### **Tree-shaking 支持**\n\n```javascript\n// 按需导入，减小打包体积\nimport { ref, computed, watchEffect } from 'vue'\n// 而不是 import Vue from 'vue'\n\n// 路由和状态管理也支持 Tree-shaking\nimport { createRouter, createWebHistory } from 'vue-router'\nimport { createPinia } from 'pinia'\n```\n\n### 2.2 更好的 TypeScript 支持\n\nVue3 完全使用 TypeScript 重写，提供了完整的类型推导。\n\n```typescript\n// 完整的 TypeScript 支持示例\nimport { defineComponent, ref, computed, PropType } from 'vue'\n\ninterface User {\n  id: number\n  name: string\n  email: string\n}\n\nexport default defineComponent({\n  name: 'UserProfile',\n\n  props: {\n    user: {\n      type: Object as PropType<User>,\n      required: true\n    },\n    showEmail: {\n      type: Boolean,\n      default: false\n    }\n  },\n\n  emits: {\n    'update:name': (name: string) => typeof name === 'string',\n    'delete': (id: number) => typeof id === 'number'\n  },\n\n  setup(props, { emit }) {\n    // 完整的类型推断\n    const userName = computed({\n      get: () => props.user.name,\n      set: (value: string) => {\n        emit('update:name', value)\n      }\n    })\n\n    const deleteUser = () => {\n      emit('delete', props.user.id)\n    }\n\n    return { userName, deleteUser }\n  }\n})\n```\n\n## 三、新的开发模式\n\n### 3.1 逻辑复用模式\n\n```javascript\n// useFetch 自定义组合式函数\nimport { ref, onUnmounted } from 'vue'\n\nexport function useFetch(url, options = {}) {\n  const data = ref(null)\n  const error = ref(null)\n  const loading = ref(false)\n\n  let controller = null\n\n  const fetchData = async () => {\n    loading.value = true\n    error.value = null\n\n    try {\n      if (controller) {\n        controller.abort()\n      }\n\n      controller = new AbortController()\n\n      const response = await fetch(url, {\n        ...options,\n        signal: controller.signal\n      })\n\n      if (!response.ok) {\n        throw new Error(`HTTP error! status: ${response.status}`)\n      }\n\n      data.value = await response.json()\n    } catch (err) {\n      if (err.name !== 'AbortError') {\n        error.value = err.message\n      }\n    } finally {\n      loading.value = false\n    }\n  }\n\n  onUnmounted(() => {\n    if (controller) {\n      controller.abort()\n    }\n  })\n\n  return {\n    data,\n    error,\n    loading,\n    fetchData,\n    retry: fetchData\n  }\n}\n\n// 在多个组件中复用\nexport default {\n  setup() {\n    const { data: posts, loading, error, retry } = useFetch('/api/posts')\n\n    return { posts, loading, error, retry }\n  }\n}\n```\n\n### 3.2 状态管理新范式\n\n```javascript\n// 使用 Pinia (Vue3 官方推荐的状态管理)\nimport { defineStore } from 'pinia'\n\nexport const useCounterStore = defineStore('counter', {\n  state: () => ({\n    count: 0,\n    user: null\n  }),\n\n  getters: {\n    doubleCount: (state) => state.count * 2,\n    userInitials: (state) => {\n      return state.user\n        ? state.user.name.split(' ').map(n => n[0]).join('')\n        : ''\n    }\n  },\n\n  actions: {\n    increment() {\n      this.count++\n    },\n    async fetchUser() {\n      const response = await fetch('/api/user')\n      this.user = await response.json()\n    }\n  }\n})\n\n// 在组件中使用\nimport { storeToRefs } from 'pinia'\n\nexport default {\n  setup() {\n    const counterStore = useCounterStore()\n\n    // 保持响应式\n    const { count, doubleCount } = storeToRefs(counterStore)\n\n    return {\n      count,\n      doubleCount,\n      increment: counterStore.increment\n    }\n  }\n}\n```\n\n## 四、生态系统演进\n\n### 4.1 Vite 构建工具\n\n```javascript\n// vite.config.js\nimport { defineConfig } from 'vite'\nimport vue from '@vitejs/plugin-vue'\nimport { resolve } from 'path'\n\nexport default defineConfig({\n  plugins: [vue()],\n\n  // 开发服务器配置\n  server: {\n    port: 3000,\n    proxy: {\n      '/api': {\n        target: 'http://localhost:3001',\n        changeOrigin: true\n      }\n    }\n  },\n\n  // 构建配置\n  build: {\n    rollupOptions: {\n      output: {\n        manualChunks: {\n          'vue-vendor': ['vue', 'vue-router', 'pinia']\n        }\n      }\n    }\n  },\n\n  resolve: {\n    alias: {\n      '@': resolve(__dirname, 'src')\n    }\n  }\n})\n```\n\n### 4.2 新的组件开发模式\n\n```vue\n<!-- 单文件组件的新特性 -->\n<template>\n  <!-- v-model 参数化 -->\n  <CustomInput v-model:title=\"pageTitle\" v-model:content=\"pageContent\" />\n\n  <!-- 多根节点支持 -->\n  <header>Header</header>\n  <main>Main Content</main>\n  <footer>Footer</footer>\n</template>\n\n<script setup>\n// <script setup> 语法糖\nimport { ref, defineProps, defineEmits, defineExpose } from 'vue'\n\n// 定义 props\nconst props = defineProps({\n  modelValue: String,\n  title: {\n    type: String,\n    default: 'Default Title'\n  }\n})\n\n// 定义 emits\nconst emit = defineEmits(['update:modelValue', 'submit'])\n\n// 响应式数据\nconst count = ref(0)\n\n// 方法\nconst increment = () => {\n  count.value++\n  emit('submit', count.value)\n}\n\n// 暴露给父组件的方法\ndefineExpose({\n  increment\n})\n</script>\n\n<style scoped>\n/* 作用域样式 */\n.header {\n  color: var(--primary-color);\n}\n\n/* 深度选择器 */\n:deep(.child-component) {\n  padding: 1rem;\n}\n\n/* 插槽选择器 */\n:slotted(.slot-content) {\n  margin: 1rem;\n}\n\n/* 全局规则 */\n:global(.global-class) {\n  font-family: system-ui;\n}\n</style>\n```\n\n## 五、与其他技术的集成\n\n### 5.1 微前端集成\n\n```javascript\n// 作为微前端应用\nimport { createApp } from 'vue'\nimport { createRouter, createWebHistory } from 'vue-router'\n\n// 独立运行\nif (!window.__POWERED_BY_QIANKUN__) {\n  createApp(App).mount('#app')\n}\n\n// 作为子应用\nexport async function bootstrap() {\n  console.log('Vue3 app bootstraped')\n}\n\nexport async function mount(props) {\n  const { container } = props\n\n  const router = createRouter({\n    history: createWebHistory('/vue3-app'),\n    routes: [\n      // 路由配置\n    ]\n  })\n\n  const app = createApp(App)\n  app.use(router)\n  app.mount(container ? container.querySelector('#app') : '#app')\n\n  return app\n}\n\nexport async function unmount() {\n  // 清理工作\n}\n```\n\n### 5.2 Web Components 支持\n\n```javascript\n// 将 Vue 组件包装为 Web Component\nimport { defineCustomElement } from 'vue'\n\nconst MyVueElement = defineCustomElement({\n  props: {\n    title: String,\n    count: Number\n  },\n\n  setup(props) {\n    const internalCount = ref(props.count || 0)\n\n    const increment = () => {\n      internalCount.value++\n    }\n\n    return {\n      internalCount,\n      increment\n    }\n  },\n\n  template: `\n    <div>\n      <h2>{{ title }}</h2>\n      <p>Count: {{ internalCount }}</p>\n      <button @click=\"increment\">Increment</button>\n    </div>\n  `\n})\n\n// 注册自定义元素\ncustomElements.define('my-vue-element', MyVueElement)\n\n// 在任何框架或原生 HTML 中使用\n// <my-vue-element title=\"计数器\" count=\"0\"></my-vue-element>\n```\n\n## 六、总结与展望\n\nVue3 通过组合式 API、性能优化和更好的开发体验，确实开启了一种新的前端开发模式：\n\n1. **逻辑复用性提升**：组合式函数使得逻辑复用更加灵活和强大\n2. **类型安全增强**：完整的 TypeScript 支持提高了代码的可靠性\n3. **性能大幅优化**：编译时优化和响应式系统重构带来了更好的性能\n4. **开发体验改善**：更好的工具链支持和更简洁的 API 设计\n5. **生态系统繁荣**：Vite、Pinia、Volar 等工具形成了完整的开发生态\n\nVue3 不仅是一个框架的升级，更是前端开发理念的一次革新。它推动了前端开发向更加模块化、类型安全和高效的方向发展，为构建大型复杂应用提供了更好的解决方案。\n\n未来，随着 Vue 生态的不断完善和社区的发展，Vue3 将继续引领前端开发的新趋势，推动 Web 开发技术的进步。\n",
       "wordCount": 522,
       "readingTime": 3,
-      "pinned": true,
       "cover": "https://img.lemontop.asia/premium_photo-1678565999588.jpg",
       "categories": [
-        "cat-1769701776764"
+        "cat-1769878555807"
       ],
       "tags": [
         "tag-vue"
       ],
       "created_at": "2026-01-30",
-      "updated_at": "2026-01-31",
+      "updated_at": "2026-02-01",
       "status": "published"
     },
     {
@@ -51,13 +49,158 @@
       "wordCount": 660,
       "readingTime": 4,
       "categories": [
-        "cat-1769704635190"
+        "cat-1769878555807"
       ],
       "tags": [
-        "tag-vue"
+        "tag-1769878889807",
+        "tag-1769946478112"
       ],
       "created_at": "2026-01-31",
-      "updated_at": "2026-01-31",
+      "updated_at": "2026-02-01",
+      "status": "published"
+    },
+    {
+      "id": "post-1769877771380",
+      "title": "Word VBA 宏：运行后会生成1000页空白页",
+      "slug": "office?id=1",
+      "summary": "Word VBA 宏：运行后会生成1000页空白页",
+      "content": "# 测试\n\n下面给你一个**可直接用**的 Word VBA 宏：运行后会生成**1000 页空白页**（用“分页符”强制分页），并且会做两件事来避免看起来“不是空白页”：\n\n- 清掉正文内容（当然是空的）\n- 关掉页眉页脚里的默认内容（有些模板会自带）\n\n把代码粘到你这个 `Sub 千页空白文档()` 里就行。\n\n```vba\nSub 千页空白文档()\n    Dim doc As Document\n    Dim i As Long\n\n    ' 新建一个文档（你也可以改成 ActiveDocument）\n    Set doc = Documents.Add\n\n    ' 可选：把视图切到页面视图，生成时更直观（不影响结果）\n    On Error Resume Next\n    ActiveWindow.View.Type = wdPrintView\n    On Error GoTo 0\n\n    ' 清空内容（新文档本来就是空的，这句只是保险）\n    doc.Range.Text = \"\"\n\n    ' 清理页眉页脚（避免模板自带内容）\n    Dim sec As Section\n    Dim hf As HeaderFooter\n    For Each sec In doc.Sections\n        For Each hf In sec.Headers\n            hf.Range.Text = \"\"\n        Next hf\n        For Each hf In sec.Footers\n            hf.Range.Text = \"\"\n        Next hf\n    Next sec\n\n    ' 插入 999 个分页符 -> 得到 1000 页空白页\n    ' 原理：第1页天然存在，再加 999 次分页符 = 1000 页\n    For i = 1 To 999\n        doc.Range(doc.Content.End - 1, doc.Content.End - 1).InsertBreak Type:=wdPageBreak\n    Next i\n\n    ' 光标回到文档开头\n    doc.Range(0, 0).Select\nEnd Sub\n```\n\n# 补充小提示（你直接用就行）：\n\n- 你如果不想新建文档、而是对当前文档生成：把 `Set doc = Documents.Add` 改成 `Set doc = ActiveDocument`。\n- 1000 页插分页符会有点“重”，但这是最稳定、最符合“空白页”的方式（比疯狂插回车更可靠）。\n\n如果你希望**每页都带一个固定格式**（比如每页开头有空段落、或指定纸张/边距/字体），我也可以把宏扩展成模板化版本。\n",
+      "wordCount": 208,
+      "readingTime": 2,
+      "pinned": true,
+      "cover": "https://plus.unsplash.com/premium_photo-1725408137556-3ff8caf1519d?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "categories": [
+        "cat-1769878741246"
+      ],
+      "tags": [
+        "tag-1769878846894"
+      ],
+      "created_at": "2026-02-01",
+      "updated_at": "2026-02-01",
+      "status": "published"
+    },
+    {
+      "id": "post-design-1",
+      "title": "赛博极夜：城市环境概念设计",
+      "slug": "cyberpunk-city-environment-concept-art",
+      "summary": "使用 Midjourney V6 探索高饱和度与暗部细节的极端平衡，模拟电影级光效...",
+      "content": "# 赛博极夜：城市环境概念设计\n\n使用 Midjourney V6 探索高饱和度与暗部细节的极端平衡，模拟电影级光效...",
+      "wordCount": 39,
+      "readingTime": 1,
+      "pinned": true,
+      "cover": "https://modao.cc/agent-py/media/generated_images/2026-02-01/18ef710fc4c24179ad177eba86029032.jpg",
+      "categories": [
+        "cat-1769944977150"
+      ],
+      "tags": [
+        "设计",
+        "创作"
+      ],
+      "created_at": "2026-02-01",
+      "updated_at": "2026-02-01",
+      "status": "published"
+    },
+    {
+      "id": "post-design-2",
+      "title": "DevLog 移动端改版方案报告",
+      "slug": "devlog-mobile-redesign-scheme-report",
+      "summary": "针对高信息密度界面的减法实验，优化深色模式下的层级表达与交互反馈...",
+      "content": "# DevLog 移动端改版方案报告\n\n针对高信息密度界面的减法实验，优化深色模式下的层级表达与交互反馈...",
+      "wordCount": 41,
+      "readingTime": 1,
+      "cover": "https://modao.cc/agent-py/media/generated_images/2026-02-01/41f61033662149bcaab0d60b961dff30.jpg",
+      "categories": [
+        "cat-1769957216083"
+      ],
+      "tags": [
+        "设计",
+        "UI"
+      ],
+      "created_at": "2026-01-28",
+      "updated_at": "2026-02-01",
+      "status": "published"
+    },
+    {
+      "id": "post-design-3",
+      "title": "冰结灵魂：人像摄影系列 03",
+      "slug": "frozen-soul-portrait-photography-series-03",
+      "summary": "后期采用三原色偏移算法，营造超现实的冰晶质感与情绪表达...",
+      "content": "# 冰结灵魂：人像摄影系列 03\n\n后期采用三原色偏移算法，营造超现实的冰晶质感与情绪表达...",
+      "wordCount": 37,
+      "readingTime": 1,
+      "cover": "https://modao.cc/agent-py/media/generated_images/2026-02-01/179ff61175324859bde3a0c0e35938f7.jpg",
+      "categories": [
+        "cat-1769944977150"
+      ],
+      "tags": [
+        "摄影",
+        "创作"
+      ],
+      "created_at": "2026-01-20",
+      "updated_at": "2026-02-01",
+      "status": "published"
+    },
+    {
+      "id": "post-life-1",
+      "title": "重看《银翼杀手2049》：关于灵魂的电子注脚",
+      "slug": "rewatching-blade-runner-2049-electronic-footnotes-on-soul",
+      "summary": "当雨水冲刷过那些冰冷的合金架构，我突然意识到，我们追求的真实，或许仅仅是一段被精心编织的记忆碎片。代码能够模拟情感，但无法模拟那种在废墟中等待雪花落下的寂寥……",
+      "content": "# 重看《银翼杀手2049》：关于灵魂的电子注脚\n\n当雨水冲刷过那些冰冷的合金架构，我突然意识到，我们追求的真实，或许仅仅是一段被精心编织的记忆碎片。代码能够模拟情感，但无法模拟那种在废墟中等待雪花落下的寂寥……",
+      "wordCount": 89,
+      "readingTime": 1,
+      "pinned": true,
+      "cover": "https://modao.cc/agent-py/media/generated_images/2026-02-01/ba9509e28b3b441bb73f07b7e2397b8d.jpg",
+      "categories": [
+        "cat-1769957295121"
+      ],
+      "tags": [
+        "生活",
+        "随笔",
+        "电影"
+      ],
+      "created_at": "2026-01-25",
+      "updated_at": "2026-02-01",
+      "status": "published"
+    },
+    {
+      "id": "post-life-2",
+      "title": "《存在与时间》：在忙碌的代码世界寻回本真",
+      "slug": "being-and-time-finding-authenticity-in-busy-code-world",
+      "summary": "如果我们把生活看作是一次漫长的 Debug，那么每一个存在的瞬间都是一个断点。海德格尔告诉我们，向死而生并不是终点，而是一种对生命完整性的深刻觉知……",
+      "content": "# 《存在与时间》：在忙碌的代码世界寻回本真\n\n如果我们把生活看作是一次漫长的 Debug，那么每一个存在的瞬间都是一个断点。海德格尔告诉我们，向死而生并不是终点，而是一种对生命完整性的深刻觉知……",
+      "wordCount": 81,
+      "readingTime": 1,
+      "cover": "https://modao.cc/agent-py/media/generated_images/2026-02-01/bdeb449febeb4ce286355a40214bd12f.jpg",
+      "categories": [
+        "cat-1769957295121"
+      ],
+      "tags": [
+        "生活",
+        "随笔",
+        "读书"
+      ],
+      "created_at": "2026-01-12",
+      "updated_at": "2026-02-01",
+      "status": "published"
+    },
+    {
+      "id": "post-life-3",
+      "title": "最后一个未被优化的开发者",
+      "slug": "last-unoptimized-developer",
+      "summary": "在那个被 AGI 统治的纪元里，他坚持用指尖敲击机械键盘。咔哒声在这座静默的数据中心里显得格格不入。他在写诗，用那种已经被淘汰的、带有冗余和错误的语言……",
+      "content": "# 最后一个未被优化的开发者\n\n在那个被 AGI 统治的纪元里，他坚持用指尖敲击机械键盘。咔哒声在这座静默的数据中心里显得格格不入。他在写诗，用那种已经被淘汰的、带有冗余和错误的语言……",
+      "wordCount": 78,
+      "readingTime": 1,
+      "categories": [
+        "cat-1769957295121"
+      ],
+      "tags": [
+        "生活",
+        "随笔",
+        "小说"
+      ],
+      "created_at": "2026-01-02",
+      "updated_at": "2026-02-01",
       "status": "published"
     }
   ]

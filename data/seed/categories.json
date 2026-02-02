@@ -4,30 +4,53 @@
     "name": "Vue 3.0",
     "slug": "Vue",
     "description": "Vue 3.0 方面的文章合集",
-    "color": "#45c28a"
+    "color": "#45c28a",
+    "parent": "技术笔记"
   },
   {
     "id": "cat-1769878555807",
     "name": "博客搭建",
     "slug": "blog",
     "description": "分享个人博客搭建",
-    "color": "#f2c564"
+    "color": "#f2c564",
+    "parent": "技术笔记"
   },
   {
     "id": "cat-1769878741246",
     "name": "Office 分享",
     "slug": "office",
     "description": "关于Office 分享的一些心得分享",
-    "color": "#ff0000"
+    "color": "#ff0000",
+    "parent": "技术笔记"
   },
   {
-    "id": "cat-1769936627255",
-    "name": "问题记录",
-    "slug": "问题记录"
+    "id": "cat-1769944977150",
+    "name": "AI ART",
+    "slug": "aiart",
+    "color": "#8166f1",
+    "description": "",
+    "parent": "设计创作"
   },
   {
-    "id": "cat-1769936685024",
-    "name": "技术笔记",
-    "slug": "技术笔记"
+    "id": "cat-1769950172241",
+    "name": "Illustrator",
+    "slug": "Illustrator",
+    "color": "#ee811b",
+    "description": "",
+    "parent": "设计创作"
+  },
+  {
+    "id": "cat-1769957216083",
+    "name": "UI 设计",
+    "slug": "UI",
+    "color": "#6366f1",
+    "parent": "设计创作"
+  },
+  {
+    "id": "cat-1769957295121",
+    "name": "读书心得",
+    "slug": "bookshare",
+    "color": "#6366f1",
+    "parent": "生活随笔"
   }
 ]

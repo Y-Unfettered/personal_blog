@@ -30,14 +30,14 @@
   {
     "id": "nav-1769871070398",
     "label": "工具分享",
-    "href": "/tool",
+    "href": "/tools",
     "order": 4,
     "visible": true
   },
   {
     "id": "nav-1769871103215",
     "label": "问题记录",
-    "href": "/problem",
+    "href": "/issues",
     "order": 5,
     "visible": true
   },

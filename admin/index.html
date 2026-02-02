@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
@@ -41,6 +41,8 @@
         </div>
         <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-400">
           <button class="hover:text-white" onclick="setTab('posts')">文章管理</button>
+          <button class="hover:text-white" onclick="setTab('issues')">问题管理</button>
+          <button class="hover:text-white" onclick="setTab('tools')">工具管理</button>
           <button class="hover:text-white" onclick="setTab('categories')">分类管理</button>
           <button class="hover:text-white" onclick="setTab('tags')">标签管理</button>
           <button class="hover:text-white" onclick="setTab('nav')">导航管理</button>
@@ -79,6 +81,7 @@
               <tr>
                 <th class="px-6 py-4 font-semibold">标题</th>
                 <th class="px-6 py-4 font-semibold">栏目</th>
+                <th class="px-6 py-4 font-semibold">分类</th>
                 <th class="px-6 py-4 font-semibold">状态</th>
                 <th class="px-6 py-4 font-semibold">日期</th>
                 <th class="px-6 py-4 font-semibold text-right">操作</th>
@@ -280,6 +283,86 @@
         </div>
       </section>
 
+      <section id="tab-issues" class="hidden animate-slide-up">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-2xl font-bold text-white">管理问题</h1>
+          <div class="flex items-center space-x-3">
+            <input
+              id="issue-search"
+              class="bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5 text-sm w-64 focus:border-indigo-500 outline-none"
+              placeholder="搜索问题标题 / 描述"
+            />
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm" onclick="openIssueEditor()">新增问题</button>
+          </div>
+        </div>
+        <div class="bg-[#161b22] border border-gray-800 rounded-xl overflow-hidden">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-gray-900/50 text-gray-400 uppercase text-xs tracking-wider">
+              <tr>
+                <th class="px-6 py-4 font-semibold">标题</th>
+                <th class="px-6 py-4 font-semibold">优先级</th>
+                <th class="px-6 py-4 font-semibold">状态</th>
+                <th class="px-6 py-4 font-semibold">日期</th>
+                <th class="px-6 py-4 font-semibold text-right">操作</th>
+              </tr>
+            </thead>
+            <tbody id="issues-body" class="divide-y divide-gray-800"></tbody>
+          </table>
+        </div>
+        <div class="flex items-center justify-between mt-4">
+          <div id="issues-page-info" class="text-xs text-gray-500"></div>
+          <div class="flex items-center space-x-2">
+            <button id="issues-prev" class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-40" onclick="prevIssuePage()">上一页</button>
+            <div id="issues-page-buttons" class="flex items-center space-x-2"></div>
+            <button id="issues-next" class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-40" onclick="nextIssuePage()">下一页</button>
+            <div class="flex items-center space-x-2 ml-2">
+              <input id="issues-page-jump" class="w-16 bg-gray-900 border border-gray-800 rounded-md px-2 py-1 text-xs text-gray-200" placeholder="页数" />
+              <button class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700" onclick="jumpIssuePage()">跳转</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-tools" class="hidden animate-slide-up">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-2xl font-bold text-white">工具管理</h1>
+          <div class="flex items-center space-x-3">
+            <input
+              id="tool-search"
+              class="bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5 text-sm w-64 focus:border-indigo-500 outline-none"
+              placeholder="搜索工具名称 / 描述"
+            />
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm" onclick="openToolEditor()">新增工具</button>
+          </div>
+        </div>
+        <div class="bg-[#161b22] border border-gray-800 rounded-xl overflow-hidden">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-gray-900/50 text-gray-400 uppercase text-xs tracking-wider">
+              <tr>
+                <th class="px-6 py-4 font-semibold">名称</th>
+                <th class="px-6 py-4 font-semibold">类型</th>
+                <th class="px-6 py-4 font-semibold">更新日期</th>
+                <th class="px-6 py-4 font-semibold">来源</th>
+                <th class="px-6 py-4 font-semibold text-right">操作</th>
+              </tr>
+            </thead>
+            <tbody id="tools-body" class="divide-y divide-gray-800"></tbody>
+          </table>
+        </div>
+        <div class="flex items-center justify-between mt-4">
+          <div id="tools-page-info" class="text-xs text-gray-500"></div>
+          <div class="flex items-center space-x-2">
+            <button id="tools-prev" class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-40" onclick="prevToolPage()">上一页</button>
+            <div id="tools-page-buttons" class="flex items-center space-x-2"></div>
+            <button id="tools-next" class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-40" onclick="nextToolPage()">下一页</button>
+            <div class="flex items-center space-x-2 ml-2">
+              <input id="tools-page-jump" class="w-16 bg-gray-900 border border-gray-800 rounded-md px-2 py-1 text-xs text-gray-200" placeholder="页数" />
+              <button class="px-3 py-1.5 text-xs rounded-md bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700" onclick="jumpToolPage()">跳转</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="tab-settings" class="hidden animate-slide-up">
         <h1 class="text-2xl font-bold text-white mb-6">主题设置</h1>
         <div class="bg-[#161b22] border border-gray-800 rounded-xl p-6 space-y-6">
@@ -351,6 +434,8 @@
       let categories = [];
       let tags = [];
       let navItems = [];
+      let issues = [];
+      let tools = [];
       let categoryNameMap = {};
       let tagNameMap = {};
       let currentPage = 1;
@@ -359,8 +444,12 @@
       let currentCategoryPage = 1;
       let currentTagPage = 1;
       let currentNavPage = 1;
+      let currentIssuePage = 1;
+      let currentToolPage = 1;
       let categorySearchQuery = '';
       let tagSearchQuery = '';
+      let issueSearchQuery = '';
+      let toolSearchQuery = '';
       let autoUnpinOnLimit = true;
       let mdEditorApp = null;
       let mdEditorRoot = null;
@@ -398,7 +487,23 @@
       }
 
       function simpleSlugify(value) {
-        return String(value || '')
+        const columnMap = {
+          '设计创作': 'design',
+          '工具分享': 'tools',
+          '问题记录': 'issues',
+          '生活随笔': 'life',
+          '技术笔记': 'technology'
+        };
+        
+        const str = String(value || '').trim();
+        
+        // 检查是否有预设的英文对应值
+        if (columnMap[str]) {
+          return columnMap[str];
+        }
+        
+        // 对于其他值，使用默认的slugify逻辑
+        return str
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/^-+|-+$/g, '');
@@ -430,19 +535,41 @@
         return list.length + 1;
       }
 
-      function buildCategorySlug(categoryIds, currentId) {
-        const firstId = Array.isArray(categoryIds) ? categoryIds[0] : null;
-        if (!firstId) return '';
-        const base = categorySlugFromId(firstId);
+      function buildColumnSlug(columnLabel, currentId) {
+        if (!columnLabel) return '';
+        const base = simpleSlugify(columnLabel) || columnLabel.toLowerCase().replace(/\s+/g, '-');
         if (!base) return '';
-        const index = categoryPostIndex(firstId, currentId);
+        const index = columnPostIndex(columnLabel, currentId);
         return `${base}?id=${index}`;
       }
 
+      function columnPostIndex(columnLabel, currentId) {
+        if (!columnLabel) return 1;
+        const list = posts
+          .filter((p) => {
+            // 查找与栏目标签匹配的分类
+            const catIds = Array.isArray(p.categories) ? p.categories : [];
+            return catIds.some(id => categoryNameMap[id] === columnLabel);
+          })
+          .slice()
+          .sort((a, b) => {
+            const ad = a.created_at || '';
+            const bd = b.created_at || '';
+            return ad.localeCompare(bd);
+          });
+        if (currentId) {
+          const existingIndex = list.findIndex((p) => p.id === currentId);
+          if (existingIndex >= 0) return existingIndex + 1;
+        }
+        return list.length + 1;
+      }
+
       function setTab(name) {
-        ['posts', 'categories', 'tags', 'nav', 'profile', 'publish', 'settings'].forEach((tab) => {
+        ['posts', 'issues', 'tools', 'categories', 'tags', 'nav', 'profile', 'publish', 'settings'].forEach((tab) => {
           const el = document.getElementById(`tab-${tab}`);
-          el.classList.toggle('hidden', tab !== name);
+          if (el) {
+            el.classList.toggle('hidden', tab !== name);
+          }
         });
       }
 
@@ -573,17 +700,28 @@
         const resolveColumnLabel = (post) => {
           const ids = Array.isArray(post?.categories) ? post.categories : [];
           if (!ids.length) return '-';
+          // 查找第一个分类的parent属性作为栏目
+          for (const id of ids) {
+            const category = categories.find(c => c.id === id);
+            if (category && category.parent) {
+              return category.parent;
+            }
+          }
+          // 如果没有找到parent属性，返回第一个分类的名称
           const names = ids.map((id) => categoryNameMap[id] || id).filter(Boolean);
           if (!names.length) return ids[0] || '-';
           return names[0];
         };
-        body.innerHTML = pageItems.map((p) => `
+        body.innerHTML = pageItems.map((p) => {
+          const categoryNames = (p.categories || []).map(id => categoryNameMap[id] || id).filter(Boolean).join(', ');
+          return `
           <tr class="hover:bg-gray-800/30 transition-colors">
             <td class="px-6 py-4 text-gray-200 font-medium">
               ${p.title}
               ${p.pinned ? '<span class="ml-2 px-2 py-0.5 text-xs rounded-full border border-indigo-500/40 text-indigo-300 bg-indigo-500/10">置顶</span>' : ''}
             </td>
             <td class="px-6 py-4 text-gray-400">${resolveColumnLabel(p)}</td>
+            <td class="px-6 py-4 text-gray-500">${categoryNames || '-'}</td>
             <td class="px-6 py-4">${statusLabel(p.status)}</td>
             <td class="px-6 py-4 text-gray-500">${p.created_at || p.updated_at || ''}</td>
             <td class="px-6 py-4 text-right space-x-3">
@@ -591,7 +729,8 @@
               <button class="text-gray-400 hover:text-red-400" onclick="deletePost('${p.id}')"><span class="iconify" data-icon="lucide:trash-2"></span></button>
             </td>
           </tr>
-        `).join('');
+        `;
+        }).join('');
 
         const info = document.getElementById('post-page-info');
         if (info) {
@@ -752,19 +891,48 @@
         const { pageItems, total, totalPages, current } = paginateList(filtered, currentCategoryPage);
         currentCategoryPage = current;
         const body = document.getElementById('categories-body');
-        body.innerHTML = pageItems.map((c) => `
-          <tr class="hover:bg-gray-800/30 transition-colors">
-            <td class="px-6 py-4 text-gray-200 font-medium">
-              <span class="inline-block w-2.5 h-2.5 rounded-full mr-2 align-middle" style="background:${c.color || '#6366f1'}"></span>
-              ${c.name}
-            </td>
-            <td class="px-6 py-4 text-gray-500">${c.slug}</td>
-            <td class="px-6 py-4 text-right space-x-3">
-              <button class="text-gray-400 hover:text-indigo-400" onclick="openCategoryEditor('${c.id}')"><span class="iconify" data-icon="lucide:edit-3"></span></button>
-              <button class="text-gray-400 hover:text-red-400" onclick="deleteCategory('${c.id}')"><span class="iconify" data-icon="lucide:trash-2"></span></button>
-            </td>
-          </tr>
-        `).join('');
+        
+        // 按栏目分组
+        const groupedCategories = {};
+        pageItems.forEach((c) => {
+          const parent = c.parent || '未分类';
+          if (!groupedCategories[parent]) {
+            groupedCategories[parent] = [];
+          }
+          groupedCategories[parent].push(c);
+        });
+        
+        // 生成分组后的HTML
+        let html = '';
+        Object.entries(groupedCategories).forEach(([column, cats]) => {
+          // 添加栏目标题行
+          html += `
+            <tr class="bg-gray-900/50">
+              <td class="px-6 py-3 text-gray-400 font-semibold uppercase text-xs">${column}</td>
+              <td class="px-6 py-3"></td>
+              <td class="px-6 py-3"></td>
+            </tr>
+          `;
+          
+          // 添加该栏目下的分类
+          cats.forEach((c) => {
+            html += `
+              <tr class="hover:bg-gray-800/30 transition-colors">
+                <td class="px-6 py-4 text-gray-200 font-medium pl-10">
+                  <span class="inline-block w-2.5 h-2.5 rounded-full mr-2 align-middle" style="background:${c.color || '#6366f1'}"></span>
+                  ${c.name}
+                </td>
+                <td class="px-6 py-4 text-gray-500">${c.slug}</td>
+                <td class="px-6 py-4 text-right space-x-3">
+                  <button class="text-gray-400 hover:text-indigo-400" onclick="openCategoryEditor('${c.id}')"><span class="iconify" data-icon="lucide:edit-3"></span></button>
+                  <button class="text-gray-400 hover:text-red-400" onclick="deleteCategory('${c.id}')"><span class="iconify" data-icon="lucide:trash-2"></span></button>
+                </td>
+              </tr>
+            `;
+          });
+        });
+        
+        body.innerHTML = html;
 
         const info = document.getElementById('categories-page-info');
         if (info) {
@@ -999,9 +1167,17 @@
         container.querySelectorAll('button.chip').forEach((btn) => {
           btn.addEventListener('click', () => {
             const id = btn.getAttribute('data-id');
-            const next = new Set(parseCsv(input.value));
-            if (next.has(id)) next.delete(id);
-            else next.add(id);
+            const next = new Set();
+            // 对于分类，只允许选择一个
+            if (kind === 'categories') {
+              next.add(id);
+            } else {
+              // 对于标签，保持多选
+              const current = new Set(parseCsv(input.value));
+              if (current.has(id)) current.delete(id);
+              else current.add(id);
+              current.forEach(itemId => next.add(itemId));
+            }
             input.value = Array.from(next).join(', ');
             if (typeof onChange === 'function') onChange();
             updateChips(containerId, items, inputId, kind, onChange);
@@ -1010,15 +1186,26 @@
       }
 
       function postForm(post) {
-        const catValues = (post?.categories || []).join(', ');
-        const tagValues = (post?.tags || []).join(', ');
+        const catValues = (post?.categories || []).map(id => categoryNameMap[id] || id).join(', ');
+        const tagValues = (post?.tags || []).map(id => tagNameMap[id] || id).join(', ');
         const createdValue = post?.created_at || todayISO();
         const pinnedChecked = post?.pinned ? 'checked' : '';
         const slugValue = post?.slug || '';
         const columnLabels = getColumnLabels();
-        const categoryOptions = columnLabels.map((label) => `
-            <option value="${label}">${label}</option>
-          `).join('');
+        // 确定文章的栏目
+        let postColumn = '';
+        if (post && post.categories && post.categories.length > 0) {
+          const firstCategory = categories.find(c => c.id === post.categories[0]);
+          if (firstCategory && firstCategory.parent) {
+            postColumn = firstCategory.parent;
+          }
+        }
+        const categoryOptions = columnLabels.map((label) => {
+          const selected = label === postColumn ? 'selected' : '';
+          return `
+            <option value="${label}" ${selected}>${label}</option>
+          `;
+        }).join('');
         return `
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div class="space-y-4">
@@ -1209,12 +1396,15 @@
         const post = posts.find((p) => p.id === id);
         const handleSubmit = async (nextStatus) => {
           const fallbackContent = document.getElementById('post-content')?.value || '';
+          const columnLabel = String(columnSelect?.value || '').trim();
+          const categoryIds = parseCsv(document.getElementById('post-categories').value);
+          
           const payload = {
             title: document.getElementById('post-title').value.trim(),
             slug: document.getElementById('post-slug').value.trim(),
             summary: document.getElementById('post-summary').value.trim(),
             cover: document.getElementById('post-cover').value.trim(),
-            categories: parseCsv(document.getElementById('post-categories').value),
+            categories: categoryIds,
             tags: parseCsv(document.getElementById('post-tags').value),
             status: nextStatus === 'published' ? 'published' : 'draft',
             created_at: document.getElementById('post-created-at').value,
@@ -1224,8 +1414,14 @@
           if (!payload.title || !payload.summary || !payload.content) {
             return setStatus('标题、摘要、正文为必填', true);
           }
+          if (!columnLabel) {
+            return setStatus('请选择栏目', true);
+          }
+          if (!categoryIds.length) {
+            return setStatus('请选择分类', true);
+          }
           if (!payload.slug) {
-            return setStatus('请先选择分类生成 slug', true);
+            return setStatus('请先选择栏目和分类生成 slug', true);
           }
           const pinnedCount = posts.filter((p) => p.pinned).length;
           const willPinNew = payload.pinned && (!post || !post.pinned);
@@ -1282,22 +1478,34 @@
         const isPublished = post?.status === 'published';
 
         const syncColumnFromCategories = () => {
-          if (!columnSelect || !categoryInput) return;
-          const first = parseCsv(categoryInput.value)[0] || '';
-          const name = first ? (categoryNameMap[first] || '') : '';
-          columnSelect.value = name;
+          // 不再根据分类来同步栏目，保持当前选择的栏目不变
+          // 这样选择分类时栏目不会消失
         };
 
-        const syncCategoriesFromColumn = async () => {
+        const syncCategoriesFromColumn = () => {
           if (!columnSelect || !categoryInput) return;
           const label = String(columnSelect.value || '').trim();
           if (!label) {
             categoryInput.value = '';
+            updateChips('cat-chips', [], 'post-categories', 'categories', handleCategoryChange);
             return;
           }
-          const category = await ensureCategoryByLabel(label);
-          if (!category) return;
-          categoryInput.value = category.id;
+          // 过滤出与当前栏目相关的分类
+          const filteredCategories = categories.filter(c => c.parent === label);
+          // 按使用频率排序，显示前5个
+          const counts = collectUsageCounts('categories');
+          const sortedCategories = filteredCategories
+            .slice()
+            .sort((a, b) => {
+              const ac = counts[a.id] || 0;
+              const bc = counts[b.id] || 0;
+              if (bc !== ac) return bc - ac;
+              return String(a.name || '').localeCompare(String(b.name || ''));
+            })
+            .slice(0, 5);
+          categoryInput.value = '';
+          // 更新分类选择卡片，只显示与当前栏目相关的分类
+          updateChips('cat-chips', sortedCategories, 'post-categories', 'categories', handleCategoryChange);
         };
 
         const applySlugLock = () => {
@@ -1307,11 +1515,24 @@
           if (slugLockNote) slugLockNote.classList.toggle('hidden', !isPublished);
         };
 
-        const applyCategorySlug = () => {
+        const applyColumnSlug = () => {
           if (!slugInput || isPublished) return;
-          const ids = parseCsv(categoryInput?.value || '');
-          const next = buildCategorySlug(ids, currentPostId);
-          if (!next) {
+          const columnLabel = String(columnSelect?.value || '').trim();
+          const categoryIds = parseCsv(categoryInput?.value || '');
+          const firstCategoryId = categoryIds[0] || '';
+          const category = firstCategoryId ? categories.find(c => c.id === firstCategoryId) : null;
+          const categorySlug = category ? (category.slug || simpleSlugify(category.name)) : '';
+          
+          if (!columnLabel) {
+            slugInput.value = '';
+            if (slugStatus) {
+              slugStatus.textContent = '请选择栏目以生成 slug';
+              slugStatus.className = 'text-xs text-amber-400 mt-2';
+            }
+            return;
+          }
+          
+          if (!categorySlug) {
             slugInput.value = '';
             if (slugStatus) {
               slugStatus.textContent = '请选择分类以生成 slug';
@@ -1319,6 +1540,20 @@
             }
             return;
           }
+          
+          const columnSlug = simpleSlugify(columnLabel);
+          const index = columnCategoryPostIndex(columnLabel, firstCategoryId, currentPostId);
+          const next = `${columnSlug}/${categorySlug}?id=${index}`;
+          
+          if (!next) {
+            slugInput.value = '';
+            if (slugStatus) {
+              slugStatus.textContent = '生成 slug 失败';
+              slugStatus.className = 'text-xs text-amber-400 mt-2';
+            }
+            return;
+          }
+          
           slugInput.value = next;
           if (slugStatus) {
             slugStatus.textContent = `Slug 已生成：${next}`;
@@ -1326,26 +1561,92 @@
           }
         };
 
+        function columnCategoryPostIndex(columnLabel, categoryId, currentId) {
+          if (!columnLabel || !categoryId) return 1;
+          const list = posts
+            .filter((p) => {
+              // 查找与栏目标签匹配的分类
+              const catIds = Array.isArray(p.categories) ? p.categories : [];
+              return catIds.includes(categoryId);
+            })
+            .slice()
+            .sort((a, b) => {
+              const ad = a.created_at || '';
+              const bd = b.created_at || '';
+              return ad.localeCompare(bd);
+            });
+          if (currentId) {
+            const existingIndex = list.findIndex((p) => p.id === currentId);
+            if (existingIndex >= 0) return existingIndex + 1;
+          }
+          return list.length + 1;
+        }
+
         const handleCategoryChange = () => {
-          applyCategorySlug();
           syncColumnFromCategories();
+          applyColumnSlug();
         };
 
-        updateChips('cat-chips', categories, 'post-categories', 'categories', handleCategoryChange);
+        const handleColumnChange = () => {
+          applyColumnSlug();
+        };
+
+        // 初始化时根据栏目显示分类卡片
+        if (columnSelect) {
+          const label = String(columnSelect.value || '').trim();
+          if (label) {
+            // 过滤出与当前栏目相关的分类
+            const filteredCategories = categories.filter(c => c.parent === label);
+            // 按使用频率排序，显示前5个
+            const counts = collectUsageCounts('categories');
+            const sortedCategories = filteredCategories
+              .slice()
+              .sort((a, b) => {
+                const ac = counts[a.id] || 0;
+                const bc = counts[b.id] || 0;
+                if (bc !== ac) return bc - ac;
+                return String(a.name || '').localeCompare(String(b.name || ''));
+              })
+              .slice(0, 5);
+            updateChips('cat-chips', sortedCategories, 'post-categories', 'categories', handleCategoryChange);
+          } else {
+            updateChips('cat-chips', [], 'post-categories', 'categories', handleCategoryChange);
+          }
+        } else {
+          updateChips('cat-chips', [], 'post-categories', 'categories', handleCategoryChange);
+        }
         updateChips('tag-chips', tags, 'post-tags', 'tags');
 
         syncColumnFromCategories();
         if (columnSelect) {
           columnSelect.addEventListener('change', async () => {
             await syncCategoriesFromColumn();
-            updateChips('cat-chips', categories, 'post-categories', 'categories', handleCategoryChange);
-            handleCategoryChange();
+            handleColumnChange();
           });
         }
 
+        // 初始化时应用栏目slug
+        handleColumnChange();
+
         if (categoryInput) {
           categoryInput.addEventListener('input', () => {
-            updateChips('cat-chips', categories, 'post-categories', 'categories', handleCategoryChange);
+            const label = String(columnSelect?.value || '').trim();
+            let chipsCategories = [];
+            if (label) {
+              // 只显示当前栏目下的分类
+              const filteredCategories = categories.filter(c => c.parent === label);
+              const counts = collectUsageCounts('categories');
+              chipsCategories = filteredCategories
+                .slice()
+                .sort((a, b) => {
+                  const ac = counts[a.id] || 0;
+                  const bc = counts[b.id] || 0;
+                  if (bc !== ac) return bc - ac;
+                  return String(a.name || '').localeCompare(String(b.name || ''));
+                })
+                .slice(0, 5);
+            }
+            updateChips('cat-chips', chipsCategories, 'post-categories', 'categories', handleCategoryChange);
             handleCategoryChange();
           });
         }
@@ -1355,7 +1656,7 @@
           });
         }
 
-        applyCategorySlug();
+        applyColumnSlug();
         applySlugLock();
 
         const draft = getDraftContent(post?.id || null);
@@ -1371,11 +1672,26 @@
 
       function openCategoryEditor(id) {
         const cat = categories.find((c) => c.id === id);
+        const columnLabels = getColumnLabels();
+        const parentOptions = columnLabels.map((label) => {
+          const selected = cat && cat.parent === label ? 'selected' : '';
+          return `
+            <option value="${label}" ${selected}>${label}</option>
+          `;
+        }).join('');
+        
         openEditor(cat ? '编辑分类' : '新增分类', `
           <div class="space-y-4">
             <div>
               <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">名称</label>
               <input id="cat-name" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${cat?.name || ''}" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">所属栏目</label>
+              <select id="cat-parent" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5">
+                <option value="">请选择栏目</option>
+                ${parentOptions}
+              </select>
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Slug</label>
@@ -1399,8 +1715,10 @@
             slug: document.getElementById('cat-slug').value.trim(),
             description: document.getElementById('cat-desc').value.trim(),
             color: document.getElementById('cat-color-text').value.trim(),
+            parent: document.getElementById('cat-parent').value.trim(),
           };
           if (!payload.name) return setStatus('分类名称为必填', true);
+          if (!payload.parent) return setStatus('所属栏目为必填', true);
           if (cat) await api(`/api/categories/${cat.id}`, { method: 'PUT', body: JSON.stringify(payload) });
           else await api('/api/categories', { method: 'POST', body: JSON.stringify(payload) });
           await loadAll();
@@ -1608,9 +1926,11 @@
             api('/api/categories'),
             api('/api/tags'),
             api('/api/nav').catch(() => []),
+            api('/api/issues').catch(() => []),
+            api('/api/tools').catch(() => []),
             api('/api/settings').catch(() => ({ markdownTheme: 'default' })),
           ]);
-          [posts, categories, tags, navItems, settings] = results;
+          [posts, categories, tags, navItems, issues, tools, settings] = results;
           applySettingsToUI();
           applyProfileSettingsToUI();
           categoryNameMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
@@ -1619,6 +1939,8 @@
           renderCategories();
           renderTags();
           renderNav();
+          renderIssues();
+          renderTools();
           
         } catch (err) {
           setStatus(err.message || '加载失败', true);
@@ -1688,6 +2010,365 @@
       }
 
       setTab('posts');
+      // 问题管理相关函数
+      function issueForm(issue) {
+        const titleValue = issue?.title || '';
+        const descriptionValue = issue?.description || '';
+        const priorityValue = issue?.priority || '普通';
+        const statusValue = issue?.status || '待解决';
+        const solutionStepsValue = issue?.solution_steps || '';
+        const resultSummaryValue = issue?.result_summary || '';
+        const createdValue = issue?.created_at || todayISO();
+        return `
+          <div class="space-y-6">
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">标题</label>
+              <input id="issue-title" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${titleValue}" />
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">优先级</label>
+                <select id="issue-priority" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5">
+                  <option value="紧急" ${priorityValue === '紧急' ? 'selected' : ''}>紧急</option>
+                  <option value="普通" ${priorityValue === '普通' ? 'selected' : ''}>普通</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">状态</label>
+                <select id="issue-status" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5">
+                  <option value="待解决" ${statusValue === '待解决' ? 'selected' : ''}>待解决</option>
+                  <option value="解决中" ${statusValue === '解决中' ? 'selected' : ''}>解决中</option>
+                  <option value="已解决" ${statusValue === '已解决' ? 'selected' : ''}>已解决</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">问题描述</label>
+              <textarea id="issue-description" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" rows="4">${descriptionValue}</textarea>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">解决步骤</label>
+              <textarea id="issue-solution-steps" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" rows="6">${solutionStepsValue}</textarea>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Result & Summary</label>
+              <textarea id="issue-result-summary" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" rows="4">${resultSummaryValue}</textarea>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">创建日期</label>
+              <input id="issue-created-at" type="date" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${createdValue}" />
+            </div>
+          </div>
+        `;
+      }
+
+      function openIssueEditor(id) {
+        const issue = issues.find((i) => i.id === id);
+        const handleSubmit = async () => {
+          const payload = {
+            title: document.getElementById('issue-title').value.trim(),
+            description: document.getElementById('issue-description').value.trim(),
+            priority: document.getElementById('issue-priority').value.trim(),
+            status: document.getElementById('issue-status').value.trim(),
+            solution_steps: document.getElementById('issue-solution-steps').value.trim(),
+            result_summary: document.getElementById('issue-result-summary').value.trim(),
+            created_at: document.getElementById('issue-created-at').value,
+          };
+          if (!payload.title || !payload.description) {
+            return setStatus('标题和描述为必填', true);
+          }
+          if (issue) {
+            await api(`/api/issues/${issue.id}`, {
+              method: 'PUT',
+              body: JSON.stringify(payload),
+            });
+          } else {
+            await api('/api/issues', {
+              method: 'POST',
+              body: JSON.stringify(payload),
+            });
+          }
+          await loadAll();
+          closeEditor();
+        };
+        openEditor(
+          issue ? '编辑问题' : '新增问题',
+          issueForm(issue),
+          handleSubmit,
+          {
+            saveLabel: '保存',
+          }
+        );
+      }
+
+      function renderIssues() {
+        const filtered = issues.filter((i) => {
+          if (!issueSearchQuery) return true;
+          const query = issueSearchQuery.toLowerCase();
+          return i.title.toLowerCase().includes(query) || i.description.toLowerCase().includes(query);
+        }).sort((a, b) => {
+          const ad = a.created_at || '';
+          const bd = b.created_at || '';
+          return bd.localeCompare(ad);
+        });
+        const total = filtered.length;
+        const totalPages = Math.max(1, Math.ceil(total / pageSize));
+        if (currentIssuePage > totalPages) currentIssuePage = totalPages;
+        if (currentIssuePage < 1) currentIssuePage = 1;
+        const start = (currentIssuePage - 1) * pageSize;
+        const pageItems = filtered.slice(start, start + pageSize);
+        const body = document.getElementById('issues-body');
+        body.innerHTML = pageItems.map((i) => `
+          <tr class="hover:bg-gray-800/30 transition-colors">
+            <td class="px-6 py-4 text-gray-200 font-medium">${i.title}</td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-0.5 rounded-full text-xs ${i.priority === '紧急' ? 'bg-red-500/10 text-red-400 border border-red-500/30' : 'bg-gray-800 text-gray-400 border border-gray-700'}">
+                ${i.priority}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-0.5 rounded-full text-xs ${i.status === '已解决' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-gray-800 text-gray-400 border border-gray-700'}">
+                ${i.status}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-gray-500">${i.created_at}</td>
+            <td class="px-6 py-4 text-right space-x-3">
+              <button class="text-gray-400 hover:text-indigo-400" onclick="openIssueEditor('${i.id}')"><span class="iconify" data-icon="lucide:edit-3"></span></button>
+              <button class="text-gray-400 hover:text-red-400" onclick="deleteIssue('${i.id}')"><span class="iconify" data-icon="lucide:trash-2"></span></button>
+            </td>
+          </tr>
+        `).join('');
+        const info = document.getElementById('issues-page-info');
+        if (info) {
+          info.textContent = total === 0 ? '暂无数据' : `第 ${currentIssuePage} / ${totalPages} 页，共 ${total} 条`;
+        }
+        const prevBtn = document.getElementById('issues-prev');
+        const nextBtn = document.getElementById('issues-next');
+        if (prevBtn) prevBtn.disabled = currentIssuePage <= 1;
+        if (nextBtn) nextBtn.disabled = currentIssuePage >= totalPages;
+        renderPageButtons('issues-page-buttons', currentIssuePage, totalPages, goToIssuePage);
+      }
+
+      async function deleteIssue(id) {
+        if (!confirm('确定删除问题？')) return;
+        await api(`/api/issues/${id}`, { method: 'DELETE' });
+        await loadAll();
+      }
+
+      function goToIssuePage(page) {
+        const target = Number(page);
+        if (!Number.isFinite(target)) return;
+        currentIssuePage = Math.max(1, target);
+        renderIssues();
+      }
+
+      function prevIssuePage() {
+        if (currentIssuePage > 1) {
+          currentIssuePage -= 1;
+          renderIssues();
+        }
+      }
+
+      function nextIssuePage() {
+        currentIssuePage += 1;
+        renderIssues();
+      }
+
+      function jumpIssuePage() {
+        const input = document.getElementById('issues-page-jump');
+        if (!input) return;
+        const value = Number(String(input.value || '').trim());
+        if (!Number.isFinite(value) || value < 1) return;
+        goToIssuePage(value);
+      }
+
+      // 工具管理相关函数
+      function toolForm(tool) {
+        const nameValue = tool?.name || '';
+        const descriptionValue = tool?.description || '';
+        const typeValue = tool?.type || '在线工具';
+        const urlValue = tool?.url || '';
+        const sourceValue = tool?.source || '网络';
+        const updateDateValue = tool?.update_date || todayISO();
+        const createdValue = tool?.created_at || todayISO();
+        return `
+          <div class="space-y-6">
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">名称</label>
+              <input id="tool-name" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${nameValue}" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">描述</label>
+              <textarea id="tool-description" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" rows="4">${descriptionValue}</textarea>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">类型</label>
+                <select id="tool-type" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5">
+                  <option value="在线工具" ${typeValue === '在线工具' ? 'selected' : ''}>在线工具</option>
+                  <option value="个人工具" ${typeValue === '个人工具' ? 'selected' : ''}>个人工具</option>
+                  <option value="优秀网页" ${typeValue === '优秀网页' ? 'selected' : ''}>优秀网页</option>
+                  <option value="插件" ${typeValue === '插件' ? 'selected' : ''}>插件</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">来源</label>
+                <select id="tool-source" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5">
+                  <option value="网络" ${sourceValue === '网络' ? 'selected' : ''}>网络</option>
+                  <option value="自主开发" ${sourceValue === '自主开发' ? 'selected' : ''}>自主开发</option>
+                  <option value="推荐" ${sourceValue === '推荐' ? 'selected' : ''}>推荐</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">链接</label>
+              <input id="tool-url" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${urlValue}" placeholder="https://" />
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">更新日期</label>
+                <input id="tool-update-date" type="date" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${updateDateValue}" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">创建日期</label>
+                <input id="tool-created-at" type="date" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${createdValue}" />
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function openToolEditor(id) {
+        const tool = tools.find((t) => t.id === id);
+        const handleSubmit = async () => {
+          const payload = {
+            name: document.getElementById('tool-name').value.trim(),
+            description: document.getElementById('tool-description').value.trim(),
+            type: document.getElementById('tool-type').value.trim(),
+            url: document.getElementById('tool-url').value.trim(),
+            source: document.getElementById('tool-source').value.trim(),
+            update_date: document.getElementById('tool-update-date').value,
+            created_at: document.getElementById('tool-created-at').value,
+          };
+          if (!payload.name || !payload.description) {
+            return setStatus('名称和描述为必填', true);
+          }
+          if (tool) {
+            await api(`/api/tools/${tool.id}`, {
+              method: 'PUT',
+              body: JSON.stringify(payload),
+            });
+          } else {
+            await api('/api/tools', {
+              method: 'POST',
+              body: JSON.stringify(payload),
+            });
+          }
+          await loadAll();
+          closeEditor();
+        };
+        openEditor(
+          tool ? '编辑工具' : '新增工具',
+          toolForm(tool),
+          handleSubmit,
+          {
+            saveLabel: '保存',
+          }
+        );
+      }
+
+      function renderTools() {
+        const filtered = tools.filter((t) => {
+          if (!toolSearchQuery) return true;
+          const query = toolSearchQuery.toLowerCase();
+          return t.name.toLowerCase().includes(query) || t.description.toLowerCase().includes(query);
+        }).sort((a, b) => {
+          const ad = a.update_date || a.created_at || '';
+          const bd = b.update_date || b.created_at || '';
+          return bd.localeCompare(ad);
+        });
+        const total = filtered.length;
+        const totalPages = Math.max(1, Math.ceil(total / pageSize));
+        if (currentToolPage > totalPages) currentToolPage = totalPages;
+        if (currentToolPage < 1) currentToolPage = 1;
+        const start = (currentToolPage - 1) * pageSize;
+        const pageItems = filtered.slice(start, start + pageSize);
+        const body = document.getElementById('tools-body');
+        body.innerHTML = pageItems.map((t) => `
+          <tr class="hover:bg-gray-800/30 transition-colors">
+            <td class="px-6 py-4 text-gray-200 font-medium">${t.name}</td>
+            <td class="px-6 py-4 text-gray-400">${t.type}</td>
+            <td class="px-6 py-4 text-gray-500">${t.update_date}</td>
+            <td class="px-6 py-4 text-gray-500">${t.source}</td>
+            <td class="px-6 py-4 text-right space-x-3">
+              <button class="text-gray-400 hover:text-indigo-400" onclick="openToolEditor('${t.id}')"><span class="iconify" data-icon="lucide:edit-3"></span></button>
+              <button class="text-gray-400 hover:text-red-400" onclick="deleteTool('${t.id}')"><span class="iconify" data-icon="lucide:trash-2"></span></button>
+            </td>
+          </tr>
+        `).join('');
+        const info = document.getElementById('tools-page-info');
+        if (info) {
+          info.textContent = total === 0 ? '暂无数据' : `第 ${currentToolPage} / ${totalPages} 页，共 ${total} 条`;
+        }
+        const prevBtn = document.getElementById('tools-prev');
+        const nextBtn = document.getElementById('tools-next');
+        if (prevBtn) prevBtn.disabled = currentToolPage <= 1;
+        if (nextBtn) nextBtn.disabled = currentToolPage >= totalPages;
+        renderPageButtons('tools-page-buttons', currentToolPage, totalPages, goToToolPage);
+      }
+
+      async function deleteTool(id) {
+        if (!confirm('确定删除工具？')) return;
+        await api(`/api/tools/${id}`, { method: 'DELETE' });
+        await loadAll();
+      }
+
+      function goToToolPage(page) {
+        const target = Number(page);
+        if (!Number.isFinite(target)) return;
+        currentToolPage = Math.max(1, target);
+        renderTools();
+      }
+
+      function prevToolPage() {
+        if (currentToolPage > 1) {
+          currentToolPage -= 1;
+          renderTools();
+        }
+      }
+
+      function nextToolPage() {
+        currentToolPage += 1;
+        renderTools();
+      }
+
+      function jumpToolPage() {
+        const input = document.getElementById('tools-page-jump');
+        if (!input) return;
+        const value = Number(String(input.value || '').trim());
+        if (!Number.isFinite(value) || value < 1) return;
+        goToToolPage(value);
+      }
+
+      // 绑定搜索事件
+      const issueSearchInput = document.getElementById('issue-search');
+      if (issueSearchInput) {
+        issueSearchInput.addEventListener('input', (e) => {
+          issueSearchQuery = e.target.value || '';
+          currentIssuePage = 1;
+          renderIssues();
+        });
+      }
+
+      const toolSearchInput = document.getElementById('tool-search');
+      if (toolSearchInput) {
+        toolSearchInput.addEventListener('input', (e) => {
+          toolSearchQuery = e.target.value || '';
+          currentToolPage = 1;
+          renderTools();
+        });
+      }
+
       loadAll();
     </script>
   </body>

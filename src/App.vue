@@ -1,4 +1,4 @@
-﻿<template>
+﻿﻿﻿﻿﻿﻿<template>
   <div>
     <NavBar
       v-model="searchQuery"
@@ -173,45 +173,143 @@
         </section>
 
         <section v-else-if="view === 'column'" class="animate-slide-up">
-          <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] lg:grid-rows-[auto_1fr] gap-6">
-            <div class="lg:col-start-1 lg:row-start-1">
-              <div class="flex items-center justify-between mb-6">
-                <div>
-                  <h1 class="text-2xl font-bold text-white">{{ columnTitle }}</h1>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- 左侧内容区：文章列表 -->
+            <div class="col-span-1 lg:col-span-2 space-y-10">
+              <div class="flex items-center justify-between border-b border-gray-800 pb-4">
+                <h2 class="text-2xl font-bold text-white flex items-center">
+                  <span class="w-2 h-6 bg-indigo-500 rounded-full mr-3"></span>
+                  {{ activeColumnLabel }}
+                  <span class="ml-3 text-sm font-normal text-gray-500">共 {{ columnPosts.length }} 篇文章</span>
+                </h2>
+                <div class="flex space-x-2">
+                  <button class="px-4 py-1.5 bg-indigo-600 text-white text-xs rounded-full">最新</button>
+                  <button class="px-4 py-1.5 bg-gray-900 text-gray-400 text-xs rounded-full hover:bg-gray-800">热门</button>
                 </div>
-                <button
-                  class="text-xs text-indigo-400 hover:text-indigo-300"
-                  type="button"
-                  @click="goHome"
+              </div>
+              
+              <!-- 文章卡片列表 -->
+              <div class="space-y-6">
+                <div
+                  v-for="(post, index) in columnPosts"
+                  :key="post.id"
+                  class="bg-gray-900/30 border border-gray-800/50 rounded-2xl overflow-hidden hover:border-indigo-500/50 transition-all group"
                 >
-                  返回首页
+                  <div class="flex flex-col md:flex-row">
+                    <div v-if="post.cover" class="md:w-72 h-48 md:h-auto relative overflow-hidden">
+                      <img
+                        :src="post.cover"
+                        :alt="post.title"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <span class="absolute top-4 left-4 bg-indigo-600 text-[10px] font-bold px-2 py-1 rounded">{{ activeColumnLabel }}</span>
+                    </div>
+                    <div v-else class="md:w-72 h-48 md:h-auto relative overflow-hidden bg-gray-800 flex items-center justify-center">
+                      <span class="iconify text-4xl text-gray-700" data-icon="lucide:file-text"></span>
+                      <span class="absolute top-4 left-4 bg-indigo-600 text-[10px] font-bold px-2 py-1 rounded">{{ activeColumnLabel }}</span>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div class="flex items-center space-x-3 text-xs text-gray-500 mb-3">
+                          <span class="flex items-center"><span class="iconify mr-1" data-icon="lucide:calendar"></span>{{ post.created_at }}</span>
+                          <span class="flex items-center"><span class="iconify mr-1" data-icon="lucide:clock"></span>{{ post.readingTime || 5 }} min read</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-indigo-400 transition-colors">
+                          <span v-if="post.pinned" class="bg-indigo-500/20 text-indigo-400 text-[10px] px-1.5 py-0.5 rounded mr-2 align-middle">置顶</span>
+                          {{ post.title }}
+                        </h3>
+                        <p class="text-gray-400 text-sm leading-relaxed line-clamp-2">{{ post.summary }}</p>
+                      </div>
+                      <div class="mt-6 flex items-center justify-between">
+                        <div class="flex space-x-2">
+                          <span
+                            v-for="(tag, idx) in post.tags"
+                            :key="idx"
+                            class="text-[10px] text-gray-500 border border-gray-800 px-2 py-0.5 rounded-full"
+                          ># {{ tag }}</span>
+                        </div>
+                        <button class="text-indigo-400 text-xs font-bold flex items-center group/btn" @click="openPost(post)">
+                          立即阅读 <span class="iconify ml-1 group-hover/btn:translate-x-1 transition-transform" data-icon="lucide:arrow-right"></span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 分页 -->
+              <div class="flex justify-center space-x-2 pt-8">
+                <button class="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-colors">
+                  <span class="iconify" data-icon="lucide:chevron-left"></span>
+                </button>
+                <button class="w-10 h-10 rounded-lg bg-indigo-600 text-white font-bold text-sm">1</button>
+                <button class="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 text-gray-400 font-bold text-sm hover:border-indigo-500 hover:text-white transition-all">2</button>
+                <button class="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-colors">
+                  <span class="iconify" data-icon="lucide:chevron-right"></span>
                 </button>
               </div>
             </div>
-            <div class="lg:col-start-1 lg:row-start-2">
-              <PostGrid
-                :posts="columnPosts"
-                :category-name="categoryName"
-                :category-badge-style="categoryBadgeStyle"
-                :tag-summary="tagSummary"
-                @open="openPost"
-              />
+            
+            <!-- 右侧边栏 -->
+            <div class="col-span-1 space-y-8">
+              <!-- 个人资料 -->
+              <div class="bg-gray-900/20 border border-gray-800 rounded-3xl p-8 text-center relative overflow-hidden group">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
+                <img
+                  v-if="profile.avatar"
+                  :src="profile.avatar"
+                  :alt="profile.name"
+                  class="w-24 h-24 rounded-full mx-auto mb-4 p-1 ring-2 ring-indigo-500/30 group-hover:rotate-12 transition-transform duration-500"
+                />
+                <div v-else class="w-24 h-24 rounded-full mx-auto mb-4 p-1 ring-2 ring-indigo-500/30 group-hover:rotate-12 transition-transform duration-500 bg-gray-800 flex items-center justify-center">
+                  <span class="iconify text-4xl text-gray-600" data-icon="lucide:user"></span>
+                </div>
+                <h3 class="text-xl font-bold text-white">{{ profile.name }}</h3>
+                <p class="text-xs text-gray-500 mt-2">{{ profile.subtitle }}</p>
+                <p class="text-sm text-gray-400 mt-4 leading-relaxed">{{ profile.motto }}</p>
+                <div class="flex justify-center space-x-4 mt-6">
+                  <a v-if="profile.github" class="text-gray-500 hover:text-indigo-400 transition-colors" :href="profile.github" target="_blank"><span class="iconify text-xl" data-icon="lucide:github"></span></a>
+                  <a v-if="profile.planet" class="text-gray-500 hover:text-indigo-400 transition-colors" :href="profile.planet" target="_blank"><span class="iconify text-xl" data-icon="lucide:globe"></span></a>
+                  <a v-if="profile.email" class="text-gray-500 hover:text-indigo-400 transition-colors" @click="copyProfileEmail"><span class="iconify text-xl" data-icon="lucide:mail"></span></a>
+                </div>
+                <button class="w-full mt-8 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-2xl text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all hover:-translate-y-1" @click="setView('about')">了解我</button>
+              </div>
+              
+              <!-- 分类统计 -->
+              <div class="bg-gray-900/20 border border-gray-800 rounded-3xl p-6">
+                <h4 class="text-sm font-bold text-white mb-6 flex items-center">
+                  <span class="iconify mr-2 text-indigo-400" data-icon="lucide:folder-open"></span>
+                  全部分类
+                </h4>
+                <div class="space-y-3">
+                  <a
+                    v-for="cat in categoriesWithCounts"
+                    :key="cat.id"
+                    class="flex justify-between items-center p-3 rounded-xl hover:bg-gray-800 transition-colors group"
+                    :class="{ 'bg-indigo-500/5 text-indigo-400 border border-indigo-500/20': cat.name === activeColumnLabel }"
+                    @click="setCategoryFilter(cat.id)"
+                  >
+                    <span class="text-xs font-medium">{{ cat.name }}</span>
+                    <span class="text-[10px] bg-gray-800 text-gray-500 px-2 py-0.5 rounded-full group-hover:bg-gray-700">{{ cat.count }}</span>
+                  </a>
+                </div>
+              </div>
+              
+              <!-- 热门标签 -->
+              <div class="bg-gray-900/20 border border-gray-800 rounded-3xl p-6">
+                <h4 class="text-sm font-bold text-white mb-6 flex items-center">
+                  <span class="iconify mr-2 text-indigo-400" data-icon="lucide:tag"></span>
+                  全部标签
+                </h4>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    v-for="tag in tagsWithCounts"
+                    :key="tag.id"
+                    class="px-3 py-1.5 bg-gray-800 hover:bg-indigo-500/20 hover:text-indigo-400 rounded-lg text-xs text-gray-400 cursor-pointer transition-all"
+                  >{{ tag.name }} ({{ tag.count }})</span>
+                </div>
+              </div>
             </div>
-            <div class="hidden lg:block lg:col-start-2 lg:row-start-1"></div>
-            <aside class="space-y-4 lg:col-start-2 lg:row-start-2">
-              <CategorySidebar
-                :categories="orderedCategories"
-                :selected-id="selectedCategoryId"
-                @select="selectCategory"
-                @clear="clearCategoryFilter"
-              />
-              <TagSidebar
-                :tags="orderedTags"
-                :selected-id="selectedTagId"
-                @select="selectTag"
-                @clear="clearTagFilter"
-              />
-            </aside>
           </div>
         </section>
 
@@ -296,6 +394,431 @@
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section v-else-if="view === 'design'" class="animate-slide-up">
+          <!-- 页面标题与分类筛选 -->
+          <header class="mb-12">
+            <h1 class="text-3xl font-bold text-white mb-4">设计创作</h1>
+            <p class="text-gray-400 mb-8 max-w-2xl">探索 AI 绘画、UI 设计与视觉实验的边界。记录每一个像素背后的灵感与探索。</p>
+            <div class="flex flex-wrap gap-3">
+              <button class="px-5 py-2 rounded-full bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-all">全部作品</button>
+              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">AI 绘图测试</button>
+              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">Prompt 实验</button>
+              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">UI/UX 设计</button>
+              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">摄影作品</button>
+            </div>
+          </header>
+          <!-- 作品画廊网格 -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            <!-- 作品卡片 1 -->
+            <div class="group relative bg-[#111] rounded-2xl overflow-hidden border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 animate-fade-in" style="animation-delay: 0.1s;">
+              <div class="aspect-[4/5] overflow-hidden">
+                <img alt="Cyberpunk city environment concept art generated by AI with neon lighting" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/18ef710fc4c24179ad177eba86029032.jpg"/>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="bg-indigo-500/20 text-indigo-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-widest font-bold">AI Art</span>
+                  <span class="text-gray-400 text-xs">2026-02-01</span>
+                </div>
+                <h3 class="text-white text-lg font-bold mb-2">赛博极夜：城市环境概念设计</h3>
+                <p class="text-gray-300 text-sm line-clamp-2">使用 Midjourney V6 探索高饱和度与暗部细节的极端平衡，模拟电影级光效...</p>
+              </div>
+            </div>
+            <!-- 作品卡片 2 -->
+            <div class="group relative bg-[#111] rounded-2xl overflow-hidden border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 animate-fade-in" style="animation-delay: 0.2s;">
+              <div class="aspect-[4/5] overflow-hidden">
+                <img alt="Minimalist mobile app interface design for creative portfolio" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/41f61033662149bcaab0d60b961dff30.jpg"/>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-widest font-bold">UI Design</span>
+                  <span class="text-gray-400 text-xs">2026-01-28</span>
+                </div>
+                <h3 class="text-white text-lg font-bold mb-2">DevLog 移动端改版方案报告</h3>
+                <p class="text-gray-300 text-sm line-clamp-2">针对高信息密度界面的减法实验，优化深色模式下的层级表达与交互反馈...</p>
+              </div>
+            </div>
+            <!-- 作品卡片 3 -->
+            <div class="group relative bg-[#111] rounded-2xl overflow-hidden border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 animate-fade-in" style="animation-delay: 0.3s;">
+              <div class="aspect-[4/5] overflow-hidden">
+                <img alt="Surreal portrait photography with crystalline elements and dramatic blue lighting" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/179ff61175324859bde3a0c0e35938f7.jpg"/>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-widest font-bold">Photography</span>
+                  <span class="text-gray-400 text-xs">2026-01-20</span>
+                </div>
+                <h3 class="text-white text-lg font-bold mb-2">冰结灵魂：人像摄影系列 03</h3>
+                <p class="text-gray-300 text-sm line-clamp-2">后期采用三原色偏移算法，营造超现实的冰晶质感与情绪表达...</p>
+              </div>
+            </div>
+            <!-- 作品卡片 4 -->
+            <div class="group relative bg-[#111] rounded-2xl overflow-hidden border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 animate-fade-in" style="animation-delay: 0.4s;">
+              <div class="aspect-[4/5] overflow-hidden">
+                <img alt="Abstract 3D crystalline structures with iridescent materials" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/c38ae3404dab4cf48fdea030db435908.jpg"/>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-widest font-bold">3D Visual</span>
+                  <span class="text-gray-400 text-xs">2026-01-15</span>
+                </div>
+                <h3 class="text-white text-lg font-bold mb-2">数字分形：抽象几何形变实验</h3>
+                <p class="text-gray-300 text-sm line-clamp-2">利用 Blender 几何节点实现的生成式艺术，探索数学之美...</p>
+              </div>
+            </div>
+            <!-- 作品卡片 5 -->
+            <div class="group relative bg-[#111] rounded-2xl overflow-hidden border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 animate-fade-in" style="animation-delay: 0.5s;">
+              <div class="aspect-[4/5] overflow-hidden">
+                <img alt="Detailed pencil drawing of futuristic architecture merged with nature" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/78c89d0397e74f8e819ddbd96b1d35ee.jpg"/>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="bg-orange-500/20 text-orange-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-widest font-bold">Sketch</span>
+                  <span class="text-gray-400 text-xs">2026-01-05</span>
+                </div>
+                <h3 class="text-white text-lg font-bold mb-2">共生：未来建筑手稿系列</h3>
+                <p class="text-gray-300 text-sm line-clamp-2">手绘线条与数字着色的碰撞，讨论有机生命体与钢筋水泥的融合...</p>
+              </div>
+            </div>
+            <!-- 作品卡片 6 -->
+            <div class="group relative bg-[#111] rounded-2xl overflow-hidden border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 animate-fade-in" style="animation-delay: 0.6s;">
+              <div class="aspect-[4/5] overflow-hidden">
+                <img alt="Stylish website header design for a luxury furniture brand" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/22153da57b41428fb926df46a03e7b47.jpg"/>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="bg-pink-500/20 text-pink-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-widest font-bold">UI Design</span>
+                  <span class="text-gray-400 text-xs">2025-12-28</span>
+                </div>
+                <h3 class="text-white text-lg font-bold mb-2">简约主义：高端家居品牌电商界面</h3>
+                <p class="text-gray-300 text-sm line-clamp-2">大面积留白与精细排版实现的呼吸感，提升整体品牌奢华调性...</p>
+              </div>
+            </div>
+          </div>
+          <!-- 底部加载 -->
+          <div class="flex justify-center py-10">
+            <button class="flex items-center space-x-2 text-sm text-gray-400 hover:text-white transition-colors border-b border-gray-800 pb-1">
+              <span>浏览更多设计作品</span>
+              <span class="iconify" data-icon="lucide:arrow-right"></span>
+            </button>
+          </div>
+        </section>
+
+        <section v-else-if="view === 'tools'" class="animate-slide-up">
+          <!-- 头部介绍 -->
+          <header class="mb-12">
+            <h1 class="text-3xl font-bold text-white mb-4">工具分享</h1>
+            <p class="text-gray-400 text-sm max-w-xl">这里汇集了我开发的在线工具，以及在漫长 Coding 生涯中发现的高效利器。赋能创意，简化流程。</p>
+          </header>
+          <div class="flex flex-col lg:flex-row gap-8">
+            <!-- 左侧分类 -->
+            <aside class="w-full lg:w-48 space-y-6">
+              <div>
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">全部分类</h3>
+                <div class="space-y-1">
+                  <button class="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-indigo-500/10 text-indigo-400 text-sm font-medium">
+                    <span>全部</span>
+                    <span class="text-[10px] bg-indigo-500/20 px-1.5 rounded-full">12</span>
+                  </button>
+                  <button class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-gray-400 text-sm transition-all">
+                    <span>在线工具</span>
+                    <span class="text-[10px] bg-gray-800 px-1.5 rounded-full">4</span>
+                  </button>
+                  <button class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-gray-400 text-sm transition-all">
+                    <span>提效插件</span>
+                    <span class="text-[10px] bg-gray-800 px-1.5 rounded-full">5</span>
+                  </button>
+                  <button class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-gray-400 text-sm transition-all">
+                    <span>收藏网站</span>
+                    <span class="text-[10px] bg-gray-800 px-1.5 rounded-full">3</span>
+                  </button>
+                </div>
+              </div>
+            </aside>
+            <!-- 右侧工具网格 -->
+            <div class="flex-1">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 工具卡片 1 -->
+                <div class="bg-[#111] border border-gray-800 rounded-2xl p-5 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group animate-slide-up">
+                  <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                      <span class="iconify text-2xl" data-icon="lucide:code-2"></span>
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20">自主开发</span>
+                  </div>
+                  <h3 class="text-lg font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">JSON 极致美化器</h3>
+                  <p class="text-xs text-gray-500 leading-relaxed mb-6">针对超大 JSON 文件的秒级解析与层级可视化，支持一键类型生成与格式化。</p>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] text-gray-600">更新于 2026-02-01</span>
+                    <button class="p-2 rounded-lg bg-gray-800 hover:bg-indigo-600 text-white transition-all">
+                      <span class="iconify" data-icon="lucide:external-link"></span>
+                    </button>
+                  </div>
+                </div>
+                <!-- 工具卡片 2 -->
+                <div class="bg-[#111] border border-gray-800 rounded-2xl p-5 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group animate-slide-up" style="animation-delay: 0.1s;">
+                  <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400">
+                      <span class="iconify text-2xl" data-icon="lucide:palette"></span>
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20">优质推荐</span>
+                  </div>
+                  <h3 class="text-lg font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">Radix Colors</h3>
+                  <p class="text-xs text-gray-500 leading-relaxed mb-6">一套面向设计系统的调色板工具，完美适配无障碍对比度与深色模式切换。</p>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] text-gray-600">更新于 2026-01-28</span>
+                    <button class="p-2 rounded-lg bg-gray-800 hover:bg-indigo-600 text-white transition-all">
+                      <span class="iconify" data-icon="lucide:external-link"></span>
+                    </button>
+                  </div>
+                </div>
+                <!-- 工具卡片 3 -->
+                <div class="bg-[#111] border border-gray-800 rounded-2xl p-5 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group animate-slide-up" style="animation-delay: 0.2s;">
+                  <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400">
+                      <span class="iconify text-2xl" data-icon="lucide:wrench"></span>
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20">自主开发</span>
+                  </div>
+                  <h3 class="text-lg font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">Word VBA 文档引擎</h3>
+                  <p class="text-xs text-gray-500 leading-relaxed mb-6">批量化处理公文格式、自动生成页码与目录的高级宏脚本工具集成。</p>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] text-gray-600">更新于 2026-01-20</span>
+                    <button class="p-2 rounded-lg bg-gray-800 hover:bg-indigo-600 text-white transition-all">
+                      <span class="iconify" data-icon="lucide:external-link"></span>
+                    </button>
+                  </div>
+                </div>
+                <!-- 工具卡片 4 -->
+                <div class="bg-[#111] border border-gray-800 rounded-2xl p-5 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group animate-slide-up" style="animation-delay: 0.3s;">
+                  <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-pink-500/20 flex items-center justify-center text-pink-400">
+                      <span class="iconify text-2xl" data-icon="lucide:layers"></span>
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20">资源网站</span>
+                  </div>
+                  <h3 class="text-lg font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">UI Faces AI</h3>
+                  <p class="text-xs text-gray-500 leading-relaxed mb-6">利用 AI 技术生成的免费版权个人头像资产，为原型设计提供真实感载体。</p>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] text-gray-600">更新于 2026-01-10</span>
+                    <button class="p-2 rounded-lg bg-gray-800 hover:bg-indigo-600 text-white transition-all">
+                      <span class="iconify" data-icon="lucide:external-link"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <!-- 空白占位或推荐区域 -->
+              <div class="mt-12 bg-indigo-600/5 border border-dashed border-indigo-500/30 rounded-2xl p-10 text-center">
+                <span class="iconify text-4xl text-indigo-500/40 mx-auto mb-4" data-icon="lucide:plus-circle"></span>
+                <h4 class="text-white font-medium mb-2">正在筹备更多工具...</h4>
+                <p class="text-gray-500 text-xs">如果你有好用的工具推荐，欢迎留言告知。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section v-else-if="view === 'issues'" class="animate-slide-up">
+          <!-- 头部统计 -->
+          <header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <h1 class="text-3xl font-bold text-white mb-2">问题记录</h1>
+              <p class="text-gray-400 text-sm">记录每一次 Bug 的产生与消亡，把“踩坑”转化为成长的阶梯。</p>
+            </div>
+            <div class="flex gap-4">
+              <div class="bg-[#111] border border-gray-800 px-4 py-2 rounded-xl text-center">
+                <div class="text-xs text-gray-500">已解决</div>
+                <div class="text-lg font-bold text-indigo-400">128</div>
+              </div>
+              <div class="bg-[#111] border border-gray-800 px-4 py-2 rounded-xl text-center">
+                <div class="text-xs text-gray-500">待跟进</div>
+                <div class="text-lg font-bold text-orange-400">3</div>
+              </div>
+            </div>
+          </header>
+          <!-- 过滤器 -->
+          <div class="flex items-center space-x-3 mb-8 overflow-x-auto pb-2 hide-scrollbar">
+            <button class="px-4 py-1.5 rounded-full bg-indigo-600 text-white text-xs font-medium shrink-0">全部记录</button>
+            <button class="px-4 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400 text-xs hover:border-gray-600 shrink-0">环境配置</button>
+            <button class="px-4 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400 text-xs hover:border-gray-600 shrink-0">性能调优</button>
+            <button class="px-4 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400 text-xs hover:border-gray-600 shrink-0">逻辑 Bug</button>
+            <button class="px-4 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400 text-xs hover:border-gray-600 shrink-0">生活杂项</button>
+          </div>
+          <!-- 问题列表 -->
+          <div class="space-y-8">
+            <!-- 记录条目 1 -->
+            <section class="bg-[#111] border border-gray-800 rounded-2xl overflow-hidden shadow-lg">
+              <div class="p-6 border-b border-gray-800 flex justify-between items-start">
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 bg-red-500/10 text-red-500 text-[10px] font-bold rounded">紧急</span>
+                    <span class="text-xs text-gray-500">2026-02-01</span>
+                  </div>
+                  <h3 class="text-xl font-bold text-white">Word VBA 宏：运行后会生成 1000 页空白页的异常分析</h3>
+                </div>
+                <span class="iconify text-2xl text-emerald-500" data-icon="lucide:check-circle"></span>
+              </div>
+              <div class="p-6 space-y-6">
+                <!-- 问题描述 -->
+                <div>
+                  <h4 class="text-sm font-bold text-gray-300 mb-2 flex items-center">
+                    <span class="iconify mr-2" data-icon="lucide:info"></span> 问题描述
+                  </h4>
+                  <p class="text-sm text-gray-400 leading-relaxed bg-black/30 p-4 rounded-lg italic">
+                    在调用文档自动化脚本时，由于循环终止条件失效，导致进程通过 Selection.InsertNewPage 无限触发分页，最终导致 Word 内存溢出。
+                  </p>
+                </div>
+                <!-- 解决步骤 -->
+                <div>
+                  <h4 class="text-sm font-bold text-gray-300 mb-4 flex items-center">
+                    <span class="iconify mr-2" data-icon="lucide:list-ordered"></span> 解决步骤
+                  </h4>
+                  <div class="space-y-6 relative ml-2">
+                    <div class="flex items-start gap-4 relative z-10">
+                      <div class="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0">1</div>
+                      <div class="text-sm text-gray-400 pt-0.5">中断当前所有 Winword.exe 进程，清理临时缓存。</div>
+                    </div>
+                    <div class="flex items-start gap-4 relative z-10">
+                      <div class="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0">2</div>
+                      <div class="text-sm text-gray-400 pt-0.5">定位代码第 142 行，将 <code class="bg-gray-800 px-1 rounded text-red-400">Do Until EOF</code> 修改为基于 Range 对象长度的控制。</div>
+                    </div>
+                    <div class="flex items-start gap-4 relative z-10">
+                      <div class="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0">3</div>
+                      <div class="text-sm text-gray-400 pt-0.5">增加安全熔断机制：当页面数超过预设阈值（例如 200）时自动弹出警告并停止递归。</div>
+                    </div>
+                    <div class="absolute left-3 top-3 bottom-3 w-[1px] bg-gray-800"></div>
+                  </div>
+                </div>
+                <!-- 经验总结 -->
+                <div class="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4">
+                  <h4 class="text-xs font-bold text-emerald-500 uppercase tracking-tighter mb-2 italic">Result & Summary</h4>
+                  <p class="text-sm text-gray-300">永远不要信任动态改变长度的集合遍历。使用对象快照而非视图直接操作，能有效避免无限递归。</p>
+                </div>
+              </div>
+            </section>
+            <!-- 记录条目 2 -->
+            <section class="bg-[#111] border border-gray-800 rounded-2xl overflow-hidden opacity-80">
+              <div class="p-6 border-b border-gray-800 flex justify-between items-start">
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 bg-gray-800 text-gray-500 text-[10px] font-bold rounded">普通</span>
+                    <span class="text-xs text-gray-500">2026-01-28</span>
+                  </div>
+                  <h3 class="text-lg font-bold text-white/80 group-hover:text-white transition-colors">Tailwind CSS 生产环境下动态类名失效的问题</h3>
+                </div>
+                <span class="iconify text-xl text-emerald-500" data-icon="lucide:check-circle"></span>
+              </div>
+            </section>
+          </div>
+          <!-- 底部翻页 -->
+          <div class="mt-12 flex justify-center">
+            <div class="flex items-center space-x-2">
+              <button class="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-all">
+                <span class="iconify" data-icon="lucide:chevron-left"></span>
+              </button>
+              <span class="text-xs text-gray-500">1 / 12</span>
+              <button class="w-10 h-10 rounded-lg bg-[#111] border border-indigo-500/30 flex items-center justify-center text-white">
+                <span class="iconify" data-icon="lucide:chevron-right"></span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section v-else-if="view === 'life'" class="animate-slide-up">
+          <!-- 头部引导 -->
+          <header class="text-center mb-20 fade-in">
+            <h1 class="text-4xl font-bold text-white mb-6 tracking-tight">文字里的呼吸</h1>
+            <p class="text-gray-500 italic text-sm">“代码之外，生活依然有迹可循。”</p>
+            <div class="w-12 h-[1px] bg-indigo-500 mx-auto mt-8"></div>
+          </header>
+          <!-- 随笔列表 -->
+          <div class="space-y-24">
+            <!-- 列表项 1 -->
+            <article class="fade-in group" style="animation-delay: 0.2s;">
+              <div class="flex flex-col md:flex-row gap-10 items-center">
+                <div class="w-full md:w-1/2 overflow-hidden rounded-sm">
+                  <img alt="Moody evening sky with street lamps reflecting on wet pavement" class="w-full h-64 object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/ba9509e28b3b441bb73f07b7e2397b8d.jpg"/>
+                </div>
+                <div class="w-full md:w-1/2 space-y-4">
+                  <div class="flex items-center space-x-3 text-[10px] tracking-[0.2em] text-indigo-400 uppercase font-bold">
+                    <span>观影心得</span>
+                    <span class="w-1 h-1 rounded-full bg-gray-700"></span>
+                    <span class="text-gray-500">2026-01-25</span>
+                  </div>
+                  <h2 class="text-2xl font-bold text-white group-hover:text-indigo-400 transition-colors leading-snug">
+                    重看《银翼杀手2049》：关于灵魂的电子注脚
+                  </h2>
+                  <p class="text-gray-400 text-sm leading-relaxed line-clamp-3 italic">
+                    当雨水冲刷过那些冰冷的合金架构，我突然意识到，我们追求的真实，或许仅仅是一段被精心编织的记忆碎片。代码能够模拟情感，但无法模拟那种在废墟中等待雪花落下的寂寥……
+                  </p>
+                  <a class="inline-flex items-center text-xs text-white border-b border-indigo-500/50 pb-1 hover:border-indigo-500 transition-all" href="#">
+                    继续阅读
+                    <span class="iconify ml-1" data-icon="lucide:arrow-right"></span>
+                  </a>
+                </div>
+              </div>
+            </article>
+            <!-- 列表项 2 -->
+            <article class="fade-in group" style="animation-delay: 0.4s;">
+              <div class="flex flex-col md:flex-row-reverse gap-10 items-center">
+                <div class="w-full md:w-1/2 overflow-hidden rounded-sm">
+                  <img alt="A quiet bookstore corner with old wooden shelves and a warm table lamp" class="w-full h-64 object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/bdeb449febeb4ce286355a40214bd12f.jpg"/>
+                </div>
+                <div class="w-full md:w-1/2 space-y-4 text-right md:text-right">
+                  <div class="flex items-center justify-end space-x-3 text-[10px] tracking-[0.2em] text-indigo-400 uppercase font-bold">
+                    <span class="text-gray-500">2026-01-12</span>
+                    <span class="w-1 h-1 rounded-full bg-gray-700"></span>
+                    <span>读书笔记</span>
+                  </div>
+                  <h2 class="text-2xl font-bold text-white group-hover:text-indigo-400 transition-colors leading-snug">
+                    《存在与时间》：在忙碌的代码世界寻回本真
+                  </h2>
+                  <p class="text-gray-400 text-sm leading-relaxed line-clamp-3 italic">
+                    如果我们把生活看作是一次漫长的 Debug，那么每一个存在的瞬间都是一个断点。海德格尔告诉我们，向死而生并不是终点，而是一种对生命完整性的深刻觉知……
+                  </p>
+                  <a class="inline-flex items-center text-xs text-white border-b border-indigo-500/50 pb-1 hover:border-indigo-500 transition-all" href="#">
+                    继续阅读
+                    <span class="iconify ml-1" data-icon="lucide:arrow-right"></span>
+                  </a>
+                </div>
+              </div>
+            </article>
+            <!-- 列表项 3 -->
+            <article class="fade-in group" style="animation-delay: 0.6s;">
+              <div class="flex flex-col md:flex-row gap-10 items-center">
+                <div class="w-full md:w-1/2 overflow-hidden rounded-sm text-center py-12 bg-white/5 border border-white/5">
+                  <span class="iconify text-6xl text-gray-800" data-icon="lucide:feather"></span>
+                </div>
+                <div class="w-full md:w-1/2 space-y-4">
+                  <div class="flex items-center space-x-3 text-[10px] tracking-[0.2em] text-indigo-400 uppercase font-bold">
+                    <span>短篇小说</span>
+                    <span class="w-1 h-1 rounded-full bg-gray-700"></span>
+                    <span class="text-gray-500">2026-01-02</span>
+                  </div>
+                  <h2 class="text-2xl font-bold text-white group-hover:text-indigo-400 transition-colors leading-snug">
+                    最后一个未被优化的开发者
+                  </h2>
+                  <p class="text-gray-400 text-sm leading-relaxed line-clamp-3 italic">
+                    在那个被 AGI 统治的纪元里，他坚持用指尖敲击机械键盘。咔哒声在这座静默的数据中心里显得格格不入。他在写诗，用那种已经被淘汰的、带有冗余和错误的语言……
+                  </p>
+                  <a class="inline-flex items-center text-xs text-white border-b border-indigo-500/50 pb-1 hover:border-indigo-500 transition-all" href="#">
+                    继续阅读
+                    <span class="iconify ml-1" data-icon="lucide:arrow-right"></span>
+                  </a>
+                </div>
+              </div>
+            </article>
+          </div>
+          <!-- 底部页码 -->
+          <div class="mt-32 flex justify-center space-x-8 text-[10px] tracking-widest uppercase font-bold text-gray-600">
+            <button class="hover:text-white transition-colors">Previous</button>
+            <div class="flex space-x-4">
+              <span class="text-white">01</span>
+              <button class="hover:text-white">02</button>
+              <button class="hover:text-white">03</button>
+            </div>
+            <button class="hover:text-white transition-colors">Next</button>
           </div>
         </section>
       </div>
@@ -521,7 +1044,16 @@ function goHome() {
 }
 
 function normalizeNavHref(item) {
-  return item && item.href ? String(item.href).trim() : '';
+  if (!item || !item.href) return '';
+  let href = String(item.href).trim();
+  if (!href.startsWith('#')) {
+    if (href.startsWith('/')) {
+      href = `#${href}`;
+    } else {
+      href = `#/${href}`;
+    }
+  }
+  return href;
 }
 
 function normalizePath(value) {
@@ -659,6 +1191,22 @@ function handleNavClick(item) {
     setView('about');
     return;
   }
+  if (href === '#/design') {
+    setView('design');
+    return;
+  }
+  if (href === '#/tools') {
+    setView('tools');
+    return;
+  }
+  if (href === '#/issues') {
+    setView('issues');
+    return;
+  }
+  if (href === '#/life') {
+    setView('life');
+    return;
+  }
   if (href) {
     if (setColumnViewByPath(href)) {
       window.location.hash = `#${normalizePath(href)}`;
@@ -690,6 +1238,10 @@ function isNavActive(item) {
     return view.value === 'home' && !selectedCategoryId.value;
   }
   if (href === '#/about') return view.value === 'about';
+  if (href === '#/design') return view.value === 'design';
+  if (href === '#/tools') return view.value === 'tools';
+  if (href === '#/issues') return view.value === 'issues';
+  if (href === '#/life') return view.value === 'life';
   if (href.startsWith('#/category/')) {
     const slug = decodeURIComponent(href.replace('#/category/', '').trim());
     const cat = findCategoryBySlugOrName(slug);
@@ -899,6 +1451,23 @@ function startHeroTimer() {
 }
 
 function syncFromHash() {
+  // 处理path-based URL
+  const pathname = window.location.pathname;
+  if (pathname !== '/' && pathname !== '/index.html') {
+    const path = pathname.replace(/^\//, '');
+    // 尝试根据路径找到对应的导航项
+    const nav = visibleNavItems.value.find(item => {
+      const itemPath = normalizePath(item.href).toLowerCase();
+      const itemLabel = item.label.toLowerCase();
+      return itemPath.includes(path) || itemLabel.includes(path);
+    });
+    if (nav) {
+      setColumnView(nav);
+      return;
+    }
+  }
+  
+  // 处理hash-based URL
   const hash = window.location.hash || '#/';
   if (hash.startsWith('#/post/')) {
     view.value = 'detail';
@@ -935,6 +1504,26 @@ function syncFromHash() {
     selectedCategoryId.value = '';
     selectedTagId.value = '';
     return (view.value = 'about');
+  }
+  if (hash === '#/design') {
+    selectedCategoryId.value = '';
+    selectedTagId.value = '';
+    return (view.value = 'design');
+  }
+  if (hash === '#/tools') {
+    selectedCategoryId.value = '';
+    selectedTagId.value = '';
+    return (view.value = 'tools');
+  }
+  if (hash === '#/issues') {
+    selectedCategoryId.value = '';
+    selectedTagId.value = '';
+    return (view.value = 'issues');
+  }
+  if (hash === '#/life') {
+    selectedCategoryId.value = '';
+    selectedTagId.value = '';
+    return (view.value = 'life');
   }
   const path = normalizePath(hash);
   if (setColumnViewByPath(path)) {
@@ -1031,9 +1620,14 @@ const columnPosts = computed(() => {
   if (activeColumnCategoryId.value) {
     list = list.filter((post) => Array.isArray(post.categories) && post.categories.includes(activeColumnCategoryId.value));
   } else if (activeColumnLabel.value) {
-    list = list.filter((post) =>
-      Array.isArray(post.categories) && post.categories.some((id) => categoryMap.value[id] === activeColumnLabel.value)
-    );
+    const label = activeColumnLabel.value;
+    list = list.filter((post) => {
+      if (!Array.isArray(post.categories)) return false;
+      return post.categories.some((id) => {
+        const categoryName = categoryMap.value[id];
+        return categoryName === label || id === label;
+      });
+    });
   } else {
     list = [];
   }
@@ -1141,7 +1735,7 @@ async function loadData() {
     ]);
 
     if (!postsRes.ok || !categoriesRes.ok || !tagsRes.ok) {
-      throw new Error('Failed to load data JSON files.');
+      throw new Error('Failed to load data from server.');
     }
 
     const postsData = await postsRes.json();
@@ -1288,6 +1882,25 @@ function handleCodeCopy(event) {
 
 .animate-slide-up {
   animation: slideUp 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
 }
 
 .card-title {

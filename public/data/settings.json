@@ -1,5 +1,41 @@
 {
   "version": 1,
-  "generated_at": "2026-01-31",
-  "markdownTheme": "default"
+  "generated_at": "2026-02-02",
+  "markdownTheme": "default",
+  "profile": {
+    "name": "Lemon",
+    "subtitle": "记录灵感 · 设计 · 代码",
+    "motto": "以持续输出为信仰，把每一次学习都变成可复用的经验。",
+    "avatar": "https://img.lemontop.asia/touxiang1.jpg",
+    "github": "https://github.com/Y-Unfettered",
+    "planet": "https://t.zsxq.com/iWWQU",
+    "email": "934064468@qq.com"
+  },
+  "about": {
+    "title": "关于这个博客",
+    "content": "这里记录我在学习、实验与实践中的一些思考，内容主要围绕 Web 开发、效率工具、工程实践，以及日常工作中遇到的问题与解决方式。",
+    "skillsTitle": "核心技能栈",
+    "skills": [
+      {
+        "label": "TypeScript",
+        "icon": "logos:typescript-icon",
+        "color": "#34d399"
+      },
+      {
+        "label": "Rust",
+        "icon": "logos:rust",
+        "color": "#f97316"
+      },
+      {
+        "label": "React",
+        "icon": "logos:react",
+        "color": "#60a5fa"
+      },
+      {
+        "label": "Cloud Native",
+        "icon": "logos:ebpf",
+        "color": "#a855f7"
+      }
+    ]
+  }
 }

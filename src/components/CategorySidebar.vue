@@ -11,27 +11,53 @@
         查看全部
       </button>
     </div>
-    <div class="mt-4 flex flex-wrap gap-2">
-      <button
-        v-for="cat in categories"
-        :key="cat.id"
-        class="category-card"
-        :class="{ active: selectedId === cat.id }"
-        type="button"
-        @click="$emit('select', cat)"
-      >
-        <span class="category-name">{{ cat.name }}</span>
-        <span class="category-count">{{ cat.count }} 篇</span>
-      </button>
+    <div class="mt-4 space-y-4">
+      <div v-for="(column, index) in groupedCategories" :key="index">
+        <div class="text-xs text-gray-500 mb-2">{{ column.name }}</div>
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-for="cat in column.categories"
+            :key="cat.id"
+            class="category-card"
+            :class="{ active: selectedId === cat.id }"
+            type="button"
+            @click="$emit('select', cat)"
+          >
+            <span class="category-name">{{ cat.name }}</span>
+            <span class="category-count">{{ cat.count }} 篇</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue';
+
+const props = defineProps({
   categories: { type: Array, default: () => [] },
   selectedId: { type: String, default: '' },
 });
 
 defineEmits(['select', 'clear']);
+
+const groupedCategories = computed(() => {
+  const groups = {};
+  
+  // 按栏目分组分类
+  props.categories.forEach(cat => {
+    const column = cat.parent || '未分类';
+    if (!groups[column]) {
+      groups[column] = {
+        name: column,
+        categories: []
+      };
+    }
+    groups[column].categories.push(cat);
+  });
+  
+  // 转换为数组并返回
+  return Object.values(groups);
+});
 </script>

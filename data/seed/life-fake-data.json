@@ -1,0 +1,62 @@
+[
+  {
+    "id": "post-life-1",
+    "title": "重看《银翼杀手2049》：关于灵魂的电子注脚",
+    "summary": "当雨水冲刷过那些冰冷的合金架构，我突然意识到，我们追求的真实，或许仅仅是一段被精心编织的记忆碎片。代码能够模拟情感，但无法模拟那种在废墟中等待雪花落下的寂寥……",
+    "content": "# 重看《银翼杀手2049》：关于灵魂的电子注脚\n\n当雨水冲刷过那些冰冷的合金架构，我突然意识到，我们追求的真实，或许仅仅是一段被精心编织的记忆碎片。代码能够模拟情感，但无法模拟那种在废墟中等待雪花落下的寂寥……",
+    "cover": "https://modao.cc/agent-py/media/generated_images/2026-02-01/ba9509e28b3b441bb73f07b7e2397b8d.jpg",
+    "categories": [
+      "cat-life"
+    ],
+    "tags": [
+      "生活",
+      "随笔",
+      "电影"
+    ],
+    "status": "published",
+    "created_at": "2026-01-25",
+    "updated_at": "2026-01-25",
+    "pinned": true,
+    "slug": "rewatching-blade-runner-2049-electronic-footnotes-on-soul"
+  },
+  {
+    "id": "post-life-2",
+    "title": "《存在与时间》：在忙碌的代码世界寻回本真",
+    "summary": "如果我们把生活看作是一次漫长的 Debug，那么每一个存在的瞬间都是一个断点。海德格尔告诉我们，向死而生并不是终点，而是一种对生命完整性的深刻觉知……",
+    "content": "# 《存在与时间》：在忙碌的代码世界寻回本真\n\n如果我们把生活看作是一次漫长的 Debug，那么每一个存在的瞬间都是一个断点。海德格尔告诉我们，向死而生并不是终点，而是一种对生命完整性的深刻觉知……",
+    "cover": "https://modao.cc/agent-py/media/generated_images/2026-02-01/bdeb449febeb4ce286355a40214bd12f.jpg",
+    "categories": [
+      "cat-life"
+    ],
+    "tags": [
+      "生活",
+      "随笔",
+      "读书"
+    ],
+    "status": "published",
+    "created_at": "2026-01-12",
+    "updated_at": "2026-01-12",
+    "pinned": false,
+    "slug": "being-and-time-finding-authenticity-in-busy-code-world"
+  },
+  {
+    "id": "post-life-3",
+    "title": "最后一个未被优化的开发者",
+    "summary": "在那个被 AGI 统治的纪元里，他坚持用指尖敲击机械键盘。咔哒声在这座静默的数据中心里显得格格不入。他在写诗，用那种已经被淘汰的、带有冗余和错误的语言……",
+    "content": "# 最后一个未被优化的开发者\n\n在那个被 AGI 统治的纪元里，他坚持用指尖敲击机械键盘。咔哒声在这座静默的数据中心里显得格格不入。他在写诗，用那种已经被淘汰的、带有冗余和错误的语言……",
+    "cover": "",
+    "categories": [
+      "cat-life"
+    ],
+    "tags": [
+      "生活",
+      "随笔",
+      "小说"
+    ],
+    "status": "published",
+    "created_at": "2026-01-02",
+    "updated_at": "2026-01-02",
+    "pinned": false,
+    "slug": "last-unoptimized-developer"
+  }
+]

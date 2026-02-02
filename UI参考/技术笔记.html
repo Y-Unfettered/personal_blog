@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>技术笔记 - DevLog</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+<style>
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    body { background-color: #000000; }
+  </style>
+</head>
+<body class="text-gray-200 min-h-screen">
+<!-- 导航栏 -->
+<nav class="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-gray-800/50 px-6 py-4">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center space-x-10">
+<div class="flex items-center space-x-2">
+<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+<span class="iconify text-white text-xl" data-icon="material-symbols:terminal-rounded"></span>
+</div>
+<span class="text-xl font-bold text-white tracking-widest">DevLog</span>
+</div>
+<div class="hidden lg:flex items-center space-x-8 text-sm font-medium">
+<a class="text-gray-400 hover:text-white transition-colors" href="#">首页</a>
+<a class="text-gray-400 hover:text-white transition-colors" href="#">设计创作</a>
+<a class="text-white border-b-2 border-indigo-500 pb-1" href="#">技术笔记</a>
+<a class="text-gray-400 hover:text-white transition-colors" href="#">工具分享</a>
+<a class="text-gray-400 hover:text-white transition-colors" href="#">问题记录</a>
+<a class="text-gray-400 hover:text-white transition-colors" href="#">关于我</a>
+</div>
+</div>
+<div class="relative group">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 iconify text-gray-500 group-focus-within:text-indigo-400" data-icon="lucide:search"></span>
+<input class="bg-gray-900/50 border border-gray-800 rounded-full py-2 pl-10 pr-4 text-xs w-64 focus:ring-2 focus:ring-indigo-500/30 outline-none transition-all" placeholder="全站搜索" type="text"/>
+</div>
+</div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-12 gap-8">
+<!-- 左侧内容区：文章列表 -->
+<div class="col-span-12 lg:col-span-8 space-y-10">
+<div class="flex items-center justify-between border-b border-gray-800 pb-4">
+<h2 class="text-2xl font-bold text-white flex items-center">
+<span class="w-2 h-6 bg-indigo-500 rounded-full mr-3"></span>
+          技术笔记
+          <span class="ml-3 text-sm font-normal text-gray-500">共 4 篇文章</span>
+</h2>
+<div class="flex space-x-2">
+<button class="px-4 py-1.5 bg-indigo-600 text-white text-xs rounded-full">最新</button>
+<button class="px-4 py-1.5 bg-gray-900 text-gray-400 text-xs rounded-full hover:bg-gray-800">热门</button>
+</div>
+</div>
+<!-- 文章卡片列表 -->
+<div class="space-y-6">
+<!-- 文章1 -->
+<div class="bg-gray-900/30 border border-gray-800/50 rounded-2xl overflow-hidden hover:border-indigo-500/50 transition-all group">
+<div class="flex flex-col md:flex-row">
+<div class="md:w-72 h-48 md:h-auto relative overflow-hidden">
+<img alt="Vue3 structure diagram" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" id="img1" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/19995ff6628c4b7080d227b416d5921b.jpg"/>
+<span class="absolute top-4 left-4 bg-indigo-600 text-[10px] font-bold px-2 py-1 rounded">技术笔记</span>
+</div>
+<div class="p-6 flex-1 flex flex-col justify-between">
+<div>
+<div class="flex items-center space-x-3 text-xs text-gray-500 mb-3">
+<span class="flex items-center"><span class="iconify mr-1" data-icon="lucide:calendar"></span>2026-02-01</span>
+<span class="flex items-center"><span class="iconify mr-1" data-icon="lucide:clock"></span>12 min read</span>
+</div>
+<h3 class="text-xl font-bold text-white mb-3 group-hover:text-indigo-400 transition-colors">
+<span class="bg-indigo-500/20 text-indigo-400 text-[10px] px-1.5 py-0.5 rounded mr-2 align-middle">置顶</span>
+                  Vue3 开启了前端开发新范式的研究报告
+                </h3>
+<p class="text-gray-400 text-sm leading-relaxed line-clamp-2">Vue3 作为现代前端框架的重要里程碑，通过其革命性的组合式 API、性能优化和更好的 TypeScript 支持，彻底改变了前端开发模式...</p>
+</div>
+<div class="mt-6 flex items-center justify-between">
+<div class="flex space-x-2">
+<span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-0.5 rounded-full"># Vue3</span>
+<span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-0.5 rounded-full"># 前端框架</span>
+</div>
+<button class="text-indigo-400 text-xs font-bold flex items-center group/btn">
+                  立即阅读 <span class="iconify ml-1 group-hover/btn:translate-x-1 transition-transform" data-icon="lucide:arrow-right"></span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 文章2 -->
+<div class="bg-gray-900/30 border border-gray-800/50 rounded-2xl overflow-hidden hover:border-indigo-500/50 transition-all group">
+<div class="flex flex-col md:flex-row">
+<div class="md:w-72 h-48 md:h-auto relative overflow-hidden">
+<img alt="TypeScript code snippet on dark screen" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" id="img2" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/e316493d077b44ef86c6663193041cd6.jpg"/>
+<span class="absolute top-4 left-4 bg-purple-600 text-[10px] font-bold px-2 py-1 rounded">问题记录</span>
+</div>
+<div class="p-6 flex-1 flex flex-col justify-between">
+<div>
+<div class="flex items-center space-x-3 text-xs text-gray-500 mb-3">
+<span class="flex items-center"><span class="iconify mr-1" data-icon="lucide:calendar"></span>2026-01-29</span>
+</div>
+<h3 class="text-xl font-bold text-white mb-3 group-hover:text-indigo-400 transition-colors">
+                  TypeScript 类型推断失效的场景及解决方案
+                </h3>
+<p class="text-gray-400 text-sm leading-relaxed line-clamp-2">在处理复杂的嵌套对象和泛型函数时，TypeScript 有时无法自动推断出正确的类型。本文总结了常见的“灰度地带”及如何手动干预...</p>
+</div>
+<div class="mt-6 flex items-center justify-between">
+<div class="flex space-x-2">
+<span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-0.5 rounded-full"># TS</span>
+<span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-0.5 rounded-full"># Debug</span>
+</div>
+<button class="text-indigo-400 text-xs font-bold flex items-center group/btn">
+                  立即阅读 <span class="iconify ml-1 group-hover/btn:translate-x-1 transition-transform" data-icon="lucide:arrow-right"></span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 文章3 -->
+<div class="bg-gray-900/30 border border-gray-800/50 rounded-2xl overflow-hidden hover:border-indigo-500/50 transition-all group">
+<div class="flex flex-col md:flex-row">
+<div class="md:w-72 h-48 md:h-auto relative overflow-hidden">
+<img alt="Microservices architecture visual" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" id="img3" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/40170880575b44d8a28c56a042147680.jpg"/>
+<span class="absolute top-4 left-4 bg-indigo-600 text-[10px] font-bold px-2 py-1 rounded">技术笔记</span>
+</div>
+<div class="p-6 flex-1 flex flex-col justify-between">
+<div>
+<div class="flex items-center space-x-3 text-xs text-gray-500 mb-3">
+<span class="flex items-center"><span class="iconify mr-1" data-icon="lucide:calendar"></span>2026-01-25</span>
+</div>
+<h3 class="text-xl font-bold text-white mb-3 group-hover:text-indigo-400 transition-colors">
+                  微服务架构下的前端微化选型：Module Federation 实战
+                </h3>
+<p class="text-gray-400 text-sm leading-relaxed line-clamp-2">如何通过 Webpack 5 的模块联邦实现跨团队的代码共享？本文深入探讨了其核心配置及其在大型中后台项目中的落地方案...</p>
+</div>
+<div class="mt-6 flex items-center justify-between">
+<div class="flex space-x-2">
+<span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-0.5 rounded-full"># 架构</span>
+<span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-0.5 rounded-full"># Webpack</span>
+</div>
+<button class="text-indigo-400 text-xs font-bold flex items-center group/btn">
+                  立即阅读 <span class="iconify ml-1 group-hover/btn:translate-x-1 transition-transform" data-icon="lucide:arrow-right"></span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 文章4 -->
+<div class="bg-gray-900/30 border border-gray-800/50 rounded-2xl overflow-hidden hover:border-indigo-500/50 transition-all group">
+<div class="flex flex-col md:flex-row">
+<div class="md:w-72 h-48 md:h-auto relative overflow-hidden">
+<img alt="CSS Grid and Flexbox layout demo" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" id="img4" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/a3c0394d26b54d6ca35de8920c51909b.jpg"/>
+<span class="absolute top-4 left-4 bg-indigo-600 text-[10px] font-bold px-2 py-1 rounded">技术笔记</span>
+</div>
+<div class="p-6 flex-1 flex flex-col justify-between">
+<div>
+<div class="flex items-center space-x-3 text-xs text-gray-500 mb-3">
+<span class="flex items-center"><span class="iconify mr-1" data-icon="lucide:calendar"></span>2026-01-20</span>
+</div>
+<h3 class="text-xl font-bold text-white mb-3 group-hover:text-indigo-400 transition-colors">
+                  CSS 魔法：使用 Grid 布局构建现代仪表盘
+                </h3>
+<p class="text-gray-400 text-sm leading-relaxed line-clamp-2">跳出传统的 Flexbox 思维。探索 CSS Grid 在处理复杂二维布局时的绝对优势，让页面排版像设计稿一样精准...</p>
+</div>
+<div class="mt-6 flex items-center justify-between">
+<div class="flex space-x-2">
+<span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-0.5 rounded-full"># CSS</span>
+<span class="text-[10px] text-gray-500 border border-gray-800 px-2 py-0.5 rounded-full"># 设计</span>
+</div>
+<button class="text-indigo-400 text-xs font-bold flex items-center group/btn">
+                  立即阅读 <span class="iconify ml-1 group-hover/btn:translate-x-1 transition-transform" data-icon="lucide:arrow-right"></span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 分页 -->
+<div class="flex justify-center space-x-2 pt-8">
+<button class="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-colors">
+<span class="iconify" data-icon="lucide:chevron-left"></span>
+</button>
+<button class="w-10 h-10 rounded-lg bg-indigo-600 text-white font-bold text-sm">1</button>
+<button class="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 text-gray-400 font-bold text-sm hover:border-indigo-500 hover:text-white transition-all">2</button>
+<button class="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-colors">
+<span class="iconify" data-icon="lucide:chevron-right"></span>
+</button>
+</div>
+</div>
+<!-- 右侧边栏 -->
+<aside class="col-span-12 lg:col-span-4 space-y-8">
+<!-- 个人资料 -->
+<div class="bg-gray-900/20 border border-gray-800 rounded-3xl p-8 text-center relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
+<img alt="Lemon's profile picture" class="w-24 h-24 rounded-full mx-auto mb-4 p-1 ring-2 ring-indigo-500/30 group-hover:rotate-12 transition-transform duration-500" id="avatar" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/cc561feaafea4dc0927ab0905400a67b.jpg"/>
+<h3 class="text-xl font-bold text-white">Lemon</h3>
+<p class="text-xs text-gray-500 mt-2">记录灵感 · 设计 · 代码</p>
+<p class="text-sm text-gray-400 mt-4 leading-relaxed">以持续输出为信仰，把每一次学习都变成可复用的经验。</p>
+<div class="flex justify-center space-x-4 mt-6">
+<a class="text-gray-500 hover:text-indigo-400 transition-colors" href="#"><span class="iconify text-xl" data-icon="lucide:github"></span></a>
+<a class="text-gray-500 hover:text-indigo-400 transition-colors" href="#"><span class="iconify text-xl" data-icon="lucide:twitter"></span></a>
+<a class="text-gray-500 hover:text-indigo-400 transition-colors" href="#"><span class="iconify text-xl" data-icon="lucide:mail"></span></a>
+</div>
+<button class="w-full mt-8 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-2xl text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all hover:-translate-y-1">了解我</button>
+</div>
+<!-- 分类统计 -->
+<div class="bg-gray-900/20 border border-gray-800 rounded-3xl p-6">
+<h4 class="text-sm font-bold text-white mb-6 flex items-center">
+<span class="iconify mr-2 text-indigo-400" data-icon="lucide:folder-open"></span>
+          全部分类
+        </h4>
+<div class="space-y-3">
+<a class="flex justify-between items-center p-3 rounded-xl bg-indigo-500/5 text-indigo-400 border border-indigo-500/20" href="#">
+<span class="text-xs font-medium">技术笔记</span>
+<span class="text-[10px] bg-indigo-500 text-white px-2 py-0.5 rounded-full">4</span>
+</a>
+<a class="flex justify-between items-center p-3 rounded-xl hover:bg-gray-800 transition-colors group" href="#">
+<span class="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">问题记录</span>
+<span class="text-[10px] bg-gray-800 text-gray-500 px-2 py-0.5 rounded-full group-hover:bg-gray-700">1</span>
+</a>
+<a class="flex justify-between items-center p-3 rounded-xl hover:bg-gray-800 transition-colors group" href="#">
+<span class="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">博客搭建</span>
+<span class="text-[10px] bg-gray-800 text-gray-500 px-2 py-0.5 rounded-full">0</span>
+</a>
+<a class="flex justify-between items-center p-3 rounded-xl hover:bg-gray-800 transition-colors group" href="#">
+<span class="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">Office 分享</span>
+<span class="text-[10px] bg-gray-800 text-gray-500 px-2 py-0.5 rounded-full">0</span>
+</a>
+</div>
+</div>
+<!-- 热门标签 -->
+<div class="bg-gray-900/20 border border-gray-800 rounded-3xl p-6">
+<h4 class="text-sm font-bold text-white mb-6 flex items-center">
+<span class="iconify mr-2 text-indigo-400" data-icon="lucide:tag"></span>
+          全部标签
+        </h4>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 bg-gray-800 hover:bg-indigo-500/20 hover:text-indigo-400 rounded-lg text-xs text-gray-400 cursor-pointer transition-all">Blog (2)</span>
+<span class="px-3 py-1.5 bg-gray-800 hover:bg-indigo-500/20 hover:text-indigo-400 rounded-lg text-xs text-gray-400 cursor-pointer transition-all">Vue (2)</span>
+<span class="px-3 py-1.5 bg-gray-800 hover:bg-indigo-500/20 hover:text-indigo-400 rounded-lg text-xs text-gray-400 cursor-pointer transition-all">Word (1)</span>
+<span class="px-3 py-1.5 bg-gray-800 hover:bg-indigo-500/20 hover:text-indigo-400 rounded-lg text-xs text-gray-400 cursor-pointer transition-all">Excel (0)</span>
+<span class="px-3 py-1.5 bg-gray-800 hover:bg-indigo-500/20 hover:text-indigo-400 rounded-lg text-xs text-gray-400 cursor-pointer transition-all">PPT (0)</span>
+</div>
+</div>
+</aside>
+</main>
+<footer class="mt-20 border-t border-gray-800 py-10 bg-black">
+<div class="max-w-7xl mx-auto px-6 text-center">
+<div class="flex items-center justify-center space-x-2 mb-6 opacity-60 grayscale">
+<div class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center">
+<span class="iconify text-white text-xs" data-icon="material-symbols:terminal-rounded"></span>
+</div>
+<span class="text-lg font-bold text-white tracking-widest">DevLog</span>
+</div>
+<p class="text-xs text-gray-600">© 2026 DevLog · 以持续输出为信仰 · Built with Passion by Lemon</p>
+</div>
+</footer>
+</body>
+</html>

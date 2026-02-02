@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>工具分享 - DevLog</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+<style>
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+  </style>
+</head>
+<body class="bg-[#0a0a0a] text-gray-200 min-h-screen font-sans">
+<!-- 导航栏 -->
+<nav class="sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-gray-800 px-6 py-4">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center space-x-10">
+<div class="flex items-center space-x-2">
+<span class="iconify text-2xl text-indigo-500" data-icon="material-symbols:terminal-rounded"></span>
+<span class="text-xl font-bold text-white tracking-tight">DevLog</span>
+</div>
+<ul class="hidden md:flex items-center space-x-8 text-sm font-medium">
+<li><a class="hover:text-indigo-400 transition-colors" href="#">首页</a></li>
+<li><a class="hover:text-indigo-400 transition-colors" href="#">设计创作</a></li>
+<li><a class="hover:text-indigo-400 transition-colors" href="#">技术笔记</a></li>
+<li><a class="text-indigo-400 border-b-2 border-indigo-400 pb-1" href="#">工具分享</a></li>
+<li><a class="hover:text-indigo-400 transition-colors" href="#">关于我</a></li>
+</ul>
+</div>
+<div class="relative group">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 iconify text-gray-500" data-icon="lucide:search"></span>
+<input class="bg-gray-900/50 border border-gray-700 rounded-full py-2 pl-10 pr-4 text-xs w-64 focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all" placeholder="发现好工具..." type="text"/>
+</div>
+</div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 py-10">
+<!-- 头部介绍 -->
+<header class="mb-12">
+<h1 class="text-3xl font-bold text-white mb-4">工具分享</h1>
+<p class="text-gray-400 text-sm max-w-xl">这里汇集了我开发的在线工具，以及在漫长 Coding 生涯中发现的高效利器。赋能创意，简化流程。</p>
+</header>
+<div class="flex flex-col lg:flex-row gap-8">
+<!-- 左侧分类 -->
+<aside class="w-full lg:w-48 space-y-6">
+<div>
+<h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">全部分类</h3>
+<div class="space-y-1">
+<button class="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-indigo-500/10 text-indigo-400 text-sm font-medium">
+<span>全部</span>
+<span class="text-[10px] bg-indigo-500/20 px-1.5 rounded-full">12</span>
+</button>
+<button class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-gray-400 text-sm transition-all">
+<span>在线工具</span>
+<span class="text-[10px] bg-gray-800 px-1.5 rounded-full">4</span>
+</button>
+<button class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-gray-400 text-sm transition-all">
+<span>提效插件</span>
+<span class="text-[10px] bg-gray-800 px-1.5 rounded-full">5</span>
+</button>
+<button class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-gray-400 text-sm transition-all">
+<span>收藏网站</span>
+<span class="text-[10px] bg-gray-800 px-1.5 rounded-full">3</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- 右侧工具网格 -->
+<div class="flex-1">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- 工具卡片 1 -->
+<div class="bg-[#111] border border-gray-800 rounded-2xl p-5 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group animate-slide-up">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+<span class="iconify text-2xl" data-icon="lucide:code-2"></span>
+</div>
+<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20">自主开发</span>
+</div>
+<h3 class="text-lg font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">JSON 极致美化器</h3>
+<p class="text-xs text-gray-500 leading-relaxed mb-6">针对超大 JSON 文件的秒级解析与层级可视化，支持一键类型生成与格式化。</p>
+<div class="flex items-center justify-between">
+<span class="text-[10px] text-gray-600">更新于 2026-02-01</span>
+<button class="p-2 rounded-lg bg-gray-800 hover:bg-indigo-600 text-white transition-all">
+<span class="iconify" data-icon="lucide:external-link"></span>
+</button>
+</div>
+</div>
+<!-- 工具卡片 2 -->
+<div class="bg-[#111] border border-gray-800 rounded-2xl p-5 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group animate-slide-up" style="animation-delay: 0.1s;">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400">
+<span class="iconify text-2xl" data-icon="lucide:palette"></span>
+</div>
+<span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20">优质推荐</span>
+</div>
+<h3 class="text-lg font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">Radix Colors</h3>
+<p class="text-xs text-gray-500 leading-relaxed mb-6">一套面向设计系统的调色板工具，完美适配无障碍对比度与深色模式切换。</p>
+<div class="flex items-center justify-between">
+<span class="text-[10px] text-gray-600">更新于 2026-01-28</span>
+<button class="p-2 rounded-lg bg-gray-800 hover:bg-indigo-600 text-white transition-all">
+<span class="iconify" data-icon="lucide:external-link"></span>
+</button>
+</div>
+</div>
+<!-- 工具卡片 3 -->
+<div class="bg-[#111] border border-gray-800 rounded-2xl p-5 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group animate-slide-up" style="animation-delay: 0.2s;">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400">
+<span class="iconify text-2xl" data-icon="lucide:wrench"></span>
+</div>
+<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20">自主开发</span>
+</div>
+<h3 class="text-lg font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">Word VBA 文档引擎</h3>
+<p class="text-xs text-gray-500 leading-relaxed mb-6">批量化处理公文格式、自动生成页码与目录的高级宏脚本工具集成。</p>
+<div class="flex items-center justify-between">
+<span class="text-[10px] text-gray-600">更新于 2026-01-20</span>
+<button class="p-2 rounded-lg bg-gray-800 hover:bg-indigo-600 text-white transition-all">
+<span class="iconify" data-icon="lucide:external-link"></span>
+</button>
+</div>
+</div>
+<!-- 工具卡片 4 -->
+<div class="bg-[#111] border border-gray-800 rounded-2xl p-5 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group animate-slide-up" style="animation-delay: 0.3s;">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 rounded-xl bg-pink-500/20 flex items-center justify-center text-pink-400" id="icon-4">
+<span class="iconify text-2xl" data-icon="lucide:layers"></span>
+</div>
+<span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20">资源网站</span>
+</div>
+<h3 class="text-lg font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">UI Faces AI</h3>
+<p class="text-xs text-gray-500 leading-relaxed mb-6">利用 AI 技术生成的免费版权个人头像资产，为原型设计提供真实感载体。</p>
+<div class="flex items-center justify-between">
+<span class="text-[10px] text-gray-600">更新于 2026-01-10</span>
+<button class="p-2 rounded-lg bg-gray-800 hover:bg-indigo-600 text-white transition-all">
+<span class="iconify" data-icon="lucide:external-link"></span>
+</button>
+</div>
+</div>
+</div>
+<!-- 空白占位或推荐区域 -->
+<div class="mt-12 bg-indigo-600/5 border border-dashed border-indigo-500/30 rounded-2xl p-10 text-center">
+<span class="iconify text-4xl text-indigo-500/40 mx-auto mb-4" data-icon="lucide:plus-circle"></span>
+<h4 class="text-white font-medium mb-2">正在筹备更多工具...</h4>
+<p class="text-gray-500 text-xs">如果你有好用的工具推荐，欢迎留言告知。</p>
+</div>
+</div>
+</div>
+</main>
+<footer class="mt-20 py-12 border-t border-gray-900 bg-[#050505] text-center">
+<p class="text-[10px] text-gray-600 uppercase tracking-widest italic">DevLog Tools · Efficiency First</p>
+</footer>
+</body>
+</html>

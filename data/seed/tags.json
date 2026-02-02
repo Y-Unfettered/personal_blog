@@ -23,5 +23,55 @@
     "id": "tag-1769878889807",
     "name": "Blog",
     "slug": "blog"
+  },
+  {
+    "id": "tag-1769946478112",
+    "name": "AI",
+    "slug": "ai"
+  },
+  {
+    "id": "设计",
+    "name": "设计",
+    "slug": "design"
+  },
+  {
+    "id": "创作",
+    "name": "创作",
+    "slug": "creation"
+  },
+  {
+    "id": "UI",
+    "name": "UI",
+    "slug": "ui"
+  },
+  {
+    "id": "摄影",
+    "name": "摄影",
+    "slug": "photography"
+  },
+  {
+    "id": "生活",
+    "name": "生活",
+    "slug": "life"
+  },
+  {
+    "id": "随笔",
+    "name": "随笔",
+    "slug": "essay"
+  },
+  {
+    "id": "电影",
+    "name": "电影",
+    "slug": "movie"
+  },
+  {
+    "id": "读书",
+    "name": "读书",
+    "slug": "reading"
+  },
+  {
+    "id": "小说",
+    "name": "小说",
+    "slug": "fiction"
   }
 ]

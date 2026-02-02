@@ -1,0 +1,24 @@
+[
+  {
+    "id": "issue-1",
+    "title": "Word VBA 宏：运行后会生成 1000 页空白页的异常分析",
+    "description": "在调用文档自动化脚本时，由于循环终止条件失效，导致进程通过 Selection.InsertNewPage 无限触发分页，最终导致 Word 内存溢出。",
+    "priority": "紧急",
+    "status": "已解决",
+    "solution_steps": "1. 中断当前所有 Winword.exe 进程，清理临时缓存。\n2. 定位代码第 142 行，将 Do Until EOF 修改为基于 Range 对象长度的控制。\n3. 增加安全熔断机制：当页面数超过预设阈值（例如 200）时自动弹出警告并停止递归。",
+    "result_summary": "永远不要信任动态改变长度的集合遍历。使用对象快照而非视图直接操作，能有效避免无限递归。",
+    "created_at": "2026-02-01",
+    "updated_at": "2026-02-01"
+  },
+  {
+    "id": "issue-2",
+    "title": "Tailwind CSS 生产环境下动态类名失效的问题",
+    "description": "在生产构建中，Tailwind 会移除未使用的类名，导致通过字符串拼接生成的动态类名失效。",
+    "priority": "普通",
+    "status": "已解决",
+    "solution_steps": "1. 在 tailwind.config.js 中使用 safelist 配置，明确指定需要保留的类名模式。\n2. 使用 @apply 指令将动态类名转换为静态类。\n3. 考虑使用 CSS 变量实现动态样式。",
+    "result_summary": "在使用 Tailwind CSS 时，应尽量避免动态生成类名，或通过 safelist 明确告知构建工具需要保留的类名。",
+    "created_at": "2026-01-28",
+    "updated_at": "2026-01-28"
+  }
+]
