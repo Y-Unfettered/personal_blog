@@ -18,34 +18,39 @@
     "label": "设计创作",
     "href": "/design",
     "order": 2,
-    "visible": true
+    "visible": true,
+    "cover": "https://images.unsplash.com/photo-1471879832106-c7ab9e0cee23?q=80&w=1600&auto=format&fit=crop"
   },
   {
     "id": "nav-1769871041577",
     "label": "技术笔记",
     "href": "/technology",
     "order": 3,
-    "visible": true
+    "visible": true,
+    "cover": "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop"
   },
   {
     "id": "nav-1769871070398",
     "label": "工具分享",
     "href": "/tools",
     "order": 4,
-    "visible": true
+    "visible": true,
+    "cover": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1600&auto=format&fit=crop"
   },
   {
     "id": "nav-1769871103215",
     "label": "问题记录",
     "href": "/issues",
     "order": 5,
-    "visible": true
+    "visible": true,
+    "cover": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1600&auto=format&fit=crop"
   },
   {
     "id": "nav-1769871130544",
     "label": "生活随笔",
     "href": "/life",
     "order": 6,
-    "visible": true
+    "visible": true,
+    "cover": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop"
   }
 ]

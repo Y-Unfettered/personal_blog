@@ -317,6 +317,7 @@ const server = http.createServer(async (req, res) => {
             href: body.href,
             order: Number.isFinite(body.order) ? body.order : list.length + 1,
             visible: body.visible !== false,
+            cover: body.cover || undefined,
           };
         });
       }
@@ -331,6 +332,7 @@ const server = http.createServer(async (req, res) => {
           if (body.href) target.href = body.href;
           if (body.order !== undefined) target.order = Number(body.order);
           if (body.visible !== undefined) target.visible = !!body.visible;
+          if (body.cover !== undefined) target.cover = body.cover;
         });
       }
       if (req.method === 'DELETE') return handleDelete(res, 'nav.json', 'nav', id);

@@ -53,12 +53,23 @@
             </div>
             <div class="lg:col-start-1 lg:row-start-2">
               <PostGrid
-                :posts="filteredPosts"
+                :posts="homePosts"
                 :category-name="categoryName"
                 :category-badge-style="categoryBadgeStyle"
                 :tag-summary="tagSummary"
                 @open="openPost"
               />
+              <div v-if="homeHasMore" class="home-more-card mt-8">
+                <div class="home-more-glow"></div>
+                <div class="home-more-content">
+                  <div class="home-more-kicker">更多精彩</div>
+                  <h3 class="home-more-title">想了解更多？</h3>
+                  <p class="home-more-text">首页仅展示最近 10 篇文章，更多内容请浏览我的其他栏目。</p>
+                </div>
+                <button class="home-more-action" type="button" @click="setView('categories')">
+                  查看栏目 <span class="iconify ml-1" data-icon="lucide:arrow-right"></span>
+                </button>
+              </div>
             </div>
             <div class="hidden lg:block lg:col-start-2 lg:row-start-1"></div>
             <aside class="space-y-4 lg:col-start-2 lg:row-start-2">
@@ -153,22 +164,32 @@
         </section>
 
         <section v-else-if="view === 'categories'" class="animate-slide-up">
-          <h1 class="text-2xl font-bold text-white mb-8">内容分类</h1>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div
-              v-for="cat in categoriesWithCounts"
-              :key="cat.id"
-              class="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-indigo-500/50 transition-all group cursor-pointer"
-              @click="setCategoryFilter(cat.id)"
-            >
-              <span class="iconify text-4xl mb-4" data-icon="lucide:folder" :style="{ color: cat.color || '#6366f1' }"></span>
-              <h3 class="text-lg font-bold text-white mb-2">{{ cat.name }}</h3>
-              <p class="text-sm text-gray-500">{{ cat.description || '暂无描述' }}</p>
-              <div class="mt-6 flex justify-between items-center">
-                <span class="text-xs text-indigo-400 font-bold">{{ cat.count }} 篇文章</span>
-                <span class="iconify text-gray-600 group-hover:translate-x-1 transition-transform" data-icon="lucide:chevron-right"></span>
-              </div>
+          <div class="columns-hero">
+            <div class="columns-hero-bg"></div>
+            <div class="columns-hero-content">
+              <div class="columns-hero-kicker">栏目导航</div>
+              <h1 class="columns-hero-title">精选五大专栏</h1>
+              <p class="columns-hero-text">用更少的栏目承载更多内容，让浏览更清晰。</p>
             </div>
+          </div>
+          <div class="columns-grid">
+            <button
+              v-for="(item, index) in columnNavItems.slice(0, 5)"
+              :key="item.id || item.label || index"
+              class="columns-card"
+              type="button"
+              @click="handleNavClick(item)"
+            >
+              <div class="columns-card-media" :style="{ backgroundImage: `url(${columnImage(item, index)})` }"></div>
+              <div class="columns-card-overlay"></div>
+              <div class="columns-card-content">
+                <div class="columns-card-kicker">专栏</div>
+                <div class="columns-card-title">{{ item.label }}</div>
+                <div class="columns-card-cta">
+                  进入栏目 <span class="iconify ml-1" data-icon="lucide:arrow-right"></span>
+                </div>
+              </div>
+            </button>
           </div>
         </section>
 
@@ -398,112 +419,43 @@
         </section>
 
         <section v-else-if="view === 'design'" class="animate-slide-up">
-          <!-- 页面标题与分类筛选 -->
           <header class="mb-12">
-            <h1 class="text-3xl font-bold text-white mb-4">设计创作</h1>
-            <p class="text-gray-400 mb-8 max-w-2xl">探索 AI 绘画、UI 设计与视觉实验的边界。记录每一个像素背后的灵感与探索。</p>
+            <h1 class="text-3xl font-bold text-white mb-4">????</h1>
+            <p class="text-gray-400 mb-8 max-w-2xl">?? AI ???UI ???????????????????????????</p>
             <div class="flex flex-wrap gap-3">
-              <button class="px-5 py-2 rounded-full bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-all">全部作品</button>
-              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">AI 绘图测试</button>
-              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">Prompt 实验</button>
-              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">UI/UX 设计</button>
-              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">摄影作品</button>
+              <button class="px-5 py-2 rounded-full bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-all">????</button>
+              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">AI ????</button>
+              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">Prompt ??</button>
+              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">UI/UX ??</button>
+              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">????</button>
             </div>
           </header>
-          <!-- 作品画廊网格 -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            <!-- 作品卡片 1 -->
-            <div class="group relative bg-[#111] rounded-2xl overflow-hidden border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 animate-fade-in" style="animation-delay: 0.1s;">
+          <div v-if="designPosts.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            <button
+              v-for="(post, index) in designPosts"
+              :key="post.id"
+              class="group relative bg-[#111] rounded-2xl overflow-hidden border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 animate-fade-in text-left"
+              :style="{ animationDelay: (0.1 + index * 0.1) + 's' }"
+              type="button"
+              @click="openPost(post)"
+            >
               <div class="aspect-[4/5] overflow-hidden">
-                <img alt="Cyberpunk city environment concept art generated by AI with neon lighting" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/18ef710fc4c24179ad177eba86029032.jpg"/>
+                <img v-if="post.cover" :alt="post.title" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" :src="post.cover" />
+                <div v-else class="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900"></div>
               </div>
               <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
                 <div class="flex items-center space-x-2 mb-2">
-                  <span class="bg-indigo-500/20 text-indigo-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-widest font-bold">AI Art</span>
-                  <span class="text-gray-400 text-xs">2026-02-01</span>
+                  <span class="bg-indigo-500/20 text-indigo-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-widest font-bold">
+                    {{ categoryName((post.categories || [])[0]) || 'Design' }}
+                  </span>
+                  <span class="text-gray-400 text-xs">{{ post.created_at }}</span>
                 </div>
-                <h3 class="text-white text-lg font-bold mb-2">赛博极夜：城市环境概念设计</h3>
-                <p class="text-gray-300 text-sm line-clamp-2">使用 Midjourney V6 探索高饱和度与暗部细节的极端平衡，模拟电影级光效...</p>
+                <h3 class="text-white text-lg font-bold mb-2">{{ post.title }}</h3>
+                <p class="text-gray-300 text-sm line-clamp-2">{{ post.summary }}</p>
               </div>
-            </div>
-            <!-- 作品卡片 2 -->
-            <div class="group relative bg-[#111] rounded-2xl overflow-hidden border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 animate-fade-in" style="animation-delay: 0.2s;">
-              <div class="aspect-[4/5] overflow-hidden">
-                <img alt="Minimalist mobile app interface design for creative portfolio" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/41f61033662149bcaab0d60b961dff30.jpg"/>
-              </div>
-              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                <div class="flex items-center space-x-2 mb-2">
-                  <span class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-widest font-bold">UI Design</span>
-                  <span class="text-gray-400 text-xs">2026-01-28</span>
-                </div>
-                <h3 class="text-white text-lg font-bold mb-2">DevLog 移动端改版方案报告</h3>
-                <p class="text-gray-300 text-sm line-clamp-2">针对高信息密度界面的减法实验，优化深色模式下的层级表达与交互反馈...</p>
-              </div>
-            </div>
-            <!-- 作品卡片 3 -->
-            <div class="group relative bg-[#111] rounded-2xl overflow-hidden border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 animate-fade-in" style="animation-delay: 0.3s;">
-              <div class="aspect-[4/5] overflow-hidden">
-                <img alt="Surreal portrait photography with crystalline elements and dramatic blue lighting" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/179ff61175324859bde3a0c0e35938f7.jpg"/>
-              </div>
-              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                <div class="flex items-center space-x-2 mb-2">
-                  <span class="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-widest font-bold">Photography</span>
-                  <span class="text-gray-400 text-xs">2026-01-20</span>
-                </div>
-                <h3 class="text-white text-lg font-bold mb-2">冰结灵魂：人像摄影系列 03</h3>
-                <p class="text-gray-300 text-sm line-clamp-2">后期采用三原色偏移算法，营造超现实的冰晶质感与情绪表达...</p>
-              </div>
-            </div>
-            <!-- 作品卡片 4 -->
-            <div class="group relative bg-[#111] rounded-2xl overflow-hidden border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 animate-fade-in" style="animation-delay: 0.4s;">
-              <div class="aspect-[4/5] overflow-hidden">
-                <img alt="Abstract 3D crystalline structures with iridescent materials" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/c38ae3404dab4cf48fdea030db435908.jpg"/>
-              </div>
-              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                <div class="flex items-center space-x-2 mb-2">
-                  <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-widest font-bold">3D Visual</span>
-                  <span class="text-gray-400 text-xs">2026-01-15</span>
-                </div>
-                <h3 class="text-white text-lg font-bold mb-2">数字分形：抽象几何形变实验</h3>
-                <p class="text-gray-300 text-sm line-clamp-2">利用 Blender 几何节点实现的生成式艺术，探索数学之美...</p>
-              </div>
-            </div>
-            <!-- 作品卡片 5 -->
-            <div class="group relative bg-[#111] rounded-2xl overflow-hidden border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 animate-fade-in" style="animation-delay: 0.5s;">
-              <div class="aspect-[4/5] overflow-hidden">
-                <img alt="Detailed pencil drawing of futuristic architecture merged with nature" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/78c89d0397e74f8e819ddbd96b1d35ee.jpg"/>
-              </div>
-              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                <div class="flex items-center space-x-2 mb-2">
-                  <span class="bg-orange-500/20 text-orange-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-widest font-bold">Sketch</span>
-                  <span class="text-gray-400 text-xs">2026-01-05</span>
-                </div>
-                <h3 class="text-white text-lg font-bold mb-2">共生：未来建筑手稿系列</h3>
-                <p class="text-gray-300 text-sm line-clamp-2">手绘线条与数字着色的碰撞，讨论有机生命体与钢筋水泥的融合...</p>
-              </div>
-            </div>
-            <!-- 作品卡片 6 -->
-            <div class="group relative bg-[#111] rounded-2xl overflow-hidden border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 animate-fade-in" style="animation-delay: 0.6s;">
-              <div class="aspect-[4/5] overflow-hidden">
-                <img alt="Stylish website header design for a luxury furniture brand" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="https://modao.cc/agent-py/media/generated_images/2026-02-01/22153da57b41428fb926df46a03e7b47.jpg"/>
-              </div>
-              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                <div class="flex items-center space-x-2 mb-2">
-                  <span class="bg-pink-500/20 text-pink-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-widest font-bold">UI Design</span>
-                  <span class="text-gray-400 text-xs">2025-12-28</span>
-                </div>
-                <h3 class="text-white text-lg font-bold mb-2">简约主义：高端家居品牌电商界面</h3>
-                <p class="text-gray-300 text-sm line-clamp-2">大面积留白与精细排版实现的呼吸感，提升整体品牌奢华调性...</p>
-              </div>
-            </div>
-          </div>
-          <!-- 底部加载 -->
-          <div class="flex justify-center py-10">
-            <button class="flex items-center space-x-2 text-sm text-gray-400 hover:text-white transition-colors border-b border-gray-800 pb-1">
-              <span>浏览更多设计作品</span>
-              <span class="iconify" data-icon="lucide:arrow-right"></span>
             </button>
           </div>
+          <div v-else class="text-gray-500 text-sm">?????????</div>
         </section>
 
         <section v-else-if="view === 'tools'" class="animate-slide-up">
@@ -1020,6 +972,22 @@ const DEFAULT_NAV = [
   { id: 'nav-about', label: '关于我', href: '#/about' },
 ];
 
+const DEFAULT_COLUMN_IMAGES = [
+  'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1487014679447-9f8336841d58?q=80&w=1600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=1600&auto=format&fit=crop',
+];
+
+const COLUMN_IMAGE_MAP = {
+  '设计创作': 'https://images.unsplash.com/photo-1471879832106-c7ab9e0cee23?q=80&w=1600&auto=format&fit=crop',
+  '技术笔记': 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop',
+  '工具分享': 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1600&auto=format&fit=crop',
+  '问题记录': 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1600&auto=format&fit=crop',
+  '生活随笔': 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop',
+};
+
 function setView(nextView) {
   view.value = nextView;
   if (nextView !== 'column') {
@@ -1036,6 +1004,7 @@ function setView(nextView) {
   } else {
     window.location.hash = `#/${nextView}`;
   }
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 function goHome() {
@@ -1064,12 +1033,30 @@ function normalizePath(value) {
   return path;
 }
 
+function postPathFromSlug(slug) {
+  if (!slug) return '';
+  const raw = String(slug).trim();
+  const trimmed = raw.split('#')[0].split('?')[0];
+  if (!trimmed) return '';
+  const clean = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed;
+  const firstSegment = clean.split('/')[0];
+  return firstSegment ? `/${firstSegment}` : '';
+}
+
 function isColumnNavItem(item) {
   if (!item) return false;
   const path = normalizePath(item.href).toLowerCase();
   if (!path || path === '/' || path === '#/' || path === '#') return false;
   if (path.includes('/about')) return false;
   return true;
+}
+
+function columnImage(item, index) {
+  const cover = String(item?.cover || '').trim();
+  if (cover) return cover;
+  const label = String(item?.label || '').trim();
+  if (label && COLUMN_IMAGE_MAP[label]) return COLUMN_IMAGE_MAP[label];
+  return DEFAULT_COLUMN_IMAGES[index % DEFAULT_COLUMN_IMAGES.length];
 }
 
 function findNavByPath(path) {
@@ -1089,6 +1076,7 @@ function setColumnView(navItem) {
   view.value = 'column';
   selectedCategoryId.value = '';
   selectedTagId.value = '';
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 function setColumnViewByPath(path) {
@@ -1136,6 +1124,7 @@ function setCategoryFilter(categoryId) {
   view.value = 'home';
   const slug = categorySlugFromId(categoryId);
   window.location.hash = slug ? `#/category/${encodeURIComponent(slug)}` : '#/';
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 function setTagFilter(tagId) {
@@ -1144,6 +1133,7 @@ function setTagFilter(tagId) {
   view.value = 'home';
   const slug = tagSlugFromId(tagId);
   window.location.hash = slug ? `#/tag/${encodeURIComponent(slug)}` : '#/';
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 function clearCategoryFilter() {
@@ -1594,6 +1584,10 @@ const visibleNavItems = computed(() => {
     .sort((a, b) => (Number(a.order || 0) || 0) - (Number(b.order || 0) || 0));
 });
 
+const columnNavItems = computed(() =>
+  visibleNavItems.value.filter((item) => isColumnNavItem(item)),
+);
+
 const heroSlides = computed(() => {
   const slides = posts.value.filter((post) => post.pinned && post.cover).slice(0, 4);
   return slides;
@@ -1614,19 +1608,27 @@ const filteredPosts = computed(() => {
   return list;
 });
 
+const HOME_LIMIT = 10;
+const homePosts = computed(() => filteredPosts.value.slice(0, HOME_LIMIT));
+const homeHasMore = computed(() => filteredPosts.value.length > HOME_LIMIT);
+
+const designPosts = computed(() => {
+  const query = String(searchQuery.value || '').trim();
+  let list = posts.value.filter((post) => postPathFromSlug(post.slug) === '/design');
+  if (query) {
+    list = list.filter((post) => matchesSearch(post, query));
+  }
+  return list;
+});
+
 const columnPosts = computed(() => {
   const query = String(searchQuery.value || '').trim();
   let list = posts.value.slice();
-  if (activeColumnCategoryId.value) {
-    list = list.filter((post) => Array.isArray(post.categories) && post.categories.includes(activeColumnCategoryId.value));
-  } else if (activeColumnLabel.value) {
-    const label = activeColumnLabel.value;
+  if (activeColumnPath.value) {
+    const target = normalizePath(activeColumnPath.value);
     list = list.filter((post) => {
-      if (!Array.isArray(post.categories)) return false;
-      return post.categories.some((id) => {
-        const categoryName = categoryMap.value[id];
-        return categoryName === label || id === label;
-      });
+      const postPath = postPathFromSlug(post.slug);
+      return postPath && postPath === target;
     });
   } else {
     list = [];
@@ -2218,6 +2220,205 @@ function handleCodeCopy(event) {
 .category-count {
   font-size: 0.7rem;
   color: #9ca3af;
+}
+
+.home-more-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  background: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.18), transparent 55%),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(17, 24, 39, 0.8));
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.home-more-glow {
+  position: absolute;
+  inset: -40% 40% auto auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.35), transparent 65%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.home-more-content {
+  position: relative;
+  z-index: 1;
+}
+
+.home-more-kicker {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.75);
+  margin-bottom: 6px;
+}
+
+.home-more-title {
+  color: #e0e7ff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.home-more-text {
+  color: #9ca3af;
+  font-size: 0.85rem;
+}
+
+.home-more-action {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 102, 241, 0.45);
+  background: rgba(99, 102, 241, 0.15);
+  color: #e0e7ff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.home-more-action:hover {
+  transform: translateY(-1px);
+  border-color: rgba(99, 102, 241, 0.8);
+  background: rgba(99, 102, 241, 0.28);
+}
+
+@media (max-width: 720px) {
+  .home-more-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.columns-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid rgba(31, 41, 55, 0.7);
+  padding: 28px 28px 24px;
+  margin-bottom: 24px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.8), rgba(17, 24, 39, 0.9));
+}
+
+.columns-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.35), transparent 60%),
+    radial-gradient(circle at 80% 10%, rgba(56, 189, 248, 0.25), transparent 50%);
+  opacity: 0.9;
+}
+
+.columns-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.columns-hero-kicker {
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.75);
+}
+
+.columns-hero-title {
+  margin-top: 8px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.columns-hero-text {
+  margin-top: 6px;
+  color: #a1a1aa;
+  font-size: 0.9rem;
+}
+
+.columns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.columns-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  min-height: 220px;
+  text-align: left;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.columns-card-media {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.05) brightness(0.75);
+  transform: scale(1.03);
+}
+
+.columns-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(140deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.35));
+  border-top: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.columns-card-content {
+  position: relative;
+  z-index: 1;
+  padding: 18px 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.columns-card-kicker {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.8);
+}
+
+.columns-card-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #e2e8f0;
+}
+
+.columns-card-cta {
+  font-size: 0.8rem;
+  color: rgba(148, 163, 184, 0.9);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.columns-card:hover .columns-card-overlay {
+  background: linear-gradient(140deg, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.25));
+}
+
+.columns-card:hover .columns-card-cta {
+  color: #e0e7ff;
+}
+
+.columns-card:focus-visible {
+  outline: 2px solid rgba(99, 102, 241, 0.7);
+  outline-offset: 2px;
 }
 
 .md-preview {

@@ -1788,6 +1788,10 @@
               <input id="nav-href" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${item?.href || ''}" />
             </div>
             <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">封面图 URL</label>
+              <input id="nav-cover" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${item?.cover || ''}" placeholder="https://..." />
+            </div>
+            <div>
               <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">顺序</label>
               <input id="nav-order" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${item?.order || ''}" />
             </div>
@@ -1800,6 +1804,7 @@
           const payload = {
             label: document.getElementById('nav-label').value.trim(),
             href: document.getElementById('nav-href').value.trim(),
+            cover: document.getElementById('nav-cover').value.trim(),
             order: Number(document.getElementById('nav-order').value || 0),
             visible: document.getElementById('nav-visible').checked,
           };
