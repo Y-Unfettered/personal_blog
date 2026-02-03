@@ -206,7 +206,7 @@ function cmdTagAdd(opts) {
   requireField(opts.name, 'name');
   const id = opts.id || `tag-${Date.now()}`;
   const slug = opts.slug || slugify(opts.name);
-  list.push({ id, name: opts.name, slug });
+  list.push({ id, name: opts.name, slug, ...(opts.parent ? { parent: opts.parent } : {}) });
   saveList(filePath, 'tags', list);
   console.log(`tag added: ${id}`);
 }
@@ -217,6 +217,7 @@ function cmdTagUpdate(opts) {
   if (!target) throw new Error('tag not found');
   if (opts.name) target.name = opts.name;
   if (opts.slug) target.slug = opts.slug;
+  if (opts.parent !== undefined) target.parent = opts.parent;
   saveList(filePath, 'tags', list);
   console.log(`tag updated: ${target.id}`);
 }

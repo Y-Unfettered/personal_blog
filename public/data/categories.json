@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-02-02",
+  "generated_at": "2026-02-03",
   "categories": [
     {
       "id": "cat-1769701776764",
@@ -8,6 +8,7 @@
       "slug": "Vue",
       "color": "#45c28a",
       "description": "Vue 3.0 方面的文章合集",
+      "parent": "技术笔记",
       "count": 2
     },
     {
@@ -16,6 +17,7 @@
       "slug": "blog",
       "color": "#f2c564",
       "description": "分享个人博客搭建",
+      "parent": "技术笔记",
       "count": 2
     },
     {
@@ -24,6 +26,7 @@
       "slug": "office",
       "color": "#ff0000",
       "description": "关于Office 分享的一些心得分享",
+      "parent": "技术笔记",
       "count": 1
     },
     {
@@ -31,13 +34,15 @@
       "name": "AI ART",
       "slug": "aiart",
       "color": "#8166f1",
-      "count": 2
+      "parent": "设计创作",
+      "count": 3
     },
     {
       "id": "cat-1769950172241",
       "name": "Illustrator",
       "slug": "Illustrator",
       "color": "#ee811b",
+      "parent": "设计创作",
       "count": 0
     },
     {
@@ -45,6 +50,7 @@
       "name": "UI 设计",
       "slug": "UI",
       "color": "#6366f1",
+      "parent": "设计创作",
       "count": 1
     },
     {
@@ -52,7 +58,16 @@
       "name": "读书心得",
       "slug": "bookshare",
       "color": "#6366f1",
+      "parent": "生活随笔",
       "count": 3
+    },
+    {
+      "id": "cat-1770125294932",
+      "name": "灵感收藏",
+      "slug": "inspiration",
+      "color": "#10fe4c",
+      "parent": "设计创作",
+      "count": 0
     }
   ]
 }

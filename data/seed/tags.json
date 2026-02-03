@@ -2,76 +2,91 @@
   {
     "id": "tag-vue",
     "name": "Vue",
-    "slug": "vue"
+    "slug": "vue",
+    "parent": "技术笔记"
   },
   {
     "id": "tag-1769878846894",
     "name": "Word",
-    "slug": "word"
+    "slug": "word",
+    "parent": "技术笔记"
   },
   {
     "id": "tag-1769878864683",
     "name": "PPT",
-    "slug": "ppt"
+    "slug": "ppt",
+    "parent": "技术笔记"
   },
   {
     "id": "tag-1769878878774",
     "name": "Excel",
-    "slug": "excel"
+    "slug": "excel",
+    "parent": "技术笔记"
   },
   {
     "id": "tag-1769878889807",
     "name": "Blog",
-    "slug": "blog"
+    "slug": "blog",
+    "parent": "技术笔记"
   },
   {
     "id": "tag-1769946478112",
     "name": "AI",
-    "slug": "ai"
+    "slug": "ai",
+    "parent": "技术笔记"
   },
   {
     "id": "设计",
     "name": "设计",
-    "slug": "design"
+    "slug": "design",
+    "parent": "设计创作"
   },
   {
     "id": "创作",
     "name": "创作",
-    "slug": "creation"
+    "slug": "creation",
+    "parent": "设计创作"
   },
   {
     "id": "UI",
     "name": "UI",
-    "slug": "ui"
+    "slug": "ui",
+    "parent": "设计创作"
   },
   {
     "id": "摄影",
     "name": "摄影",
-    "slug": "photography"
+    "slug": "photography",
+    "parent": "生活随笔"
   },
   {
     "id": "生活",
     "name": "生活",
-    "slug": "life"
+    "slug": "life",
+    "parent": "生活随笔"
   },
   {
     "id": "随笔",
     "name": "随笔",
-    "slug": "essay"
+    "slug": "essay",
+    "parent": "生活随笔"
   },
   {
     "id": "电影",
     "name": "电影",
-    "slug": "movie"
+    "slug": "movie",
+    "parent": "生活随笔"
   },
   {
     "id": "读书",
     "name": "读书",
-    "slug": "reading"
+    "slug": "reading",
+    "parent": "生活随笔"
   },
   {
     "id": "小说",
     "name": "小说",
-    "slug": "fiction"
+    "slug": "fiction",
+    "parent": "生活随笔"
   }
 ]

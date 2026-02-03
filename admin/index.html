@@ -118,13 +118,14 @@
         </div>
         <div class="bg-[#161b22] border border-gray-800 rounded-xl overflow-hidden">
           <table class="w-full text-left text-sm">
-            <thead class="bg-gray-900/50 text-gray-400 uppercase text-xs tracking-wider">
-              <tr>
-                <th class="px-6 py-4 font-semibold">名称</th>
-                <th class="px-6 py-4 font-semibold">Slug</th>
-                <th class="px-6 py-4 font-semibold text-right">操作</th>
-              </tr>
-            </thead>
+              <thead class="bg-gray-900/50 text-gray-400 uppercase text-xs tracking-wider">
+                <tr>
+                  <th class="px-6 py-4 font-semibold">名称</th>
+                  <th class="px-6 py-4 font-semibold">Slug</th>
+                  <th class="px-6 py-4 font-semibold">栏目</th>
+                  <th class="px-6 py-4 font-semibold text-right">操作</th>
+                </tr>
+              </thead>
             <tbody id="categories-body" class="divide-y divide-gray-800"></tbody>
           </table>
         </div>
@@ -882,7 +883,8 @@
         return tags.filter((t) => {
           const name = String(t.name || '').toLowerCase();
           const slug = String(t.slug || '').toLowerCase();
-          return name.includes(query) || slug.includes(query);
+          const parent = String(t.parent || '').toLowerCase();
+          return name.includes(query) || slug.includes(query) || parent.includes(query);
         });
       }
 
@@ -950,16 +952,43 @@
         const { pageItems, total, totalPages, current } = paginateList(filtered, currentTagPage);
         currentTagPage = current;
         const body = document.getElementById('tags-body');
-        body.innerHTML = pageItems.map((t) => `
-          <tr class="hover:bg-gray-800/30 transition-colors">
-            <td class="px-6 py-4 text-gray-200 font-medium">${t.name}</td>
-            <td class="px-6 py-4 text-gray-500">${t.slug}</td>
-            <td class="px-6 py-4 text-right space-x-3">
-              <button class="text-gray-400 hover:text-indigo-400" onclick="openTagEditor('${t.id}')"><span class="iconify" data-icon="lucide:edit-3"></span></button>
-              <button class="text-gray-400 hover:text-red-400" onclick="deleteTag('${t.id}')"><span class="iconify" data-icon="lucide:trash-2"></span></button>
-            </td>
-          </tr>
-        `).join('');
+
+        const groupedTags = {};
+        pageItems.forEach((t) => {
+          const parent = t.parent || '未分类';
+          if (!groupedTags[parent]) {
+            groupedTags[parent] = [];
+          }
+          groupedTags[parent].push(t);
+        });
+
+        let html = '';
+        Object.entries(groupedTags).forEach(([column, list]) => {
+          html += `
+            <tr class="bg-gray-900/50">
+              <td class="px-6 py-3 text-gray-400 font-semibold uppercase text-xs">${column}</td>
+              <td class="px-6 py-3"></td>
+              <td class="px-6 py-3"></td>
+              <td class="px-6 py-3"></td>
+            </tr>
+          `;
+
+          list.forEach((t) => {
+            html += `
+              <tr class="hover:bg-gray-800/30 transition-colors">
+                <td class="px-6 py-4 text-gray-200 font-medium pl-10">${t.name}</td>
+                <td class="px-6 py-4 text-gray-500">${t.slug}</td>
+                <td class="px-6 py-4 text-gray-500">${t.parent || '-'}</td>
+                <td class="px-6 py-4 text-right space-x-3">
+                  <button class="text-gray-400 hover:text-indigo-400" onclick="openTagEditor('${t.id}')"><span class="iconify" data-icon="lucide:edit-3"></span></button>
+                  <button class="text-gray-400 hover:text-red-400" onclick="deleteTag('${t.id}')"><span class="iconify" data-icon="lucide:trash-2"></span></button>
+                </td>
+              </tr>
+            `;
+          });
+        });
+
+        body.innerHTML = html;
 
         const info = document.getElementById('tags-page-info');
         if (info) {
@@ -1482,12 +1511,19 @@
           // 这样选择分类时栏目不会消失
         };
 
+        const filterTagsByColumn = (label) => {
+          if (!label) return [];
+          const filteredTags = tags.filter((t) => t.parent === label);
+          return filteredTags.length ? filteredTags : [];
+        };
+
         const syncCategoriesFromColumn = () => {
           if (!columnSelect || !categoryInput) return;
           const label = String(columnSelect.value || '').trim();
           if (!label) {
             categoryInput.value = '';
             updateChips('cat-chips', [], 'post-categories', 'categories', handleCategoryChange);
+            updateChips('tag-chips', [], 'post-tags', 'tags');
             return;
           }
           // 过滤出与当前栏目相关的分类
@@ -1506,6 +1542,7 @@
           categoryInput.value = '';
           // 更新分类选择卡片，只显示与当前栏目相关的分类
           updateChips('cat-chips', sortedCategories, 'post-categories', 'categories', handleCategoryChange);
+          updateChips('tag-chips', filterTagsByColumn(label), 'post-tags', 'tags');
         };
 
         const applySlugLock = () => {
@@ -1609,13 +1646,15 @@
               })
               .slice(0, 5);
             updateChips('cat-chips', sortedCategories, 'post-categories', 'categories', handleCategoryChange);
+            updateChips('tag-chips', filterTagsByColumn(label), 'post-tags', 'tags');
           } else {
             updateChips('cat-chips', [], 'post-categories', 'categories', handleCategoryChange);
+            updateChips('tag-chips', [], 'post-tags', 'tags');
           }
         } else {
           updateChips('cat-chips', [], 'post-categories', 'categories', handleCategoryChange);
+          updateChips('tag-chips', [], 'post-tags', 'tags');
         }
-        updateChips('tag-chips', tags, 'post-tags', 'tags');
 
         syncColumnFromCategories();
         if (columnSelect) {
@@ -1652,7 +1691,8 @@
         }
         if (tagInput) {
           tagInput.addEventListener('input', () => {
-            updateChips('tag-chips', tags, 'post-tags', 'tags');
+            const label = String(columnSelect?.value || '').trim();
+            updateChips('tag-chips', filterTagsByColumn(label), 'post-tags', 'tags');
           });
         }
 
@@ -1743,31 +1783,47 @@
         await loadAll();
       }
 
-      function openTagEditor(id) {
-        const tag = tags.find((t) => t.id === id);
-        openEditor(tag ? '编辑标签' : '新增标签', `
-          <div class="space-y-4">
-            <div>
-              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">名称</label>
-              <input id="tag-name" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${tag?.name || ''}" />
+        function openTagEditor(id) {
+          const tag = tags.find((t) => t.id === id);
+          const columnLabels = getColumnLabels();
+          const parentOptions = columnLabels.map((label) => {
+            const selected = tag && tag.parent === label ? 'selected' : '';
+            return `
+              <option value="${label}" ${selected}>${label}</option>
+            `;
+          }).join('');
+          openEditor(tag ? '编辑标签' : '新增标签', `
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">名称</label>
+                <input id="tag-name" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${tag?.name || ''}" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">所属栏目</label>
+                <select id="tag-parent" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5">
+                  <option value="">请选择栏目</option>
+                  ${parentOptions}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Slug</label>
+                <input id="tag-slug" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${tag?.slug || ''}" />
+              </div>
             </div>
-            <div>
-              <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Slug</label>
-              <input id="tag-slug" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5" value="${tag?.slug || ''}" />
-            </div>
-          </div>
-        `, async () => {
-          const payload = {
-            name: document.getElementById('tag-name').value.trim(),
-            slug: document.getElementById('tag-slug').value.trim(),
-          };
-          if (!payload.name) return setStatus('标签名称为必填', true);
-          if (tag) await api(`/api/tags/${tag.id}`, { method: 'PUT', body: JSON.stringify(payload) });
-          else await api('/api/tags', { method: 'POST', body: JSON.stringify(payload) });
-          await loadAll();
-          closeEditor();
-        });
-      }
+          `, async () => {
+            const payload = {
+              name: document.getElementById('tag-name').value.trim(),
+              slug: document.getElementById('tag-slug').value.trim(),
+              parent: document.getElementById('tag-parent').value.trim(),
+            };
+            if (!payload.name) return setStatus('标签名称为必填', true);
+            if (!payload.parent) return setStatus('所属栏目为必填', true);
+            if (tag) await api(`/api/tags/${tag.id}`, { method: 'PUT', body: JSON.stringify(payload) });
+            else await api('/api/tags', { method: 'POST', body: JSON.stringify(payload) });
+            await loadAll();
+            closeEditor();
+          });
+        }
 
       async function deleteTag(id) {
         if (!confirm('确定删除标签？')) return;

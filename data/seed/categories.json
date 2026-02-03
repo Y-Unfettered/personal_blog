@@ -52,5 +52,12 @@
     "slug": "bookshare",
     "color": "#6366f1",
     "parent": "生活随笔"
+  },
+  {
+    "id": "cat-1770125294932",
+    "name": "灵感收藏",
+    "slug": "inspiration",
+    "color": "#10fe4c",
+    "parent": "设计创作"
   }
 ]

@@ -1,95 +1,110 @@
 {
   "version": 1,
-  "generated_at": "2026-02-02",
+  "generated_at": "2026-02-03",
   "tags": [
     {
       "id": "tag-vue",
       "name": "Vue",
       "slug": "vue",
+      "parent": "技术笔记",
       "count": 3
     },
     {
       "id": "tag-1769878846894",
       "name": "Word",
       "slug": "word",
+      "parent": "技术笔记",
       "count": 1
     },
     {
       "id": "tag-1769878864683",
       "name": "PPT",
       "slug": "ppt",
+      "parent": "技术笔记",
       "count": 0
     },
     {
       "id": "tag-1769878878774",
       "name": "Excel",
       "slug": "excel",
+      "parent": "技术笔记",
       "count": 0
     },
     {
       "id": "tag-1769878889807",
       "name": "Blog",
       "slug": "blog",
+      "parent": "技术笔记",
       "count": 1
     },
     {
       "id": "tag-1769946478112",
       "name": "AI",
       "slug": "ai",
+      "parent": "技术笔记",
       "count": 1
     },
     {
       "id": "设计",
       "name": "设计",
       "slug": "design",
-      "count": 2
+      "parent": "设计创作",
+      "count": 3
     },
     {
       "id": "创作",
       "name": "创作",
       "slug": "creation",
+      "parent": "设计创作",
       "count": 2
     },
     {
       "id": "UI",
       "name": "UI",
       "slug": "ui",
+      "parent": "设计创作",
       "count": 1
     },
     {
       "id": "摄影",
       "name": "摄影",
       "slug": "photography",
+      "parent": "生活随笔",
       "count": 1
     },
     {
       "id": "生活",
       "name": "生活",
       "slug": "life",
+      "parent": "生活随笔",
       "count": 3
     },
     {
       "id": "随笔",
       "name": "随笔",
       "slug": "essay",
+      "parent": "生活随笔",
       "count": 3
     },
     {
       "id": "电影",
       "name": "电影",
       "slug": "movie",
+      "parent": "生活随笔",
       "count": 1
     },
     {
       "id": "读书",
       "name": "读书",
       "slug": "reading",
+      "parent": "生活随笔",
       "count": 1
     },
     {
       "id": "小说",
       "name": "小说",
       "slug": "fiction",
+      "parent": "生活随笔",
       "count": 1
     }
   ]

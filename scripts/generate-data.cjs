@@ -128,6 +128,7 @@ function normalizeCategories(categories, counts) {
       slug: String(c.slug),
       ...(c.color ? { color: String(c.color) } : {}),
       ...(c.description ? { description: String(c.description) } : {}),
+      ...(c.parent ? { parent: String(c.parent) } : {}),
       count,
     };
   });
@@ -141,6 +142,7 @@ function normalizeTags(tags, counts) {
       id: String(t.id),
       name: String(t.name),
       slug: String(t.slug),
+      ...(t.parent ? { parent: String(t.parent) } : {}),
       count,
     };
   });

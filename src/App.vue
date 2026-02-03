@@ -111,7 +111,7 @@
             </ul>
           </aside>
           <div class="detail-content animate-slide-up">
-            <button class="mb-8 flex items-center text-gray-400 hover:text-white transition-colors group" @click="setView('home')">
+            <button class="mb-8 flex items-center text-gray-400 hover:text-white transition-colors group" @click="backToList">
               <span class="iconify mr-1 group-hover:-translate-x-1 transition-transform" data-icon="lucide:arrow-left"></span> 返回列表
             </button>
             <header class="mb-10 text-center">
@@ -203,10 +203,7 @@
                   {{ activeColumnLabel }}
                   <span class="ml-3 text-sm font-normal text-gray-500">共 {{ columnPosts.length }} 篇文章</span>
                 </h2>
-                <div class="flex space-x-2">
-                  <button class="px-4 py-1.5 bg-indigo-600 text-white text-xs rounded-full">最新</button>
-                  <button class="px-4 py-1.5 bg-gray-900 text-gray-400 text-xs rounded-full hover:bg-gray-800">热门</button>
-                </div>
+                <div></div>
               </div>
               
               <!-- 文章卡片列表 -->
@@ -214,7 +211,10 @@
                 <div
                   v-for="(post, index) in columnPosts"
                   :key="post.id"
-                  class="bg-gray-900/30 border border-gray-800/50 rounded-2xl overflow-hidden hover:border-indigo-500/50 transition-all group"
+                  class="bg-gray-900/30 border border-gray-800/50 rounded-2xl overflow-hidden hover:border-indigo-500/50 transition-all group cursor-pointer"
+                  role="button"
+                  tabindex="0"
+                  @click="openPost(post)"
                 >
                   <div class="flex flex-col md:flex-row">
                     <div v-if="post.cover" class="md:w-72 h-48 md:h-auto relative overflow-hidden">
@@ -249,7 +249,7 @@
                             class="text-[10px] text-gray-500 border border-gray-800 px-2 py-0.5 rounded-full"
                           ># {{ tag }}</span>
                         </div>
-                        <button class="text-indigo-400 text-xs font-bold flex items-center group/btn" @click="openPost(post)">
+                        <button class="text-indigo-400 text-xs font-bold flex items-center group/btn" @click.stop="openPost(post)">
                           立即阅读 <span class="iconify ml-1 group-hover/btn:translate-x-1 transition-transform" data-icon="lucide:arrow-right"></span>
                         </button>
                       </div>
@@ -290,7 +290,7 @@
                 <p class="text-sm text-gray-400 mt-4 leading-relaxed">{{ profile.motto }}</p>
                 <div class="flex justify-center space-x-4 mt-6">
                   <a v-if="profile.github" class="text-gray-500 hover:text-indigo-400 transition-colors" :href="profile.github" target="_blank"><span class="iconify text-xl" data-icon="lucide:github"></span></a>
-                  <a v-if="profile.planet" class="text-gray-500 hover:text-indigo-400 transition-colors" :href="profile.planet" target="_blank"><span class="iconify text-xl" data-icon="lucide:globe"></span></a>
+                  <a v-if="profile.planet" class="text-gray-500 hover:text-indigo-400 transition-colors" :href="profile.planet" target="_blank"><span class="profile-planet-icon"></span></a>
                   <a v-if="profile.email" class="text-gray-500 hover:text-indigo-400 transition-colors" @click="copyProfileEmail"><span class="iconify text-xl" data-icon="lucide:mail"></span></a>
                 </div>
                 <button class="w-full mt-8 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-2xl text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all hover:-translate-y-1" @click="setView('about')">了解我</button>
@@ -302,17 +302,25 @@
                   <span class="iconify mr-2 text-indigo-400" data-icon="lucide:folder-open"></span>
                   全部分类
                 </h4>
-                <div class="space-y-3">
-                  <a
-                    v-for="cat in categoriesWithCounts"
-                    :key="cat.id"
-                    class="flex justify-between items-center p-3 rounded-xl hover:bg-gray-800 transition-colors group"
-                    :class="{ 'bg-indigo-500/5 text-indigo-400 border border-indigo-500/20': cat.name === activeColumnLabel }"
-                    @click="setCategoryFilter(cat.id)"
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    class="px-3 py-1.5 rounded-lg text-xs transition-all"
+                    :class="columnCategoryId ? 'bg-gray-800 text-gray-400 hover:bg-indigo-500/20 hover:text-indigo-400' : 'bg-indigo-500/20 text-indigo-400'"
+                    type="button"
+                    @click="setColumnCategoryFilter('')"
                   >
-                    <span class="text-xs font-medium">{{ cat.name }}</span>
-                    <span class="text-[10px] bg-gray-800 text-gray-500 px-2 py-0.5 rounded-full group-hover:bg-gray-700">{{ cat.count }}</span>
-                  </a>
+                    全部
+                  </button>
+                  <button
+                    v-for="cat in columnCategoriesWithCounts"
+                    :key="cat.id"
+                    class="px-3 py-1.5 rounded-lg text-xs transition-all"
+                    :class="cat.id === columnCategoryId ? 'bg-indigo-500/20 text-indigo-400' : 'bg-gray-800 text-gray-400 hover:bg-indigo-500/20 hover:text-indigo-400'"
+                    type="button"
+                    @click="setColumnCategoryFilter(cat.id)"
+                  >
+                    {{ cat.name }} ({{ cat.count }})
+                  </button>
                 </div>
               </div>
               
@@ -323,11 +331,24 @@
                   全部标签
                 </h4>
                 <div class="flex flex-wrap gap-2">
-                  <span
-                    v-for="tag in tagsWithCounts"
+                  <button
+                    class="px-3 py-1.5 rounded-lg text-xs transition-all"
+                    :class="columnTagId ? 'bg-gray-800 text-gray-400 hover:bg-indigo-500/20 hover:text-indigo-400' : 'bg-indigo-500/20 text-indigo-400'"
+                    type="button"
+                    @click="setColumnTagFilter('')"
+                  >
+                    全部
+                  </button>
+                  <button
+                    v-for="tag in columnTagsWithCounts"
                     :key="tag.id"
-                    class="px-3 py-1.5 bg-gray-800 hover:bg-indigo-500/20 hover:text-indigo-400 rounded-lg text-xs text-gray-400 cursor-pointer transition-all"
-                  >{{ tag.name }} ({{ tag.count }})</span>
+                    class="px-3 py-1.5 rounded-lg text-xs transition-all"
+                    :class="tag.id === columnTagId ? 'bg-indigo-500/20 text-indigo-400' : 'bg-gray-800 text-gray-400 hover:bg-indigo-500/20 hover:text-indigo-400'"
+                    type="button"
+                    @click="setColumnTagFilter(tag.id)"
+                  >
+                    {{ tag.name }} ({{ tag.count }})
+                  </button>
                 </div>
               </div>
             </div>
@@ -380,7 +401,7 @@
                     aria-label="知识星球"
                     @click="openExternal(profile.planet)"
                   >
-                    <img class="profile-social-icon" src="https://img.lemontop.asia/zhishi.svg" alt="知识星球" />
+                    <span class="profile-planet-icon"></span>
                   </button>
                   <button
                     class="profile-social-btn"
@@ -420,14 +441,27 @@
 
         <section v-else-if="view === 'design'" class="animate-slide-up">
           <header class="mb-12">
-            <h1 class="text-3xl font-bold text-white mb-4">????</h1>
-            <p class="text-gray-400 mb-8 max-w-2xl">?? AI ???UI ???????????????????????????</p>
+            <h1 class="text-3xl font-bold text-white mb-4">设计创作</h1>
+            <p class="text-gray-400 mb-8 max-w-2xl">聚焦 AI 视觉、UI/UX 与 Prompt 研究，记录灵感与作品过程。</p>
             <div class="flex flex-wrap gap-3">
-              <button class="px-5 py-2 rounded-full bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-all">????</button>
-              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">AI ????</button>
-              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">Prompt ??</button>
-              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">UI/UX ??</button>
-              <button class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-sm hover:border-gray-600 transition-all">????</button>
+              <button
+                class="px-5 py-2 rounded-full text-sm font-medium transition-all"
+                :class="designCategoryId ? 'bg-gray-900 border border-gray-800 hover:border-gray-600 text-gray-200' : 'bg-indigo-600 text-white hover:bg-indigo-700'"
+                type="button"
+                @click="setDesignCategory('')"
+              >
+                全部
+              </button>
+              <button
+                v-for="cat in designCategories"
+                :key="cat.id"
+                class="px-5 py-2 rounded-full text-sm transition-all"
+                :class="cat.id === designCategoryId ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-900 border border-gray-800 hover:border-gray-600 text-gray-200'"
+                type="button"
+                @click="setDesignCategory(cat.id)"
+              >
+                {{ cat.name }}
+              </button>
             </div>
           </header>
           <div v-if="designPosts.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
@@ -455,7 +489,7 @@
               </div>
             </button>
           </div>
-          <div v-else class="text-gray-500 text-sm">?????????</div>
+          <div v-else class="text-gray-500 text-sm">暂无设计作品</div>
         </section>
 
         <section v-else-if="view === 'tools'" class="animate-slide-up">
@@ -914,10 +948,27 @@ const loading = ref(true);
 const error = ref('');
 const markdownTheme = ref('default');
 const view = ref('home');
+const lastListState = ref({
+  view: 'home',
+  hash: '#/',
+  selectedCategoryId: '',
+  selectedTagId: '',
+  searchQuery: '',
+  designCategoryId: '',
+  columnCategoryId: '',
+  columnTagId: '',
+  activeColumnLabel: '',
+  activeColumnPath: '',
+  activeColumnCategoryId: '',
+  scrollY: 0,
+});
 const activeSlug = ref('');
 const searchQuery = ref('');
 const selectedCategoryId = ref('');
 const selectedTagId = ref('');
+const designCategoryId = ref('');
+const columnCategoryId = ref('');
+const columnTagId = ref('');
 const profile = reactive({
   name: 'Lemon',
   subtitle: '记录灵感 · 设计 · 代码',
@@ -994,6 +1045,8 @@ function setView(nextView) {
     activeColumnLabel.value = '';
     activeColumnPath.value = '';
     activeColumnCategoryId.value = '';
+    columnCategoryId.value = '';
+    columnTagId.value = '';
   }
   if (nextView !== 'home') {
     selectedCategoryId.value = '';
@@ -1007,10 +1060,75 @@ function setView(nextView) {
   window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
-function goHome() {
-  clearFilters();
-  setView('home');
+  function goHome() {
+    clearFilters();
+    setView('home');
+  }
+
+function captureListState() {
+  lastListState.value = {
+    view: view.value,
+    hash: window.location.hash || '#/',
+    selectedCategoryId: selectedCategoryId.value,
+    selectedTagId: selectedTagId.value,
+    searchQuery: searchQuery.value,
+    designCategoryId: designCategoryId.value,
+    columnCategoryId: columnCategoryId.value,
+    columnTagId: columnTagId.value,
+    activeColumnLabel: activeColumnLabel.value,
+    activeColumnPath: activeColumnPath.value,
+    activeColumnCategoryId: activeColumnCategoryId.value,
+    scrollY: window.scrollY || 0,
+  };
 }
+
+  function restoreListScroll(scrollY) {
+    if (!scrollY) return;
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: scrollY, behavior: 'auto' });
+    });
+  }
+
+  async function backToList() {
+    const state = lastListState.value || {};
+    const targetView = state.view || 'home';
+  if (targetView === 'home') {
+    view.value = 'home';
+    selectedCategoryId.value = state.selectedCategoryId || '';
+    selectedTagId.value = state.selectedTagId || '';
+    searchQuery.value = state.searchQuery || '';
+      activeColumnLabel.value = '';
+      activeColumnPath.value = '';
+      activeColumnCategoryId.value = '';
+      if (selectedCategoryId.value) {
+        const slug = categorySlugFromId(selectedCategoryId.value);
+        window.location.hash = `#/category/${encodeURIComponent(slug)}`;
+      } else if (selectedTagId.value) {
+        const slug = tagSlugFromId(selectedTagId.value);
+        window.location.hash = `#/tag/${encodeURIComponent(slug)}`;
+      } else {
+        window.location.hash = '#/';
+      }
+  } else if (targetView === 'design') {
+    setView('design');
+    designCategoryId.value = state.designCategoryId || '';
+    searchQuery.value = state.searchQuery || '';
+    } else if (targetView === 'column') {
+      const path = state.activeColumnPath || state.hash || '';
+      if (path && setColumnViewByPath(path)) {
+        window.location.hash = `#${normalizePath(path)}`;
+      } else {
+        setView('categories');
+      }
+      columnCategoryId.value = state.columnCategoryId || '';
+      columnTagId.value = state.columnTagId || '';
+      searchQuery.value = state.searchQuery || '';
+    } else {
+      setView(targetView);
+    }
+    await nextTick();
+    restoreListScroll(state.scrollY || 0);
+  }
 
 function normalizeNavHref(item) {
   if (!item || !item.href) return '';
@@ -1073,6 +1191,9 @@ function setColumnView(navItem) {
   activeColumnPath.value = path;
   const cat = findCategoryBySlugOrName(label);
   activeColumnCategoryId.value = cat ? cat.id : '';
+  columnCategoryId.value = '';
+  columnTagId.value = '';
+  searchQuery.value = '';
   view.value = 'column';
   selectedCategoryId.value = '';
   selectedTagId.value = '';
@@ -1150,6 +1271,23 @@ function clearFilters() {
   searchQuery.value = '';
   selectedCategoryId.value = '';
   selectedTagId.value = '';
+}
+
+function setDesignCategory(categoryId) {
+  designCategoryId.value = categoryId || '';
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+function setColumnCategoryFilter(categoryId) {
+  const next = categoryId || '';
+  columnCategoryId.value = columnCategoryId.value === next ? '' : next;
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+function setColumnTagFilter(tagId) {
+  const next = tagId || '';
+  columnTagId.value = columnTagId.value === next ? '' : next;
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 function handleNavClick(item) {
@@ -1248,13 +1386,16 @@ function isNavActive(item) {
   return false;
 }
 
-function openPost(post) {
-  if (!post || !post.slug) return;
-  activeSlug.value = post.slug;
-  view.value = 'detail';
-  window.location.hash = `#/post/${post.slug}`;
-  window.scrollTo({ top: 0, behavior: 'auto' });
-}
+  function openPost(post) {
+    if (!post || !post.slug) return;
+    if (view.value !== 'detail') {
+      captureListState();
+    }
+    activeSlug.value = post.slug;
+    view.value = 'detail';
+    window.location.hash = `#/post/${post.slug}`;
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
 
 function namesFromIds(ids, map) {
   if (!Array.isArray(ids) || ids.length === 0) return [];
@@ -1359,12 +1500,12 @@ function buildToc(markdown) {
     .filter((item) => item.level >= 1 && item.level <= 4);
 }
 
-function handleScroll() {
-  const y = window.scrollY || 0;
-  const visible = y > 160 && view.value === 'detail';
-  showToc.value = visible;
-  showBackTop.value = visible;
-}
+  function handleScroll() {
+    const y = window.scrollY || 0;
+    const isDetail = view.value === 'detail';
+    showToc.value = y > 160 && isDetail;
+    showBackTop.value = y > 160;
+  }
 
 function scrollToHeading(id) {
   const el = document.getElementById(id);
@@ -1615,28 +1756,128 @@ const homeHasMore = computed(() => filteredPosts.value.length > HOME_LIMIT);
 const designPosts = computed(() => {
   const query = String(searchQuery.value || '').trim();
   let list = posts.value.filter((post) => postPathFromSlug(post.slug) === '/design');
+  if (designCategoryId.value) {
+    list = list.filter((post) => Array.isArray(post.categories) && post.categories.includes(designCategoryId.value));
+  }
   if (query) {
     list = list.filter((post) => matchesSearch(post, query));
   }
   return list;
 });
 
+const designCategories = computed(() => {
+  const list = categories.value.slice();
+  if (list.length === 0) return [];
+  const hasParent = list.some((cat) => cat && cat.parent);
+  if (hasParent) {
+    const byParent = list.filter((cat) => String(cat.parent || '').trim() === '设计创作');
+    if (byParent.length > 0) return byParent;
+  }
+  const ids = new Set();
+  posts.value.forEach((post) => {
+    if (postPathFromSlug(post.slug) !== '/design') return;
+    if (!Array.isArray(post.categories)) return;
+    post.categories.forEach((id) => ids.add(id));
+  });
+  return list.filter((cat) => ids.has(cat.id));
+});
+
+const columnBasePosts = computed(() => {
+  if (!activeColumnPath.value) return [];
+  const target = normalizePath(activeColumnPath.value);
+  return posts.value.filter((post) => {
+    const postPath = postPathFromSlug(post.slug);
+    return postPath && postPath === target;
+  });
+});
+
 const columnPosts = computed(() => {
   const query = String(searchQuery.value || '').trim();
-  let list = posts.value.slice();
-  if (activeColumnPath.value) {
-    const target = normalizePath(activeColumnPath.value);
-    list = list.filter((post) => {
-      const postPath = postPathFromSlug(post.slug);
-      return postPath && postPath === target;
-    });
-  } else {
-    list = [];
+  let list = columnBasePosts.value.slice();
+  if (columnCategoryId.value) {
+    list = list.filter((post) => Array.isArray(post.categories) && post.categories.includes(columnCategoryId.value));
+  }
+  if (columnTagId.value) {
+    list = list.filter((post) => Array.isArray(post.tags) && post.tags.includes(columnTagId.value));
   }
   if (query) {
     list = list.filter((post) => matchesSearch(post, query));
   }
   return list;
+});
+
+const columnCategoryCounts = computed(() => {
+  const counts = {};
+  columnBasePosts.value.forEach((post) => {
+    if (!Array.isArray(post.categories)) return;
+    post.categories.forEach((id) => {
+      counts[id] = (counts[id] || 0) + 1;
+    });
+  });
+  return counts;
+});
+
+const columnTagCounts = computed(() => {
+  const counts = {};
+  columnBasePosts.value.forEach((post) => {
+    if (!Array.isArray(post.tags)) return;
+    post.tags.forEach((id) => {
+      counts[id] = (counts[id] || 0) + 1;
+    });
+  });
+  return counts;
+});
+
+const columnCategoriesWithCounts = computed(() => {
+  const list = categories.value.slice();
+  if (list.length === 0) return [];
+  const hasParent = list.some((cat) => cat && cat.parent);
+  if (hasParent) {
+    const byParent = list.filter((cat) => String(cat.parent || '').trim() === activeColumnLabel.value);
+    if (byParent.length > 0) {
+      return byParent.map((cat) => ({
+        ...cat,
+        count: columnCategoryCounts.value[cat.id] || 0,
+      }));
+    }
+  }
+  const ids = new Set();
+  columnBasePosts.value.forEach((post) => {
+    if (!Array.isArray(post.categories)) return;
+    post.categories.forEach((id) => ids.add(id));
+  });
+  return list
+    .filter((cat) => ids.has(cat.id))
+    .map((cat) => ({
+      ...cat,
+      count: columnCategoryCounts.value[cat.id] || 0,
+    }));
+});
+
+const columnTagsWithCounts = computed(() => {
+  const list = tags.value.slice();
+  if (list.length === 0) return [];
+  const hasParent = list.some((tag) => tag && tag.parent);
+  if (hasParent) {
+    const byParent = list.filter((tag) => String(tag.parent || '').trim() === activeColumnLabel.value);
+    if (byParent.length > 0) {
+      return byParent.map((tag) => ({
+        ...tag,
+        count: columnTagCounts.value[tag.id] || 0,
+      }));
+    }
+  }
+  const ids = new Set();
+  columnBasePosts.value.forEach((post) => {
+    if (!Array.isArray(post.tags)) return;
+    post.tags.forEach((id) => ids.add(id));
+  });
+  return list
+    .filter((tag) => ids.has(tag.id))
+    .map((tag) => ({
+      ...tag,
+      count: columnTagCounts.value[tag.id] || 0,
+    }));
 });
 
 const columnTitle = computed(() => activeColumnLabel.value || '栏目');
@@ -1660,10 +1901,57 @@ const homeTitle = computed(() => {
 });
 
 const activePost = computed(() => posts.value.find((p) => p.slug === activeSlug.value) || null);
-const activeIndex = computed(() => posts.value.findIndex((p) => p.slug === activeSlug.value));
-const prevPost = computed(() => (activeIndex.value > 0 ? posts.value[activeIndex.value - 1] : null));
+const detailList = computed(() => {
+  const state = lastListState.value || {};
+  const sourceView = state.view || 'home';
+  if (sourceView === 'home') {
+    let list = posts.value.slice();
+    if (state.selectedCategoryId) {
+      list = list.filter((post) => Array.isArray(post.categories) && post.categories.includes(state.selectedCategoryId));
+    }
+    if (state.selectedTagId) {
+      list = list.filter((post) => Array.isArray(post.tags) && post.tags.includes(state.selectedTagId));
+    }
+    if (state.searchQuery) {
+      list = list.filter((post) => matchesSearch(post, String(state.searchQuery || '').trim()));
+    }
+    return list.slice(0, HOME_LIMIT);
+  }
+  if (sourceView === 'design') {
+    let list = posts.value.filter((post) => postPathFromSlug(post.slug) === '/design');
+    if (state.designCategoryId) {
+      list = list.filter((post) => Array.isArray(post.categories) && post.categories.includes(state.designCategoryId));
+    }
+    if (state.searchQuery) {
+      list = list.filter((post) => matchesSearch(post, String(state.searchQuery || '').trim()));
+    }
+    return list;
+  }
+    if (sourceView === 'column') {
+      const target = normalizePath(state.activeColumnPath || '');
+      if (!target) return [];
+      let list = posts.value.filter((post) => {
+        const postPath = postPathFromSlug(post.slug);
+        return postPath && postPath === target;
+      });
+      if (state.columnCategoryId) {
+        list = list.filter((post) => Array.isArray(post.categories) && post.categories.includes(state.columnCategoryId));
+      }
+      if (state.columnTagId) {
+        list = list.filter((post) => Array.isArray(post.tags) && post.tags.includes(state.columnTagId));
+      }
+      if (state.searchQuery) {
+        list = list.filter((post) => matchesSearch(post, String(state.searchQuery || '').trim()));
+      }
+      return list;
+    }
+  return posts.value.slice();
+});
+
+const activeIndex = computed(() => detailList.value.findIndex((p) => p.slug === activeSlug.value));
+const prevPost = computed(() => (activeIndex.value > 0 ? detailList.value[activeIndex.value - 1] : null));
 const nextPost = computed(() =>
-  activeIndex.value >= 0 && activeIndex.value < posts.value.length - 1 ? posts.value[activeIndex.value + 1] : null,
+  activeIndex.value >= 0 && activeIndex.value < detailList.value.length - 1 ? detailList.value[activeIndex.value + 1] : null,
 );
 const tocItems = computed(() => buildToc(activePost.value?.content || ''));
 const tocBaseLevel = computed(() => {
@@ -2155,9 +2443,14 @@ function handleCodeCopy(event) {
   cursor: not-allowed;
 }
 
-.profile-social-icon {
+.profile-planet-icon {
+  display: inline-block;
   width: 20px;
   height: 20px;
+  background-color: currentColor;
+  -webkit-mask: url('https://img.lemontop.asia/zhishi.svg') no-repeat center / contain;
+  mask: url('https://img.lemontop.asia/zhishi.svg') no-repeat center / contain;
+  opacity: 0.9;
 }
 
 .toast {

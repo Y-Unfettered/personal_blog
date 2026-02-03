@@ -288,6 +288,7 @@ const server = http.createServer(async (req, res) => {
             id: body.id || `tag-${Date.now()}`,
             name: body.name,
             slug: body.slug || slugify(body.name),
+            ...(body.parent ? { parent: body.parent } : {}),
           };
         });
       }
@@ -300,6 +301,7 @@ const server = http.createServer(async (req, res) => {
         return handleUpdate(req, res, 'tags.json', 'tags', id, (target, body) => {
           if (body.name) target.name = body.name;
           if (body.slug) target.slug = body.slug;
+          if (body.parent !== undefined) target.parent = body.parent;
         });
       }
       if (req.method === 'DELETE') return handleDelete(res, 'tags.json', 'tags', id);
