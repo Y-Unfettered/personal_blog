@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
@@ -890,7 +890,18 @@
 
       function renderCategories() {
         const filtered = getFilteredCategories();
-        const { pageItems, total, totalPages, current } = paginateList(filtered, currentCategoryPage);
+        const columnOrder = Object.fromEntries(getColumnLabels().map((label, idx) => [label, idx]));
+        const sorted = filtered
+          .slice()
+          .sort((a, b) => {
+            const pa = columnOrder[a.parent] ?? 999;
+            const pb = columnOrder[b.parent] ?? 999;
+            if (pa !== pb) return pa - pb;
+            const an = String(a.name || '');
+            const bn = String(b.name || '');
+            return an.localeCompare(bn);
+          });
+        const { pageItems, total, totalPages, current } = paginateList(sorted, currentCategoryPage);
         currentCategoryPage = current;
         const body = document.getElementById('categories-body');
         
@@ -949,7 +960,18 @@
 
       function renderTags() {
         const filtered = getFilteredTags();
-        const { pageItems, total, totalPages, current } = paginateList(filtered, currentTagPage);
+        const columnOrder = Object.fromEntries(getColumnLabels().map((label, idx) => [label, idx]));
+        const sorted = filtered
+          .slice()
+          .sort((a, b) => {
+            const pa = columnOrder[a.parent] ?? 999;
+            const pb = columnOrder[b.parent] ?? 999;
+            if (pa !== pb) return pa - pb;
+            const an = String(a.name || '');
+            const bn = String(b.name || '');
+            return an.localeCompare(bn);
+          });
+        const { pageItems, total, totalPages, current } = paginateList(sorted, currentTagPage);
         currentTagPage = current;
         const body = document.getElementById('tags-body');
 
@@ -1138,6 +1160,18 @@
           .filter(Boolean);
       }
 
+      function resolveCategoryFromValue(value) {
+        const key = String(value || '').trim();
+        if (!key) return null;
+        return categories.find((c) => c.id === key || c.name === key || c.slug === key) || null;
+      }
+
+      function resolveTagFromValue(value) {
+        const key = String(value || '').trim();
+        if (!key) return null;
+        return tags.find((t) => t.id === key || t.name === key || t.slug === key) || null;
+      }
+
       async function ensureCategoryByLabel(label) {
         const name = String(label || '').trim();
         if (!name) return null;
@@ -1224,7 +1258,7 @@
         // 确定文章的栏目
         let postColumn = '';
         if (post && post.categories && post.categories.length > 0) {
-          const firstCategory = categories.find(c => c.id === post.categories[0]);
+          const firstCategory = resolveCategoryFromValue(post.categories[0]);
           if (firstCategory && firstCategory.parent) {
             postColumn = firstCategory.parent;
           }
@@ -1426,7 +1460,10 @@
         const handleSubmit = async (nextStatus) => {
           const fallbackContent = document.getElementById('post-content')?.value || '';
           const columnLabel = String(columnSelect?.value || '').trim();
-          const categoryIds = parseCsv(document.getElementById('post-categories').value);
+          const rawCategoryValues = parseCsv(document.getElementById('post-categories').value);
+          const categoryIds = rawCategoryValues
+            .map((value) => resolveCategoryFromValue(value)?.id)
+            .filter(Boolean);
           
           const payload = {
             title: document.getElementById('post-title').value.trim(),
@@ -1434,7 +1471,9 @@
             summary: document.getElementById('post-summary').value.trim(),
             cover: document.getElementById('post-cover').value.trim(),
             categories: categoryIds,
-            tags: parseCsv(document.getElementById('post-tags').value),
+            tags: parseCsv(document.getElementById('post-tags').value)
+              .map((value) => resolveTagFromValue(value)?.id)
+              .filter(Boolean),
             status: nextStatus === 'published' ? 'published' : 'draft',
             created_at: document.getElementById('post-created-at').value,
             pinned: document.getElementById('post-pinned').checked,
@@ -1446,8 +1485,11 @@
           if (!columnLabel) {
             return setStatus('请选择栏目', true);
           }
+          if (!rawCategoryValues.length) {
+            return setStatus('?????', true);
+          }
           if (!categoryIds.length) {
-            return setStatus('请选择分类', true);
+            return setStatus('????????????', true);
           }
           if (!payload.slug) {
             return setStatus('请先选择栏目和分类生成 slug', true);
@@ -1507,8 +1549,13 @@
         const isPublished = post?.status === 'published';
 
         const syncColumnFromCategories = () => {
-          // 不再根据分类来同步栏目，保持当前选择的栏目不变
-          // 这样选择分类时栏目不会消失
+          if (!columnSelect || columnSelect.value) return;
+          const categoryIds = parseCsv(categoryInput?.value || '');
+          const first = categoryIds[0] || '';
+          const category = resolveCategoryFromValue(first);
+          if (category && category.parent) {
+            columnSelect.value = category.parent;
+          }
         };
 
         const filterTagsByColumn = (label) => {
@@ -1557,7 +1604,7 @@
           const columnLabel = String(columnSelect?.value || '').trim();
           const categoryIds = parseCsv(categoryInput?.value || '');
           const firstCategoryId = categoryIds[0] || '';
-          const category = firstCategoryId ? categories.find(c => c.id === firstCategoryId) : null;
+          const category = firstCategoryId ? resolveCategoryFromValue(firstCategoryId) : null;
           const categorySlug = category ? (category.slug || simpleSlugify(category.name)) : '';
           
           if (!columnLabel) {

@@ -209,7 +209,7 @@
               <!-- 文章卡片列表 -->
               <div class="space-y-6">
                 <div
-                  v-for="(post, index) in columnPosts"
+                  v-for="(post, index) in pagedColumnPosts"
                   :key="post.id"
                   class="bg-gray-900/30 border border-gray-800/50 rounded-2xl overflow-hidden hover:border-indigo-500/50 transition-all group cursor-pointer"
                   role="button"
@@ -259,13 +259,35 @@
               </div>
               
               <!-- 分页 -->
-              <div class="flex justify-center space-x-2 pt-8">
-                <button class="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-colors">
+              <div v-if="showColumnPagination" class="flex justify-center space-x-2 pt-8">
+                <button
+                  class="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-500 transition-colors"
+                  :class="columnPage <= 1 ? 'opacity-40 cursor-not-allowed' : 'hover:text-white'"
+                  type="button"
+                  :disabled="columnPage <= 1"
+                  @click="goToColumnPage(columnPage - 1)"
+                >
                   <span class="iconify" data-icon="lucide:chevron-left"></span>
                 </button>
-                <button class="w-10 h-10 rounded-lg bg-indigo-600 text-white font-bold text-sm">1</button>
-                <button class="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 text-gray-400 font-bold text-sm hover:border-indigo-500 hover:text-white transition-all">2</button>
-                <button class="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-colors">
+                <button
+                  v-for="page in columnPageNumbers"
+                  :key="page"
+                  class="w-10 h-10 rounded-lg border text-sm font-bold transition-all"
+                  :class="page === columnPage
+                    ? 'bg-indigo-600 text-white border-indigo-600'
+                    : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-indigo-500 hover:text-white'"
+                  type="button"
+                  @click="goToColumnPage(page)"
+                >
+                  {{ page }}
+                </button>
+                <button
+                  class="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-500 transition-colors"
+                  :class="columnPage >= columnPageCount ? 'opacity-40 cursor-not-allowed' : 'hover:text-white'"
+                  type="button"
+                  :disabled="columnPage >= columnPageCount"
+                  @click="goToColumnPage(columnPage + 1)"
+                >
                   <span class="iconify" data-icon="lucide:chevron-right"></span>
                 </button>
               </div>
@@ -838,6 +860,10 @@ import PostGrid from './components/PostGrid.vue';
 import CategorySidebar from './components/CategorySidebar.vue';
 import TagSidebar from './components/TagSidebar.vue';
 
+const DATA_SOURCE = String(import.meta.env.VITE_DATA_SOURCE || '').trim().toLowerCase();
+const USE_API_DATA = DATA_SOURCE ? DATA_SOURCE === 'api' : import.meta.env.DEV;
+const BASE_URL = import.meta.env.BASE_URL || '/';
+
 function slugifyHeading(text, idMap) {
   const plain = String(text || '').replace(/<[^>]+>/g, '');
   const base = plain
@@ -969,6 +995,7 @@ const selectedTagId = ref('');
 const designCategoryId = ref('');
 const columnCategoryId = ref('');
 const columnTagId = ref('');
+const columnPage = ref(1);
 const profile = reactive({
   name: 'Lemon',
   subtitle: '记录灵感 · 设计 · 代码',
@@ -1001,6 +1028,8 @@ let tocScrollRaf = null;
 const heroIndex = ref(0);
 let heroTimer = null;
 let emailCopyTimer = null;
+let liveDataSource = null;
+let liveReloadTimer = null;
 
 function sortPosts(list) {
   return list.slice().sort((a, b) => {
@@ -1193,6 +1222,7 @@ function setColumnView(navItem) {
   activeColumnCategoryId.value = cat ? cat.id : '';
   columnCategoryId.value = '';
   columnTagId.value = '';
+  columnPage.value = 1;
   searchQuery.value = '';
   view.value = 'column';
   selectedCategoryId.value = '';
@@ -1281,12 +1311,22 @@ function setDesignCategory(categoryId) {
 function setColumnCategoryFilter(categoryId) {
   const next = categoryId || '';
   columnCategoryId.value = columnCategoryId.value === next ? '' : next;
+  columnPage.value = 1;
   window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 function setColumnTagFilter(tagId) {
   const next = tagId || '';
   columnTagId.value = columnTagId.value === next ? '' : next;
+  columnPage.value = 1;
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+function goToColumnPage(nextPage) {
+  const total = columnPageCount.value || 1;
+  const page = Math.min(Math.max(1, Number(nextPage) || 1), total);
+  if (page === columnPage.value) return;
+  columnPage.value = page;
   window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
@@ -1752,6 +1792,7 @@ const filteredPosts = computed(() => {
 const HOME_LIMIT = 10;
 const homePosts = computed(() => filteredPosts.value.slice(0, HOME_LIMIT));
 const homeHasMore = computed(() => filteredPosts.value.length > HOME_LIMIT);
+const COLUMN_PAGE_SIZE = 5;
 
 const designPosts = computed(() => {
   const query = String(searchQuery.value || '').trim();
@@ -1804,6 +1845,16 @@ const columnPosts = computed(() => {
     list = list.filter((post) => matchesSearch(post, query));
   }
   return list;
+});
+
+const columnPageCount = computed(() => Math.ceil(columnPosts.value.length / COLUMN_PAGE_SIZE));
+const showColumnPagination = computed(() => columnPageCount.value > 1);
+const columnPageNumbers = computed(() => (
+  Array.from({ length: columnPageCount.value }, (_, index) => index + 1)
+));
+const pagedColumnPosts = computed(() => {
+  const start = (columnPage.value - 1) * COLUMN_PAGE_SIZE;
+  return columnPosts.value.slice(start, start + COLUMN_PAGE_SIZE);
 });
 
 const columnCategoryCounts = computed(() => {
@@ -2006,10 +2057,29 @@ async function copyProfileEmail() {
   }
 }
 
-async function loadData() {
+function scheduleLiveReload() {
+  if (liveReloadTimer) clearTimeout(liveReloadTimer);
+  liveReloadTimer = setTimeout(() => {
+    loadData({ silent: true });
+  }, 120);
+}
+
+function setupLiveUpdates() {
+  if (!USE_API_DATA || typeof window === 'undefined' || typeof EventSource === 'undefined') return;
+  if (liveDataSource) return;
+  liveDataSource = new EventSource('/api/events');
+  liveDataSource.addEventListener('data-change', scheduleLiveReload);
+}
+
+async function loadData(options = {}) {
+  const silent = options && options.silent === true;
+  if (!silent) {
+    loading.value = true;
+    error.value = '';
+  }
   try {
-    const useApi = import.meta.env.DEV;
-    const base = import.meta.env.BASE_URL || '/';
+    const useApi = USE_API_DATA;
+    const base = BASE_URL;
     const postsUrl = useApi ? '/api/posts' : `${base}data/posts.json`;
     const categoriesUrl = useApi ? '/api/categories' : `${base}data/categories.json`;
     const tagsUrl = useApi ? '/api/tags' : `${base}data/tags.json`;
@@ -2072,9 +2142,13 @@ async function loadData() {
 
     syncFromHash();
   } catch (err) {
-    error.value = err && err.message ? err.message : 'Unknown error';
+    if (!silent) {
+      error.value = err && err.message ? err.message : 'Unknown error';
+    }
   } finally {
-    loading.value = false;
+    if (!silent) {
+      loading.value = false;
+    }
   }
 }
 
@@ -2083,6 +2157,7 @@ onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true });
   document.addEventListener('click', handleCodeCopy);
   loadData();
+  setupLiveUpdates();
 });
 
 onUnmounted(() => {
@@ -2104,6 +2179,14 @@ onUnmounted(() => {
   if (emailCopyTimer) {
     clearTimeout(emailCopyTimer);
     emailCopyTimer = null;
+  }
+  if (liveReloadTimer) {
+    clearTimeout(liveReloadTimer);
+    liveReloadTimer = null;
+  }
+  if (liveDataSource) {
+    liveDataSource.close();
+    liveDataSource = null;
   }
 });
 
@@ -2131,6 +2214,20 @@ watch(heroSlides, () => {
     heroIndex.value = 0;
   }
   startHeroTimer();
+});
+
+watch([activeColumnPath, columnCategoryId, columnTagId], () => {
+  columnPage.value = 1;
+});
+
+watch(columnPageCount, (count) => {
+  if (count <= 0) {
+    columnPage.value = 1;
+    return;
+  }
+  if (columnPage.value > count) {
+    columnPage.value = count;
+  }
 });
 
 function handleCodeCopy(event) {
@@ -2811,7 +2908,11 @@ function handleCodeCopy(event) {
   margin: 0;
   padding: 16px 18px;
   background: #1f2328;
-  overflow-x: auto;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 .md-preview .code-block pre::before,
@@ -2825,6 +2926,10 @@ function handleCodeCopy(event) {
   font-size: 0.85rem;
   line-height: 1.6;
   background: transparent;
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 .detail-layout {

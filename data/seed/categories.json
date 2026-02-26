@@ -59,5 +59,12 @@
     "slug": "inspiration",
     "color": "#10fe4c",
     "parent": "设计创作"
+  },
+  {
+    "id": "cat-1770214504707",
+    "name": "知识库",
+    "slug": "knowledge",
+    "color": "#6366f1",
+    "parent": "技术笔记"
   }
 ]

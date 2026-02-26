@@ -88,5 +88,17 @@
     "name": "小说",
     "slug": "fiction",
     "parent": "生活随笔"
+  },
+  {
+    "id": "tag-1770206625543",
+    "name": "网页",
+    "slug": "web",
+    "parent": "工具分享"
+  },
+  {
+    "id": "tag-1770213495665",
+    "name": "厚涂风",
+    "slug": "impasto_style",
+    "parent": "设计创作"
   }
 ]

@@ -12,6 +12,7 @@ const PORT = Number(process.env.ADMIN_PORT || 3030);
 const DATA_DIR = path.resolve(process.cwd(), 'data/seed');
 const ADMIN_DIR = path.resolve(process.cwd(), 'admin');
 const DEFAULT_SETTINGS = { markdownTheme: 'default' };
+const sseClients = new Set();
 
 function send(res, status, data, headers = {}) {
   const body = typeof data === 'string' ? data : JSON.stringify(data);
@@ -102,6 +103,55 @@ function saveList(filePath, list) {
   writeJson(filePath, list);
 }
 
+function writeSse(res, eventName, payload) {
+  res.write(`event: ${eventName}\n`);
+  res.write(`data: ${JSON.stringify(payload)}\n\n`);
+}
+
+function broadcastDataChange(scope) {
+  if (sseClients.size === 0) return;
+  const payload = {
+    scope: scope || 'all',
+    at: Date.now(),
+  };
+  for (const client of sseClients) {
+    try {
+      writeSse(client.res, 'data-change', payload);
+    } catch {
+      clearInterval(client.keepAliveTimer);
+      sseClients.delete(client);
+    }
+  }
+}
+
+function subscribeEvents(req, res) {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream; charset=utf-8',
+    'Cache-Control': 'no-cache, no-transform',
+    Connection: 'keep-alive',
+  });
+  res.write('retry: 3000\n\n');
+
+  const client = {
+    res,
+    keepAliveTimer: setInterval(() => {
+      try {
+        res.write(': keep-alive\n\n');
+      } catch {
+        clearInterval(client.keepAliveTimer);
+        sseClients.delete(client);
+      }
+    }, 25000),
+  };
+
+  sseClients.add(client);
+
+  req.on('close', () => {
+    clearInterval(client.keepAliveTimer);
+    sseClients.delete(client);
+  });
+}
+
 function runGenerate(gitTitle) {
   const args = ['scripts/generate-data.cjs'];
   if (gitTitle) args.push('--git-title', gitTitle);
@@ -137,6 +187,7 @@ async function handleCreate(req, res, fileName, keyName, mapper) {
   const item = mapper(body || {}, list);
   list.push(item);
   saveList(filePath, list);
+  broadcastDataChange(fileName.replace('.json', ''));
   send(res, 201, item);
 }
 
@@ -147,6 +198,7 @@ async function handleUpdate(req, res, fileName, keyName, id, updater) {
   const body = await readBody(req);
   updater(target, body || {});
   saveList(filePath, list);
+  broadcastDataChange(fileName.replace('.json', ''));
   send(res, 200, target);
 }
 
@@ -155,6 +207,7 @@ function handleDelete(res, fileName, keyName, id) {
   const next = list.filter((item) => item.id !== id);
   if (next.length === list.length) return send(res, 404, { error: 'Not Found' });
   saveList(filePath, next);
+  broadcastDataChange(fileName.replace('.json', ''));
   send(res, 200, { ok: true });
 }
 
@@ -165,6 +218,7 @@ const server = http.createServer(async (req, res) => {
   try {
     if (pathname === '/' || pathname === '/admin') return serveAdmin(res);
     if (pathname === '/api/health') return send(res, 200, { ok: true });
+    if (pathname === '/api/events' && req.method === 'GET') return subscribeEvents(req, res);
 
     if (pathname === '/api/posts') {
       if (req.method === 'GET') return handleList(res, 'posts.json', 'posts');
@@ -343,6 +397,7 @@ const server = http.createServer(async (req, res) => {
 
     if (pathname === '/api/generate' && req.method === 'POST') {
       runGenerate('');
+      broadcastDataChange('generated-data');
       return send(res, 200, { ok: true });
     }
 
@@ -350,6 +405,7 @@ const server = http.createServer(async (req, res) => {
       const body = await readBody(req);
       if (!body || !body.title) throw new Error('title required');
       runGenerate(body.title);
+      broadcastDataChange('generated-data');
       return send(res, 200, { ok: true });
     }
 
@@ -367,6 +423,7 @@ const server = http.createServer(async (req, res) => {
           markdownTheme: theme,
         };
         writeSettings(next);
+        broadcastDataChange('settings');
         return send(res, 200, next);
       }
       return methodNotAllowed(res);
