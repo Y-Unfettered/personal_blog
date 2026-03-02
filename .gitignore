@@ -17,3 +17,6 @@ public/data/*.json
 
 # Local test artifacts
 .tmp-data/
+
+# Local development data (never commit)
+.local-dev-data/

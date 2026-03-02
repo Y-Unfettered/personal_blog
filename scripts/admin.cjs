@@ -4,7 +4,18 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_DIR = path.resolve(process.cwd(), process.env.BLOG_DATA_DIR || 'data/seed');
+function resolveDataDir() {
+  if (process.env.BLOG_DATA_DIR) {
+    return path.resolve(process.cwd(), process.env.BLOG_DATA_DIR);
+  }
+  const localDevDir = path.resolve(process.cwd(), '.local-dev-data/seed');
+  if (fs.existsSync(localDevDir)) {
+    return localDevDir;
+  }
+  return path.resolve(process.cwd(), 'data/seed');
+}
+
+const DATA_DIR = resolveDataDir();
 
 function todayISO() {
   const d = new Date();

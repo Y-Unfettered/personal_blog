@@ -8,10 +8,22 @@ const url = require('url');
 
 const HOST = process.env.ADMIN_HOST || '127.0.0.1';
 const PORT = Number(process.env.ADMIN_PORT || 3030);
-const DATA_DIR = path.resolve(process.cwd(), process.env.BLOG_DATA_DIR || 'data/seed');
 const ADMIN_DIR = path.resolve(process.cwd(), 'admin');
 const DEFAULT_SETTINGS = { markdownTheme: 'default' };
 const sseClients = new Set();
+
+function resolveDataDir() {
+  if (process.env.BLOG_DATA_DIR) {
+    return path.resolve(process.cwd(), process.env.BLOG_DATA_DIR);
+  }
+  const localDevDir = path.resolve(process.cwd(), '.local-dev-data/seed');
+  if (fs.existsSync(localDevDir)) {
+    return localDevDir;
+  }
+  return path.resolve(process.cwd(), 'data/seed');
+}
+
+const DATA_DIR = resolveDataDir();
 
 function send(res, status, data, headers = {}) {
   const body = typeof data === 'string' ? data : JSON.stringify(data);

@@ -1788,8 +1788,9 @@ const filteredPosts = computed(() => {
 });
 
 const HOME_LIMIT = 10;
-const homePosts = computed(() => filteredPosts.value.slice(0, HOME_LIMIT));
-const homeHasMore = computed(() => filteredPosts.value.length > HOME_LIMIT);
+const homeListPosts = computed(() => filteredPosts.value.filter((post) => !post.pinned));
+const homePosts = computed(() => homeListPosts.value.slice(0, HOME_LIMIT));
+const homeHasMore = computed(() => homeListPosts.value.length > HOME_LIMIT);
 const COLUMN_PAGE_SIZE = 5;
 
 const designPosts = computed(() => {

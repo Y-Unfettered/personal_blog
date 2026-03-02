@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "init:data": "node scripts/init-data.cjs",
     "migrate:data": "node scripts/migrate-data.cjs",
+    "restore:local-data": "node scripts/restore-local-dev-data.cjs",
     "admin": "node scripts/admin.cjs",
     "admin:web": "node scripts/admin-server.cjs"
   },
