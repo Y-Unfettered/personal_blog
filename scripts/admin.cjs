@@ -3,9 +3,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
 
-const DATA_DIR = path.resolve(process.cwd(), 'data/seed');
+const DATA_DIR = path.resolve(process.cwd(), process.env.BLOG_DATA_DIR || 'data/seed');
 
 function todayISO() {
   const d = new Date();
@@ -22,8 +21,11 @@ function readJson(filePath) {
 }
 
 function writeJson(filePath, data) {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  const dir = path.dirname(filePath);
+  fs.mkdirSync(dir, { recursive: true });
+  const tmpFile = path.join(dir, `.${path.basename(filePath)}.${process.pid}.${Date.now()}.tmp`);
+  fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  fs.renameSync(tmpFile, filePath);
 }
 
 function normalizeList(input, keyName) {
@@ -91,17 +93,6 @@ function findByIdOrSlug(list, id, slug) {
   if (id) return list.find((item) => item.id === id) || null;
   if (slug) return list.find((item) => item.slug === slug) || null;
   return null;
-}
-
-function runGenerate(gitTitle) {
-  const args = ['scripts/generate-data.cjs'];
-  if (gitTitle) {
-    args.push('--git-title', gitTitle);
-  }
-  const result = spawnSync('node', args, { stdio: 'inherit' });
-  if (result.status !== 0) {
-    throw new Error('generate-data failed');
-  }
 }
 
 function cmdPostAdd(opts) {
@@ -286,8 +277,6 @@ function printHelp() {
   node scripts/admin.cjs nav:update --id nav-xxx --label "首页"
   node scripts/admin.cjs nav:delete --id nav-xxx
 
-  node scripts/admin.cjs generate
-  node scripts/admin.cjs publish --title "Hello Blog"
 `);
 }
 
@@ -314,12 +303,6 @@ function main() {
     if (cmd === 'nav:add') return cmdNavAdd(opts);
     if (cmd === 'nav:update') return cmdNavUpdate(opts);
     if (cmd === 'nav:delete') return cmdNavDelete(opts);
-
-    if (cmd === 'generate') return runGenerate('');
-    if (cmd === 'publish') {
-      requireField(opts.title, 'title');
-      return runGenerate(opts.title);
-    }
 
     printHelp();
   } catch (err) {

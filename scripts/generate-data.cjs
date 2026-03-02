@@ -3,7 +3,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
 
 const VERSION = 1;
 const WORDS_PER_MINUTE = 200;
@@ -24,7 +23,9 @@ function readJson(filePath) {
 function writeJson(filePath, data) {
   const dir = path.dirname(filePath);
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  const tmpFile = path.join(dir, `.${path.basename(filePath)}.${process.pid}.${Date.now()}.tmp`);
+  fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  fs.renameSync(tmpFile, filePath);
 }
 
 function countWordsFromMarkdown(markdown) {
@@ -149,36 +150,17 @@ function normalizeTags(tags, counts) {
 }
 
 function parseArgs(argv) {
-  const args = { src: 'data/seed', out: 'public/data', gitTitle: '' };
+  const args = { src: 'data/seed', out: 'public/data' };
   for (let i = 2; i < argv.length; i += 1) {
     const a = argv[i];
     if (a === '--src') args.src = argv[i + 1];
     if (a === '--out') args.out = argv[i + 1];
-    if (a === '--git-title') args.gitTitle = argv[i + 1];
   }
   return args;
 }
 
-function runGitCommand(args, cwd) {
-  const result = spawnSync('git', args, { cwd, stdio: 'pipe', encoding: 'utf8' });
-  if (result.error) {
-    throw new Error(`git ${args.join(' ')} failed: ${result.error.message}`);
-  }
-  if (result.status !== 0) {
-    const stderr = (result.stderr || '').trim();
-    const stdout = (result.stdout || '').trim();
-    throw new Error(`git ${args.join(' ')} failed: ${stderr || stdout || 'unknown error'}`);
-  }
-}
-
-function gitPublish(repoDir, title) {
-  runGitCommand(['add', '.'], repoDir);
-  runGitCommand(['commit', '-m', `publish: ${title}`], repoDir);
-  runGitCommand(['push'], repoDir);
-}
-
 function main() {
-  const { src, out, gitTitle } = parseArgs(process.argv);
+  const { src, out } = parseArgs(process.argv);
   const srcDir = path.resolve(process.cwd(), src);
   const outDir = path.resolve(process.cwd(), out);
 
@@ -249,10 +231,6 @@ function main() {
       generated_at: todayISO(),
       ...settings,
     });
-  }
-
-  if (gitTitle) {
-    gitPublish(process.cwd(), gitTitle);
   }
 
   console.log('Generated:', outDir);

@@ -7,12 +7,11 @@ RUN npm ci --omit=dev
 
 COPY scripts ./scripts
 COPY admin ./admin
-COPY data ./data
-COPY public ./public
 
 ENV NODE_ENV=production
 ENV ADMIN_HOST=0.0.0.0
 ENV ADMIN_PORT=3030
+ENV BLOG_DATA_DIR=/app/data/seed
 
 EXPOSE 3030
 CMD ["node", "scripts/admin-server.cjs"]

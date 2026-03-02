@@ -2,3 +2,18 @@ node_modules/
 dist/
 *.log
 *.err
+
+# Local environment files
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Runtime data (managed on server, not in Git)
+data/seed/*.json
+public/data/*.json
+!data/seed/*.example.json
+!public/data/*.example.json
+
+# Local test artifacts
+.tmp-data/

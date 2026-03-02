@@ -5,11 +5,10 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
-const { spawnSync } = require('child_process');
 
 const HOST = process.env.ADMIN_HOST || '127.0.0.1';
 const PORT = Number(process.env.ADMIN_PORT || 3030);
-const DATA_DIR = path.resolve(process.cwd(), 'data/seed');
+const DATA_DIR = path.resolve(process.cwd(), process.env.BLOG_DATA_DIR || 'data/seed');
 const ADMIN_DIR = path.resolve(process.cwd(), 'admin');
 const DEFAULT_SETTINGS = { markdownTheme: 'default' };
 const sseClients = new Set();
@@ -48,8 +47,11 @@ function readJson(filePath) {
 }
 
 function writeJson(filePath, data) {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  const dir = path.dirname(filePath);
+  fs.mkdirSync(dir, { recursive: true });
+  const tmpFile = path.join(dir, `.${path.basename(filePath)}.${process.pid}.${Date.now()}.tmp`);
+  fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  fs.renameSync(tmpFile, filePath);
 }
 
 function normalizeList(input, keyName) {
@@ -150,15 +152,6 @@ function subscribeEvents(req, res) {
     clearInterval(client.keepAliveTimer);
     sseClients.delete(client);
   });
-}
-
-function runGenerate(gitTitle) {
-  const args = ['scripts/generate-data.cjs'];
-  if (gitTitle) args.push('--git-title', gitTitle);
-  const result = spawnSync('node', args, { stdio: 'inherit' });
-  if (result.status !== 0) {
-    throw new Error('generate-data failed');
-  }
 }
 
 function notFound(res) {
@@ -393,20 +386,6 @@ const server = http.createServer(async (req, res) => {
       }
       if (req.method === 'DELETE') return handleDelete(res, 'nav.json', 'nav', id);
       return methodNotAllowed(res);
-    }
-
-    if (pathname === '/api/generate' && req.method === 'POST') {
-      runGenerate('');
-      broadcastDataChange('generated-data');
-      return send(res, 200, { ok: true });
-    }
-
-    if (pathname === '/api/publish' && req.method === 'POST') {
-      const body = await readBody(req);
-      if (!body || !body.title) throw new Error('title required');
-      runGenerate(body.title);
-      broadcastDataChange('generated-data');
-      return send(res, 200, { ok: true });
     }
 
     if (pathname === '/api/settings') {

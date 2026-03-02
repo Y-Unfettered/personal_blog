@@ -860,9 +860,7 @@ import PostGrid from './components/PostGrid.vue';
 import CategorySidebar from './components/CategorySidebar.vue';
 import TagSidebar from './components/TagSidebar.vue';
 
-const DATA_SOURCE = String(import.meta.env.VITE_DATA_SOURCE || '').trim().toLowerCase();
-const USE_API_DATA = DATA_SOURCE ? DATA_SOURCE === 'api' : import.meta.env.DEV;
-const BASE_URL = import.meta.env.BASE_URL || '/';
+const API_BASE = '/api';
 
 function slugifyHeading(text, idMap) {
   const plain = String(text || '').replace(/<[^>]+>/g, '');
@@ -2065,9 +2063,9 @@ function scheduleLiveReload() {
 }
 
 function setupLiveUpdates() {
-  if (!USE_API_DATA || typeof window === 'undefined' || typeof EventSource === 'undefined') return;
+  if (typeof window === 'undefined' || typeof EventSource === 'undefined') return;
   if (liveDataSource) return;
-  liveDataSource = new EventSource('/api/events');
+  liveDataSource = new EventSource(`${API_BASE}/events`);
   liveDataSource.addEventListener('data-change', scheduleLiveReload);
 }
 
@@ -2078,13 +2076,11 @@ async function loadData(options = {}) {
     error.value = '';
   }
   try {
-    const useApi = USE_API_DATA;
-    const base = BASE_URL;
-    const postsUrl = useApi ? '/api/posts' : `${base}data/posts.json`;
-    const categoriesUrl = useApi ? '/api/categories' : `${base}data/categories.json`;
-    const tagsUrl = useApi ? '/api/tags' : `${base}data/tags.json`;
-    const navUrl = useApi ? '/api/nav' : `${base}data/nav.json`;
-    const settingsUrl = useApi ? '/api/settings' : `${base}data/settings.json`;
+    const postsUrl = `${API_BASE}/posts`;
+    const categoriesUrl = `${API_BASE}/categories`;
+    const tagsUrl = `${API_BASE}/tags`;
+    const navUrl = `${API_BASE}/nav`;
+    const settingsUrl = `${API_BASE}/settings`;
 
     const [postsRes, categoriesRes, tagsRes, settingsRes, navRes] = await Promise.all([
       fetch(postsUrl),
@@ -2104,22 +2100,14 @@ async function loadData(options = {}) {
     const settingsData = settingsRes.ok ? await settingsRes.json() : {};
     const navData = navRes && navRes.ok ? await navRes.json() : null;
 
-    const rawPosts = useApi
-      ? (Array.isArray(postsData) ? postsData : []).filter((p) => p.status === 'published')
-      : (Array.isArray(postsData.posts) ? postsData.posts : []);
+    const rawPosts = (Array.isArray(postsData) ? postsData : []).filter((p) => p.status === 'published');
     posts.value = sortPosts(rawPosts.map((p) => ({
       ...p,
       readingTime: p.readingTime || estimateReadingTimeMinutes(p.content),
     })));
-    categories.value = useApi
-      ? (Array.isArray(categoriesData) ? categoriesData : [])
-      : (Array.isArray(categoriesData.categories) ? categoriesData.categories : []);
-    tags.value = useApi
-      ? (Array.isArray(tagsData) ? tagsData : [])
-      : (Array.isArray(tagsData.tags) ? tagsData.tags : []);
-    navItems.value = useApi
-      ? (Array.isArray(navData) ? navData : [])
-      : (Array.isArray(navData?.nav) ? navData.nav : []);
+    categories.value = Array.isArray(categoriesData) ? categoriesData : [];
+    tags.value = Array.isArray(tagsData) ? tagsData : [];
+    navItems.value = Array.isArray(navData) ? navData : [];
     categoryMap.value = Object.fromEntries(categories.value.map((c) => [c.id, c.name]));
     categoryColorMap.value = Object.fromEntries(categories.value.map((c) => [c.id, c.color || '#6366f1']));
     tagMap.value = Object.fromEntries(tags.value.map((t) => [t.id, t.name]));

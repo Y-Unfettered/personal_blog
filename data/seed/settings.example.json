@@ -1,0 +1,29 @@
+{
+  "markdownTheme": "default",
+  "profile": {
+    "name": "Lemon",
+    "subtitle": "记录灵感 · 设计 · 代码",
+    "motto": "以持续输出为信仰，把每一次学习都变成可复用的经验。",
+    "avatar": "",
+    "github": "",
+    "planet": "",
+    "email": ""
+  },
+  "about": {
+    "title": "关于这个博客",
+    "content": "这里记录我的学习、实验与思考。内容聚焦于现代 Web 开发、效率工具和工程实践。",
+    "skillsTitle": "核心技能栈",
+    "skills": [
+      {
+        "label": "TypeScript",
+        "icon": "logos:typescript-icon",
+        "color": "#34d399"
+      },
+      {
+        "label": "Rust",
+        "icon": "logos:rust",
+        "color": "#f97316"
+      }
+    ]
+  }
+}

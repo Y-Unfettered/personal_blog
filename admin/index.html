@@ -47,7 +47,6 @@
           <button class="hover:text-white" onclick="setTab('tags')">标签管理</button>
           <button class="hover:text-white" onclick="setTab('nav')">导航管理</button>
           <button class="hover:text-white" onclick="setTab('profile')">个人介绍</button>
-          <button class="hover:text-white" onclick="setTab('publish')">发布管理</button>
           <button class="hover:text-white" onclick="setTab('settings')">主题设置</button>
         </div>
       </div>
@@ -270,17 +269,6 @@
         </div>
         <div class="flex justify-end mt-6">
           <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg text-sm" onclick="saveProfileSettings()">保存个人介绍</button>
-        </div>
-      </section>
-
-      <section id="tab-publish" class="hidden animate-slide-up">
-        <h1 class="text-2xl font-bold text-white mb-6">发布管理</h1>
-        <div class="bg-[#161b22] border border-gray-800 rounded-xl p-6 space-y-4">
-          <button class="bg-gray-800 hover:bg-gray-700 text-gray-200 px-4 py-2 rounded-lg text-sm" onclick="generateJson()">仅生成 JSON</button>
-          <div class="flex items-center space-x-3">
-            <input id="publish-title" class="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5 focus:border-indigo-500 outline-none" placeholder="提交标题（用于 git commit）" />
-            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm" onclick="publish()">发布并推送</button>
-          </div>
         </div>
       </section>
 
@@ -566,7 +554,7 @@
       }
 
       function setTab(name) {
-        ['posts', 'issues', 'tools', 'categories', 'tags', 'nav', 'profile', 'publish', 'settings'].forEach((tab) => {
+        ['posts', 'issues', 'tools', 'categories', 'tags', 'nav', 'profile', 'settings'].forEach((tab) => {
           const el = document.getElementById(`tab-${tab}`);
           if (el) {
             el.classList.toggle('hidden', tab !== name);
@@ -1925,11 +1913,6 @@
         await loadAll();
       }
 
-      async function generateJson() {
-        await api('/api/generate', { method: 'POST' });
-        showToast('已生成 JSON 文件', false);
-      }
-
       function applySettingsToUI() {
         const theme = settings.markdownTheme || 'default';
         document.querySelectorAll('input[name=\"md-theme\"]').forEach((input) => {
@@ -2018,13 +2001,6 @@
         } catch (err) {
           showToast(err.message || '保存失败', true);
         }
-      }
-
-      async function publish() {
-        const title = document.getElementById('publish-title').value.trim();
-        if (!title) return setStatus('请输入提交标题', true);
-        await api('/api/publish', { method: 'POST', body: JSON.stringify({ title }) });
-        showToast('发布成功并推送', false);
       }
 
       async function loadAll() {

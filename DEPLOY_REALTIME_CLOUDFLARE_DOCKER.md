@@ -298,7 +298,7 @@ curl -N http://127.0.0.1/api/events
 3. `Create a tunnel`，选择 `Cloudflared`。
 4. 创建后复制 Docker 运行命令里的 token（或直接复制 token）。
 5. 把 token 填进 `/srv/personal_blog/.env` 的 `CF_TUNNEL_TOKEN`。
-6. docker run cloudflare/cloudflared:latest tunnel --no-autoupdate run --token eyJhIjoiMTg1N2FhMGM4M2EzMWQ1OWEyMDQ0YzczMmRiYzZhZGQiLCJ0IjoiYzJjNjgwNzgtMDAxNS00ZmQ5LWE0NzQtZTIxMzExYmUzMTFhIiwicyI6IlpHSm1OamMxTURFdE5ESTNZeTAwWVRoaExUaG1PR0V0TldObFlqVmhOVEE0TmpSbCJ9
+6. docker run cloudflare/cloudflared:latest tunnel --no-autoupdate run --token <YOUR_CF_TUNNEL_TOKEN>
 
 ### 6.2 给同一个 Tunnel 添加 2 条 Public Hostname
 
@@ -428,4 +428,3 @@ tar -czf backup-data-$(date +%F).tar.gz data/seed
    https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-public-app/
 5. Nginx `proxy_buffering` 官方说明（SSE关键）：  
    https://nginx.org/en/docs/http/ngx_http_proxy_module.html
-
