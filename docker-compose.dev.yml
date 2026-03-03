@@ -1,0 +1,47 @@
+services:
+  blog-api:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.api
+    container_name: blog-api-dev
+    restart: unless-stopped
+    environment:
+      - ADMIN_HOST=0.0.0.0
+      - ADMIN_PORT=3030
+      - BLOG_DATA_DIR=/app/data/seed
+    volumes:
+      - ${BLOG_DATA_DIR:-./.local-dev-data}/seed:/app/data/seed
+    ports:
+      - "3030:3030"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3030/api/health >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - blog-net
+
+  blog-web:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+    container_name: blog-web-dev
+    restart: unless-stopped
+    depends_on:
+      blog-api:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/ >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - blog-net
+
+networks:
+  blog-net:
+    driver: bridge

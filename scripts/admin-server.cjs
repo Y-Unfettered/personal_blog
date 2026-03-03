@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 'use strict';
 
+// 加载环境变量
+require('dotenv').config({ path: '.env.dev' });
+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
+const crypto = require('crypto');
 
 const HOST = process.env.ADMIN_HOST || '127.0.0.1';
 const PORT = Number(process.env.ADMIN_PORT || 3030);
@@ -12,6 +16,104 @@ const ADMIN_DIR = path.resolve(process.cwd(), 'admin');
 const DEFAULT_SETTINGS = { markdownTheme: 'default' };
 const sseClients = new Set();
 
+// JWT 配置
+const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex');
+const JWT_EXPIRES_IN = '7d'; // Token 有效期7天
+
+// 如果是自动生成的密钥，输出警告
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️  警告: JWT_SECRET 未设置，使用自动生成的随机密钥');
+  console.warn('⚠️  生产环境请设置 JWT_SECRET 环境变量');
+  console.warn('⚠️  当前密钥:', JWT_SECRET);
+}
+
+/**
+ * 生成JWT Token
+ * @param {Object} payload - 要编码的数据
+ * @param {string} secret - JWT密钥
+ * @returns {string} JWT Token
+ */
+function sign(payload, secret) {
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+  const body = Buffer.from(JSON.stringify({ ...payload, exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60 })).toString('base64url');
+  const signature = crypto.createHmac('sha256', secret).update(`${header}.${body}`).digest('base64url');
+  return `${header}.${body}.${signature}`;
+}
+
+/**
+ * 验证JWT Token
+ * @param {string} token - JWT Token
+ * @param {string} secret - JWT密钥
+ * @returns {Object|null} 解码后的payload或null
+ */
+function verify(token, secret) {
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  const [header, body, signature] = parts;
+  const expectedSignature = crypto.createHmac('sha256', secret).update(`${header}.${body}`).digest('base64url');
+  if (signature !== expectedSignature) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(body, 'base64url').toString());
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 从请求头中提取JWT Token
+ * @param {Object} req - HTTP请求对象
+ * @returns {string|null} JWT Token或null
+ */
+function extractToken(req) {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+  return null;
+}
+
+/**
+ * 认证中间件
+ * 验证JWT Token，未认证则返回401
+ * @param {Object} req - HTTP请求对象
+ * @param {Object} res - HTTP响应对象
+ * @param {Function} next - 下一个中间件
+ * @returns {void}
+ */
+function requireAuth(req, res, next) {
+  const token = extractToken(req);
+  if (!token) {
+    send(res, 401, { error: 'Unauthorized', message: '请先登录' });
+    return;
+  }
+  const payload = verify(token, JWT_SECRET);
+  if (!payload) {
+    send(res, 401, { error: 'Unauthorized', message: '登录已过期，请重新登录' });
+    return;
+  }
+  req.user = payload;
+  next();
+}
+
+/**
+ * 验证用户凭据
+ * @param {string} username - 用户名
+ * @param {string} password - 密码
+ * @returns {boolean} 验证结果
+ */
+function validateCredentials(username, password) {
+  const validUsername = process.env.ADMIN_USERNAME || 'admin';
+  const validPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  return username === validUsername && password === validPassword;
+}
+
+/**
+ * 解析数据目录路径
+ * 优先使用环境变量，其次检查本地开发目录，最后使用默认目录
+ * @returns {string} 数据目录绝对路径
+ */
 function resolveDataDir() {
   if (process.env.BLOG_DATA_DIR) {
     return path.resolve(process.cwd(), process.env.BLOG_DATA_DIR);
@@ -225,8 +327,82 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/api/health') return send(res, 200, { ok: true });
     if (pathname === '/api/events' && req.method === 'GET') return subscribeEvents(req, res);
 
+    // 登录 API（不需要认证）
+    if (pathname === '/api/auth/login' && req.method === 'POST') {
+      const body = await readBody(req);
+      const { username, password } = body || {};
+      if (!username || !password) {
+        return send(res, 400, { error: 'Bad Request', message: '用户名和密码不能为空' });
+      }
+      if (!validateCredentials(username, password)) {
+        return send(res, 401, { error: 'Unauthorized', message: '用户名或密码错误' });
+      }
+      const token = sign({ username, role: 'admin' }, JWT_SECRET);
+      return send(res, 200, { token, username, message: '登录成功' });
+    }
+
+    // 验证 Token API
+    if (pathname === '/api/auth/verify' && req.method === 'GET') {
+      const token = extractToken(req);
+      if (!token) {
+        return send(res, 401, { error: 'Unauthorized', message: '未提供Token' });
+      }
+      const payload = verify(token, JWT_SECRET);
+      if (!payload) {
+        return send(res, 401, { error: 'Unauthorized', message: 'Token无效或已过期' });
+      }
+      return send(res, 200, { valid: true, user: payload });
+    }
+
+    // 公开 API（不需要认证）
+    if (pathname === '/api/posts' && req.method === 'GET') {
+      return handleList(res, 'posts.json', 'posts');
+    }
+    if (pathname === '/api/categories' && req.method === 'GET') {
+      return handleList(res, 'categories.json', 'categories');
+    }
+    if (pathname === '/api/tags' && req.method === 'GET') {
+      return handleList(res, 'tags.json', 'tags');
+    }
+    if (pathname === '/api/nav' && req.method === 'GET') {
+      return handleList(res, 'nav.json', 'nav');
+    }
+    if (pathname === '/api/settings' && req.method === 'GET') {
+      return send(res, 200, readSettings());
+    }
+
+    // 需要认证的 API
+    const protectedPaths = [
+      '/api/posts',
+      '/api/posts/',
+      '/api/categories',
+      '/api/categories/',
+      '/api/tags',
+      '/api/tags/',
+      '/api/nav',
+      '/api/nav/',
+      '/api/settings',
+      '/api/issues',
+      '/api/issues/',
+      '/api/tools',
+      '/api/tools/',
+    ];
+    
+    const needsAuth = protectedPaths.some(path => pathname === path || pathname.startsWith(path + '/'));
+    if (needsAuth) {
+      const token = extractToken(req);
+      if (!token) {
+        return send(res, 401, { error: 'Unauthorized', message: '请先登录' });
+      }
+      const payload = verify(token, JWT_SECRET);
+      if (!payload) {
+        return send(res, 401, { error: 'Unauthorized', message: '登录已过期，请重新登录' });
+      }
+      req.user = payload;
+    }
+
+    // 文章管理 API（需要认证）
     if (pathname === '/api/posts') {
-      if (req.method === 'GET') return handleList(res, 'posts.json', 'posts');
       if (req.method === 'POST') {
         return handleCreate(req, res, 'posts.json', 'posts', (body, list) => {
           if (!body.title || !body.summary || !body.content) {

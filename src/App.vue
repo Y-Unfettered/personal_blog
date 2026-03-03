@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿<template>
+﻿﻿﻿﻿﻿﻿﻿<template>
   <div>
     <NavBar
       v-model="searchQuery"
@@ -247,7 +247,7 @@
                             v-for="(tag, idx) in post.tags"
                             :key="idx"
                             class="text-[10px] text-gray-500 border border-gray-800 px-2 py-0.5 rounded-full"
-                          ># {{ tag }}</span>
+                          ># {{ tagMap.value[tag] || tag }}</span>
                         </div>
                         <button class="text-indigo-400 text-xs font-bold flex items-center group/btn" @click.stop="openPost(post)">
                           立即阅读 <span class="iconify ml-1 group-hover/btn:translate-x-1 transition-transform" data-icon="lucide:arrow-right"></span>
@@ -862,6 +862,13 @@ import TagSidebar from './components/TagSidebar.vue';
 
 const API_BASE = '/api';
 
+/**
+ * 生成标题的slug，用于锚点链接
+ * 处理重复slug，添加数字后缀
+ * @param {string} text - 标题文本
+ * @param {Map} idMap - slug计数映射
+ * @returns {string} 生成的slug
+ */
 function slugifyHeading(text, idMap) {
   const plain = String(text || '').replace(/<[^>]+>/g, '');
   const base = plain
@@ -875,6 +882,12 @@ function slugifyHeading(text, idMap) {
   return count === 0 ? safe : `${safe}-${count + 1}`;
 }
 
+/**
+ * 将Markdown内联文本转换为纯文本
+ * 移除HTML标签并解码HTML实体
+ * @param {string} text - Markdown文本
+ * @returns {string} 纯文本
+ */
 function inlineMarkdownToText(text) {
   const html = marked.parseInline(text || '');
   return html
@@ -886,6 +899,12 @@ function inlineMarkdownToText(text) {
     .replace(/&#39;/g, "'");
 }
 
+/**
+ * 将文本编码为Base64
+ * 支持Unicode字符
+ * @param {string} text - 需要编码的文本
+ * @returns {string} Base64编码字符串
+ */
 function encodeBase64(text) {
   try {
     return btoa(unescape(encodeURIComponent(text)));
@@ -894,6 +913,12 @@ function encodeBase64(text) {
   }
 }
 
+/**
+ * 将Base64解码为文本
+ * 支持Unicode字符
+ * @param {string} text - Base64编码字符串
+ * @returns {string} 解码后的文本
+ */
 function decodeBase64(text) {
   try {
     return decodeURIComponent(escape(atob(text)));
@@ -902,6 +927,11 @@ function decodeBase64(text) {
   }
 }
 
+/**
+ * 创建Markdown渲染器
+ * 自定义代码块和标题的渲染方式
+ * @returns {marked.Renderer} 自定义渲染器实例
+ */
 function createRenderer() {
   const idMap = new Map();
   const renderer = new marked.Renderer();
@@ -1029,6 +1059,12 @@ let emailCopyTimer = null;
 let liveDataSource = null;
 let liveReloadTimer = null;
 
+/**
+ * 对文章列表进行排序
+ * 置顶文章优先，然后按创建时间倒序排列
+ * @param {Array<Object>} list - 文章列表
+ * @returns {Array<Object>} 排序后的文章列表
+ */
 function sortPosts(list) {
   return list.slice().sort((a, b) => {
     const ap = a.pinned ? 1 : 0;
@@ -2012,7 +2048,11 @@ const markdownThemeClass = computed(() => `${markdownTheme.value}-theme`);
 const renderedContent = computed(() => {
   if (!activePost.value) return '';
   const renderer = createRenderer();
-  return marked.parse(activePost.value.content || '', { renderer });
+  return marked.parse(activePost.value.content || '', {
+    renderer,
+    mangle: true,
+    headerIds: false
+  });
 });
 
 async function copyToClipboard(text) {
